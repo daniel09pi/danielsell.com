@@ -1,0 +1,16 @@
+VIEW LOG
+Time: 2026-02-04 23:18:05
+IP: 105.168.94.2
+Forwarded IP: none
+User Agent: Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+Referrer: https://danielsell.com/alukeku.html
+Language (Header): pt-PT,pt;q=0.9,zh-CN;q=0.8,zh;q=0.7,en-US;q=0.6,en;q=0.5
+Screen width: 384
+Screen height: 824
+Color depth: 24
+Language: pt-PT
+Platform: Linux armv81
+Timezone: Africa/Luanda
+User agent: Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36
+Referrer: 
+-----------------------------

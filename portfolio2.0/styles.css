@@ -38,7 +38,7 @@ html {
 }
 
 body {
-	font-family: var(--font-body);
+	font-family: var(--font-display);
 	background: var(--bg);
 	color: var(--text);
 	overflow-x: hidden;
@@ -465,7 +465,7 @@ section {
 }
 
 #ov-desc {
-	font-family: var(--font-body);
+	font-family: var(--font-display);
 	font-size: 17px;
 	line-height: 1.8;
 	color: var(--muted);
@@ -618,7 +618,7 @@ section {
 .contact-headline span:first-child { font-weight: 300; color: var(--muted); }
 
 .contact-pricing p {
-	font-family: var(--font-body);
+	font-family: var(--font-display);
 	font-size: 16px;
 	line-height: 1.8;
 	color: var(--muted);
@@ -671,7 +671,7 @@ section {
 
 .contact-other a,
 .contact-other span {
-	font-family: var(--font-body);
+	font-family: var(--font-display);
 	font-size: 15px;
 	color: var(--muted);
 	transition: color 0.2s;
@@ -691,7 +691,7 @@ input#contact-input {
 	border: 1px solid var(--border);
 	border-radius: var(--radius);
 	color: var(--text);
-	font-family: var(--font-body);
+	font-family: var(--font-display);
 	font-size: 16px;
 	padding: 18px 20px;
 	width: 100%;

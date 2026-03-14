@@ -550,6 +550,9 @@ section {
 	padding: 14px 0;
 	border-bottom: 1px solid var(--border);
 	letter-spacing: -0.01em;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 	transition: color 0.2s, padding-left 0.25s var(--ease-out);
 	cursor: none;
 }
@@ -559,9 +562,23 @@ section {
 	font-size: 0.6em;
 	margin-right: 14px;
 	opacity: 0.3;
+	flex-shrink: 0;
+}
+
+.skill-item span { flex: 1; }
+
+.skill-logo {
+	width: 28px;
+	height: 28px;
+	object-fit: contain;
+	opacity: 0;
+	transform: scale(0.7);
+	transition: opacity 0.25s ease, transform 0.25s var(--ease-out);
+	flex-shrink: 0;
 }
 
 .skill-item:hover { color: var(--text); padding-left: 8px; }
+.skill-item:hover .skill-logo { opacity: 1; transform: scale(1); }
 
 .skills-tags { display: flex; flex-wrap: wrap; gap: 8px; }
 
@@ -578,22 +595,6 @@ section {
 }
 .tag:hover { color: var(--text); border-color: var(--muted); }
 
-/* Ghost logo */
-#ghost-logo {
-	position: fixed;
-	pointer-events: none;
-	z-index: 700;
-	opacity: 0;
-	transition: opacity 0.2s;
-	transform: translate(-50%, -50%);
-}
-#ghost-logo.visible { opacity: 0.12; }
-#ghost-logo img {
-	width: 120px;
-	height: 120px;
-	object-fit: contain;
-	filter: grayscale(1) invert(1);
-}
 
 /* ─── CONTACT ────────────────────────────────────────────────────────── */
 .contact-grid {
@@ -727,12 +728,6 @@ button#sendBtn:hover { background: var(--accent); }
 	min-height: 20px;
 }
 
-.lottie-wrap {
-	display: flex;
-	justify-content: flex-end;
-	margin-top: 4px;
-	opacity: 0.55;
-}
 
 /* ─── FOOTER ─────────────────────────────────────────────────────────── */
 #footer {

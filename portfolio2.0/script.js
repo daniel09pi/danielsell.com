@@ -191,24 +191,6 @@ document.addEventListener("DOMContentLoaded", () => {
 		});
 	});
 
-	// ─── GHOST LOGO (skills section) ─────────────────────────────────
-	const ghost    = document.getElementById("ghost-logo");
-	const ghostImg = document.getElementById("ghost-logo-img");
-
-	document.querySelectorAll(".skill-item").forEach(item => {
-		item.addEventListener("mouseenter", () => {
-			ghostImg.src = item.dataset.logo || "";
-			ghost.classList.add("visible");
-		});
-		item.addEventListener("mousemove", e => {
-			ghost.style.left = e.clientX + "px";
-			ghost.style.top  = e.clientY + "px";
-		});
-		item.addEventListener("mouseleave", () => {
-			ghost.classList.remove("visible");
-		});
-	});
-
 	// ─── CONTACT FORM ─────────────────────────────────────────────────
 	document.getElementById("sendBtn").addEventListener("click", () => {
 		const message  = document.getElementById("message").value.trim();

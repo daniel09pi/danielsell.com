@@ -62,26 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	scramble(heroFirst, "DANIEL", 80);
 	scramble(heroLast,  "SELL",   340);
 
-	// Cursor parallax — DANIEL and SELL drift in opposite directions
-	let px = 0, py = 0; // target (normalized -1 to 1)
-	let cx = 0, cy = 0; // current (lerped)
-
-	// Only run on devices with a real cursor
-	if (window.matchMedia("(hover: hover)").matches) {
-		document.addEventListener("mousemove", e => {
-			px = (e.clientX / window.innerWidth  - 0.5) * 2;
-			py = (e.clientY / window.innerHeight - 0.5) * 2;
-		});
-
-		(function parallaxLoop() {
-			cx += (px - cx) * 0.055;
-			cy += (py - cy) * 0.055;
-			heroFirst.style.transform = `translate(${cx * -22}px, ${cy *  6}px)`;
-			heroLast.style.transform  = `translate(${cx *  22}px, ${cy * -6}px)`;
-			heroRoles.style.transform = `translateX(${cx * 8}px)`;
-			requestAnimationFrame(parallaxLoop);
-		})();
-	}
 
 	// ─── NAV: scroll-glass + active section ──────────────────────────
 	const nav      = document.getElementById("nav");

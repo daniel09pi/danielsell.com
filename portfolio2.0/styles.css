@@ -204,7 +204,6 @@ section {
 	display: block;
 	color: var(--text);
 	opacity: 0;
-	will-change: transform;
 }
 
 .hero-first { font-weight: 300; }
@@ -218,7 +217,6 @@ section {
 	text-transform: uppercase;
 	color: var(--muted);
 	animation: slideUp 0.8s var(--ease-out) 0.9s both;
-	will-change: transform;
 }
 
 .sep { margin: 0 10px; color: var(--border); }

@@ -1,0 +1,16 @@
+VIEW LOG
+Time: 2026-02-10 18:16:01
+IP: 181.238.113.118
+Forwarded IP: none
+User Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Referrer: https://danielsell.com/alukeku.html
+Language (Header): de-DE,de;q=0.9
+Screen width: 428
+Screen height: 926
+Color depth: 24
+Language: de-DE
+Platform: iPhone
+Timezone: America/Argentina/Salta
+User agent: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+Referrer: 
+-----------------------------

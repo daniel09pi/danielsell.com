@@ -203,17 +203,12 @@ section {
 	font-size: clamp(72px, 13vw, 196px);
 	display: block;
 	color: var(--text);
+	opacity: 0;
+	will-change: transform;
 }
 
-.hero-first {
-	font-weight: 300;
-	animation: slideUp 0.9s var(--ease-out) 0.05s both;
-}
-
-.hero-last {
-	font-weight: 700;
-	animation: slideUp 0.9s var(--ease-out) 0.22s both;
-}
+.hero-first { font-weight: 300; }
+.hero-last  { font-weight: 700; }
 
 .hero-roles {
 	font-family: var(--font-display);
@@ -222,7 +217,8 @@ section {
 	letter-spacing: 0.18em;
 	text-transform: uppercase;
 	color: var(--muted);
-	animation: slideUp 0.8s var(--ease-out) 0.45s both;
+	animation: slideUp 0.8s var(--ease-out) 0.9s both;
+	will-change: transform;
 }
 
 .sep { margin: 0 10px; color: var(--border); }

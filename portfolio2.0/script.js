@@ -26,6 +26,63 @@ document.addEventListener("DOMContentLoaded", () => {
 		el.addEventListener("mouseleave", () => ring.classList.remove("hover"));
 	});
 
+	// ─── HERO: SCRAMBLE + CURSOR PARALLAX ────────────────────────────
+	const heroFirst = document.querySelector(".hero-first");
+	const heroLast  = document.querySelector(".hero-last");
+	const heroRoles = document.querySelector(".hero-roles");
+
+	const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#@$%&?";
+
+	function scramble(el, finalText, delay) {
+		setTimeout(() => {
+			el.style.opacity = "1";
+			let frame = 0;
+			const totalFrames = 18;
+
+			const tick = setInterval(() => {
+				frame++;
+				const resolvedUpTo = Math.floor((frame / totalFrames) * finalText.length);
+				let out = "";
+				for (let i = 0; i < finalText.length; i++) {
+					if (i < resolvedUpTo) {
+						out += finalText[i];
+					} else {
+						out += CHARS[Math.floor(Math.random() * CHARS.length)];
+					}
+				}
+				el.textContent = out;
+				if (frame >= totalFrames) {
+					el.textContent = finalText;
+					clearInterval(tick);
+				}
+			}, 45);
+		}, delay);
+	}
+
+	scramble(heroFirst, "DANIEL", 80);
+	scramble(heroLast,  "SELL",   340);
+
+	// Cursor parallax — DANIEL and SELL drift in opposite directions
+	let px = 0, py = 0; // target (normalized -1 to 1)
+	let cx = 0, cy = 0; // current (lerped)
+
+	// Only run on devices with a real cursor
+	if (window.matchMedia("(hover: hover)").matches) {
+		document.addEventListener("mousemove", e => {
+			px = (e.clientX / window.innerWidth  - 0.5) * 2;
+			py = (e.clientY / window.innerHeight - 0.5) * 2;
+		});
+
+		(function parallaxLoop() {
+			cx += (px - cx) * 0.055;
+			cy += (py - cy) * 0.055;
+			heroFirst.style.transform = `translate(${cx * -22}px, ${cy *  6}px)`;
+			heroLast.style.transform  = `translate(${cx *  22}px, ${cy * -6}px)`;
+			heroRoles.style.transform = `translateX(${cx * 8}px)`;
+			requestAnimationFrame(parallaxLoop);
+		})();
+	}
+
 	// ─── NAV: scroll-glass + active section ──────────────────────────
 	const nav      = document.getElementById("nav");
 	const navLinks = document.querySelectorAll(".nav-link");

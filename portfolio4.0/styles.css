@@ -20,7 +20,7 @@
   --muted: #888888;
   --serif: 'EB Garamond Local', 'EB Garamond', Georgia, serif;
   --mono: 'JetBrains Mono', 'IBM Plex Mono', 'Courier New', monospace;
-  --nav-height: 60px;
+  --nav-height: 88px;
 }
 
 /* --- Reset --- */
@@ -89,15 +89,20 @@ button {
   left: 0;
   right: 0;
   z-index: 1000;
+  background-color: rgba(245, 242, 235, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  transition: transform 0.35s ease;
+}
+
+.nav__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem clamp(1.5rem, 4vw, 4rem);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 clamp(1.5rem, 4vw, 4rem);
-  height: var(--nav-height);
-  background-color: rgba(245, 242, 235, 0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: transform 0.35s ease;
 }
 
 .nav--hidden {
@@ -626,14 +631,19 @@ button {
 
 /* --- Footer --- */
 .footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 2rem clamp(1.5rem, 4vw, 4rem);
   border-top: 1px solid var(--border);
   font-size: 0.7rem;
   color: var(--muted);
   letter-spacing: 0.05em;
+}
+
+.footer__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem clamp(1.5rem, 4vw, 4rem);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 /* ============================================
@@ -684,7 +694,7 @@ button {
 
 @media (max-width: 600px) {
   :root {
-    --nav-height: 50px;
+    --nav-height: 72px;
   }
 
   .nav__links {
@@ -713,7 +723,7 @@ button {
     font-size: clamp(2.5rem, 10vw, 3.5rem);
   }
 
-  .footer {
+  .footer__inner {
     flex-direction: column;
     gap: 0.5rem;
     text-align: center;

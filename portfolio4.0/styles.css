@@ -160,11 +160,34 @@ button {
   min-height: 100dvh;
   padding: var(--nav-height) clamp(1.5rem, 4vw, 4rem) 4rem;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .hero__content {
   max-width: 900px;
+  position: relative;
+  z-index: 1;
 }
+
+/* Hero peek images */
+.hero__peek {
+  position: absolute;
+  width: 155px;
+  height: auto;
+  border-radius: 3px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  filter: saturate(0.45);
+  will-change: transform;
+}
+
+.hero__peek--1 { bottom: -35px; left: -85px; transform: rotate(12deg); }
+.hero__peek--2 { bottom: -40px; right: -80px; transform: rotate(-10deg); }
+.hero__peek--3 { top: 22%; right: -90px; transform: rotate(8deg); }
+.hero__peek--4 { bottom: 28%; left: -95px; transform: rotate(-11deg); }
+.hero__peek--5 { bottom: -50px; right: 22%; transform: rotate(6deg); }
 
 .hero__title {
   font-family: var(--serif);
@@ -850,6 +873,10 @@ button {
 @media (max-width: 600px) {
   :root {
     --nav-height: 60px;
+  }
+
+  .hero__peek {
+    display: none;
   }
 
   .nav__links {

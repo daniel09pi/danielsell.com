@@ -122,6 +122,11 @@
       { opacity: 0, y: -10 },
       { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', delay: 0.05 }
     );
+    gsap.fromTo(
+      '.hero__peek',
+      { opacity: 0 },
+      { opacity: 0.45, duration: 1, ease: 'power2.out', delay: 0.5, stagger: 0.12 }
+    );
   }
 
   /* --- Project Index: expand/collapse --- */
@@ -384,10 +389,73 @@
     });
   }
 
+  /* --- Hero peek-from-edges --- */
+  function initHeroPeek() {
+    const hero = document.querySelector('.hero');
+    const peeks = document.querySelectorAll('.hero__peek');
+    if (!peeks.length) return;
+
+    const state = Array.from(peeks).map((el) => ({
+      el,
+      px: parseFloat(el.dataset.peekX) || 0,
+      py: parseFloat(el.dataset.peekY) || 0,
+      rot: parseFloat(el.dataset.rot) || 0,
+      cx: 0,
+      cy: 0,
+    }));
+
+    let mouseX = -1;
+    let mouseY = -1;
+
+    hero.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    hero.addEventListener('mouseleave', () => {
+      mouseX = -1;
+      mouseY = -1;
+    });
+
+    function tick() {
+      state.forEach((s) => {
+        let tx = 0;
+        let ty = 0;
+
+        if (mouseX >= 0) {
+          const rect = s.el.getBoundingClientRect();
+          const baseX = rect.left + rect.width / 2 - s.cx;
+          const baseY = rect.top + rect.height / 2 - s.cy;
+          const dist = Math.hypot(mouseX - baseX, mouseY - baseY);
+          const factor = Math.max(0, 1 - dist / 400);
+          const eased = factor * factor;
+          tx = s.px * eased;
+          ty = s.py * eased;
+        }
+
+        s.cx += (tx - s.cx) * 0.065;
+        s.cy += (ty - s.cy) * 0.065;
+
+        if (Math.abs(s.cx) < 0.1 && Math.abs(s.cy) < 0.1 && tx === 0 && ty === 0) {
+          s.cx = 0;
+          s.cy = 0;
+          s.el.style.transform = 'rotate(' + s.rot + 'deg)';
+        } else {
+          s.el.style.transform =
+            'translate(' + s.cx.toFixed(1) + 'px,' + s.cy.toFixed(1) + 'px) rotate(' + s.rot + 'deg)';
+        }
+      });
+      requestAnimationFrame(tick);
+    }
+
+    tick();
+  }
+
   /* --- Init everything --- */
   initEntrance();
   initReveals();
   initIndexReveals();
   initSkillReveals();
   initCarousels();
+  initHeroPeek();
 })();

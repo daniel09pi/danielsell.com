@@ -125,7 +125,7 @@
     gsap.fromTo(
       '.hero__peek',
       { opacity: 0 },
-      { opacity: 0.45, duration: 1, ease: 'power2.out', delay: 0.5, stagger: 0.12 }
+      { opacity: 0.45, duration: 1, ease: 'power2.out', delay: 0.5, stagger: 0.05 }
     );
   }
 
@@ -395,6 +395,11 @@
     const peeks = document.querySelectorAll('.hero__peek');
     if (!peeks.length) return;
 
+    const baseOpacity = 0.45;
+    const maxOpacity = 0.85;
+    let opacityReady = false;
+    setTimeout(() => { opacityReady = true; }, 2400);
+
     const state = Array.from(peeks).map((el) => ({
       el,
       px: parseFloat(el.dataset.peekX) || 0,
@@ -402,6 +407,7 @@
       rot: parseFloat(el.dataset.rot) || 0,
       cx: 0,
       cy: 0,
+      co: baseOpacity,
     }));
 
     let mouseX = -1;
@@ -421,6 +427,7 @@
       state.forEach((s) => {
         let tx = 0;
         let ty = 0;
+        let targetOp = baseOpacity;
 
         if (mouseX >= 0) {
           const rect = s.el.getBoundingClientRect();
@@ -431,10 +438,12 @@
           const eased = factor * factor;
           tx = s.px * eased;
           ty = s.py * eased;
+          targetOp = baseOpacity + (maxOpacity - baseOpacity) * eased;
         }
 
         s.cx += (tx - s.cx) * 0.065;
         s.cy += (ty - s.cy) * 0.065;
+        s.co += (targetOp - s.co) * 0.065;
 
         if (Math.abs(s.cx) < 0.1 && Math.abs(s.cy) < 0.1 && tx === 0 && ty === 0) {
           s.cx = 0;
@@ -443,6 +452,10 @@
         } else {
           s.el.style.transform =
             'translate(' + s.cx.toFixed(1) + 'px,' + s.cy.toFixed(1) + 'px) rotate(' + s.rot + 'deg)';
+        }
+
+        if (opacityReady) {
+          s.el.style.opacity = s.co.toFixed(3);
         }
       });
       requestAnimationFrame(tick);

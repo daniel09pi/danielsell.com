@@ -301,10 +301,6 @@ button {
   transform: rotate(-0.5deg) translateY(-2px);
 }
 
-.index__thumb:nth-child(4) {
-  transform: rotate(2deg) translateY(3px);
-}
-
 /* Hover state — show thumbs (desktop only) */
 @media (hover: hover) {
   .index__row:hover .index__thumbnails {

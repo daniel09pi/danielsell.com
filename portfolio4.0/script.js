@@ -143,6 +143,8 @@
 
   function openProject(row) {
     const expanded = row.querySelector('.index__expanded');
+    const gallery = row.querySelector('.index__gallery');
+    if (gallery && gallery.resetCarousel) gallery.resetCarousel();
     row.classList.add('is-expanded');
 
     // Measure natural height
@@ -195,39 +197,117 @@
     });
   });
 
-  /* --- Gallery drag-to-scroll --- */
-  document.querySelectorAll('.index__gallery').forEach((gallery) => {
-    let isDown = false;
-    let startX;
-    let scrollLeft;
+  /* --- Gallery Carousel --- */
+  function initCarousels() {
+    document.querySelectorAll('.index__gallery').forEach((gallery) => {
+      const track = gallery.querySelector('.index__gallery-track');
+      const images = Array.from(track.querySelectorAll('img'));
+      const total = images.length;
+      let current = 0;
 
-    gallery.addEventListener('mousedown', (e) => {
-      isDown = true;
-      gallery.style.cursor = 'grabbing';
-      startX = e.pageX - gallery.offsetLeft;
-      scrollLeft = gallery.scrollLeft;
+      // Build controls
+      const controls = document.createElement('div');
+      controls.className = 'gallery__controls';
+
+      const prevBtn = document.createElement('button');
+      prevBtn.className = 'gallery__arrow gallery__arrow--prev';
+      prevBtn.textContent = '\u2190';
+      prevBtn.setAttribute('aria-label', 'Previous image');
+      prevBtn.disabled = true;
+
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'gallery__arrow gallery__arrow--next';
+      nextBtn.textContent = '\u2192';
+      nextBtn.setAttribute('aria-label', 'Next image');
+
+      const dots = document.createElement('div');
+      dots.className = 'gallery__dots';
+      for (let i = 0; i < total; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'gallery__dot' + (i === 0 ? ' is-active' : '');
+        dot.setAttribute('aria-label', 'Image ' + (i + 1));
+        dot.addEventListener('click', () => goTo(i));
+        dots.appendChild(dot);
+      }
+
+      const fullscreenBtn = document.createElement('button');
+      fullscreenBtn.className = 'gallery__fullscreen-btn';
+      fullscreenBtn.setAttribute('aria-label', 'View fullscreen');
+      fullscreenBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 1h4v4M5 13H1V9M13 1L8.5 5.5M1 13l4.5-4.5"/></svg>';
+      fullscreenBtn.addEventListener('click', () => {
+        const row = gallery.closest('.index__row');
+        const title = row.querySelector('.index__info-title').textContent;
+        openFullscreen(title, images);
+      });
+
+      controls.appendChild(prevBtn);
+      controls.appendChild(dots);
+      controls.appendChild(nextBtn);
+      controls.appendChild(fullscreenBtn);
+      gallery.appendChild(controls);
+
+      function goTo(index) {
+        current = Math.max(0, Math.min(index, total - 1));
+        track.style.transform = 'translateX(-' + (current * 100) + '%)';
+        dots.querySelectorAll('.gallery__dot').forEach((d, i) => {
+          d.classList.toggle('is-active', i === current);
+        });
+        prevBtn.disabled = current === 0;
+        nextBtn.disabled = current === total - 1;
+      }
+
+      prevBtn.addEventListener('click', () => goTo(current - 1));
+      nextBtn.addEventListener('click', () => goTo(current + 1));
+
+      // Touch swipe support
+      let touchStartX = 0;
+      gallery.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+      gallery.addEventListener('touchend', (e) => {
+        const diff = touchStartX - e.changedTouches[0].screenX;
+        if (Math.abs(diff) > 50) {
+          goTo(diff > 0 ? current + 1 : current - 1);
+        }
+      });
+
+      // Store reset function
+      gallery.resetCarousel = () => goTo(0);
     });
+  }
 
-    gallery.addEventListener('mouseleave', () => {
-      isDown = false;
-      gallery.style.cursor = 'grab';
+  /* --- Fullscreen Gallery Overlay --- */
+  const overlay = document.getElementById('fullscreenOverlay');
+  const overlayTitle = overlay.querySelector('.fullscreen__title');
+  const overlayBody = overlay.querySelector('.fullscreen__body');
+  const overlayClose = overlay.querySelector('.fullscreen__close');
+
+  function openFullscreen(title, images) {
+    overlayTitle.textContent = title;
+    overlayBody.innerHTML = '';
+    images.forEach((img) => {
+      const clone = document.createElement('img');
+      clone.src = img.src;
+      clone.alt = img.alt;
+      clone.loading = 'lazy';
+      overlayBody.appendChild(clone);
     });
+    overlay.classList.add('is-open');
+    lenis.stop();
+    document.body.style.overflow = 'hidden';
+  }
 
-    gallery.addEventListener('mouseup', () => {
-      isDown = false;
-      gallery.style.cursor = 'grab';
-    });
+  function closeFullscreen() {
+    overlay.classList.remove('is-open');
+    lenis.start();
+    document.body.style.overflow = '';
+  }
 
-    gallery.addEventListener('mousemove', (e) => {
-      if (!isDown) return;
-      e.preventDefault();
-      const x = e.pageX - gallery.offsetLeft;
-      const walk = (x - startX) * 1.5;
-      gallery.scrollLeft = scrollLeft - walk;
-    });
-
-    // Set default cursor
-    gallery.style.cursor = 'grab';
+  overlayClose.addEventListener('click', closeFullscreen);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('is-open')) {
+      closeFullscreen();
+    }
   });
 
   /* --- Index rows: staggered reveal --- */
@@ -296,4 +376,5 @@
   initReveals();
   initIndexReveals();
   initSkillReveals();
+  initCarousels();
 })();

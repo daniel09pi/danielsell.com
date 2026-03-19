@@ -205,6 +205,14 @@
       const total = images.length;
       let current = 0;
 
+      // Wrap each image in a slide container
+      images.forEach((img) => {
+        const slide = document.createElement('div');
+        slide.className = 'gallery__slide';
+        img.parentNode.insertBefore(slide, img);
+        slide.appendChild(img);
+      });
+
       // Build controls
       const controls = document.createElement('div');
       controls.className = 'gallery__controls';
@@ -309,6 +317,11 @@
       closeFullscreen();
     }
   });
+
+  // Prevent Lenis from intercepting scroll inside fullscreen overlay
+  overlay.addEventListener('wheel', (e) => {
+    e.stopPropagation();
+  }, { passive: true });
 
   /* --- Index rows: staggered reveal --- */
   function initIndexReveals() {

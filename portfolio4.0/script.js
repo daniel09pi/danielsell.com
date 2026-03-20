@@ -410,8 +410,10 @@
     let opacityReady = false;
     const isTouch = matchMedia('(hover: none)').matches;
 
-    hero.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
-    hero.addEventListener('mouseleave', () => { mouseX = -1; mouseY = -1; });
+    if (!isTouch) {
+      hero.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+      hero.addEventListener('mouseleave', () => { mouseX = -1; mouseY = -1; });
+    }
 
     function buildLayout(animate) {
       // Remove old peek images

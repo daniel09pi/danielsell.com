@@ -327,6 +327,9 @@
   overlay.addEventListener('wheel', (e) => {
     e.stopPropagation();
   }, { passive: true });
+  overlay.addEventListener('touchmove', (e) => {
+    e.stopPropagation();
+  }, { passive: true });
 
   /* --- Index rows: staggered reveal --- */
   function initIndexReveals() {

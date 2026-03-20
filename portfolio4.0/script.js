@@ -516,13 +516,12 @@
           py: parseFloat(el.dataset.peekY) || 0,
           rot: parseFloat(el.dataset.rot) || 0,
           cx: 0, cy: 0, co: baseOpacity,
-          tapped: false, tappedAt: 0,
+          tapPhase: null, holdStart: 0,
         };
         if (isTouch) {
           el.addEventListener('click', () => {
-            if (!s.tapped) {
-              s.tapped = true;
-              s.tappedAt = Date.now();
+            if (!s.tapPhase) {
+              s.tapPhase = 'in';
             }
           });
         }
@@ -550,14 +549,28 @@
         let ty = 0;
         let targetOp = baseOpacity;
 
-        if (isTouch && s.tapped) {
-          // Hold for 1 second then release
-          if (Date.now() - s.tappedAt > 1000) {
-            s.tapped = false;
-          } else {
+        if (isTouch && s.tapPhase) {
+          if (s.tapPhase === 'in') {
             tx = s.px;
             ty = s.py;
             targetOp = maxOpacity;
+            // When close enough to target, switch to hold phase
+            if (Math.abs(s.cx - s.px) < 2 && Math.abs(s.cy - s.py) < 2) {
+              s.tapPhase = 'hold';
+              s.holdStart = Date.now();
+            }
+          } else if (s.tapPhase === 'hold') {
+            tx = s.px;
+            ty = s.py;
+            targetOp = maxOpacity;
+            if (Date.now() - s.holdStart > 1000) {
+              s.tapPhase = 'out';
+            }
+          } else if (s.tapPhase === 'out') {
+            // tx/ty stay 0, targetOp stays baseOpacity — lerps back
+            if (Math.abs(s.cx) < 1 && Math.abs(s.cy) < 1) {
+              s.tapPhase = null;
+            }
           }
         } else if (mouseX >= 0) {
           const rect = s.el.getBoundingClientRect();
@@ -595,11 +608,18 @@
     buildLayout(true);
     tick();
 
-    // Rebuild on resize (debounced)
+    // Rebuild on resize (debounced, width-only — mobile address bar changes height)
     let resizeTimer;
+    let lastWidth = hero.offsetWidth;
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => buildLayout(false), 250);
+      resizeTimer = setTimeout(() => {
+        const newWidth = hero.offsetWidth;
+        if (newWidth !== lastWidth) {
+          lastWidth = newWidth;
+          buildLayout(false);
+        }
+      }, 250);
     });
   }
 

@@ -122,11 +122,6 @@
       { opacity: 0, y: -10 },
       { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', delay: 0.05 }
     );
-    gsap.fromTo(
-      '.hero__peek',
-      { opacity: 0 },
-      { opacity: 0.45, duration: 1, ease: 'power2.out', delay: 0.5, stagger: 0.05 }
-    );
   }
 
   /* --- Project Index: expand/collapse --- */
@@ -389,25 +384,121 @@
     });
   }
 
-  /* --- Hero peek-from-edges --- */
+  /* --- Hero peek-from-edges (dynamic layout) --- */
   function initHeroPeek() {
     const hero = document.querySelector('.hero');
-    const peeks = document.querySelectorAll('.hero__peek');
-    if (!peeks.length) return;
+    const heroContent = hero.querySelector('.hero__content');
+    const W = hero.offsetWidth;
+    const H = hero.offsetHeight;
 
+    const imagePool = [
+      'portfolio_files/alukeku/1.avif', 'portfolio_files/alukeku/2.avif', 'portfolio_files/alukeku/3.avif',
+      'portfolio_files/landeshut/1.avif', 'portfolio_files/landeshut/2.avif', 'portfolio_files/landeshut/3.avif',
+      'portfolio_files/stooney/1.avif', 'portfolio_files/stooney/2.avif', 'portfolio_files/stooney/3.avif',
+      'portfolio_files/project500/1.avif', 'portfolio_files/project500/2.avif', 'portfolio_files/project500/3.avif',
+      'portfolio_files/bookcover/1.avif', 'portfolio_files/bookcover/2.avif', 'portfolio_files/bookcover/3.avif',
+    ];
+
+    // Shuffle
+    for (let i = imagePool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [imagePool[i], imagePool[j]] = [imagePool[j], imagePool[i]];
+    }
+
+    let imgIdx = 0;
+    const nextSrc = () => imagePool[imgIdx++ % imagePool.length];
+    const rand = (min, max) => min + Math.random() * (max - min);
+    const randRot = () => { const a = rand(6, 13); return Math.random() > 0.5 ? a : -a; };
+
+    const imgSize = 170;
+    const bottomSpacing = imgSize + 80;
+    const sideSpacing = imgSize * 0.75 + 50;
+
+    // How many fit
+    const bottomInner = W * 0.78;
+    const bottomCount = Math.max(1, Math.floor(bottomInner / bottomSpacing));
+    const sideRange = H * 0.62;
+    const sideCount = Math.max(1, Math.floor(sideRange / sideSpacing));
+
+    const configs = [];
+
+    // Bottom-left corner
+    configs.push({
+      pos: 'bottom:' + rand(-40, -25).toFixed(0) + 'px;left:' + rand(-80, -60).toFixed(0) + 'px',
+      px: 130, py: -65, rot: randRot(),
+    });
+
+    // Bottom middle
+    for (let i = 0; i < bottomCount; i++) {
+      const p = (i + 0.5) / bottomCount;
+      const leftPct = 11 + p * 78;
+      configs.push({
+        pos: 'bottom:' + rand(-50, -30).toFixed(0) + 'px;left:' + leftPct.toFixed(1) + '%',
+        px: rand(-5, 5), py: rand(-85, -65), rot: randRot(),
+      });
+    }
+
+    // Bottom-right corner
+    configs.push({
+      pos: 'bottom:' + rand(-40, -25).toFixed(0) + 'px;right:' + rand(-75, -55).toFixed(0) + 'px',
+      px: -125, py: -65, rot: randRot(),
+    });
+
+    // Left edge (10% to 72%)
+    for (let i = 0; i < sideCount; i++) {
+      const p = sideCount > 1 ? i / (sideCount - 1) : 0.5;
+      const topPct = 10 + p * 62;
+      configs.push({
+        pos: 'top:' + topPct.toFixed(1) + '%;left:' + rand(-100, -75).toFixed(0) + 'px',
+        px: rand(135, 160), py: rand(-8, 8), rot: randRot(),
+      });
+    }
+
+    // Right edge (10% to 72%)
+    for (let i = 0; i < sideCount; i++) {
+      const p = sideCount > 1 ? i / (sideCount - 1) : 0.5;
+      const topPct = 10 + p * 62;
+      configs.push({
+        pos: 'top:' + topPct.toFixed(1) + '%;right:' + rand(-95, -70).toFixed(0) + 'px',
+        px: rand(-160, -135), py: rand(-8, 8), rot: randRot(),
+      });
+    }
+
+    // Create DOM elements
+    configs.forEach((cfg) => {
+      const img = document.createElement('img');
+      img.className = 'hero__peek';
+      img.src = nextSrc();
+      img.alt = '';
+      img.loading = 'lazy';
+      img.dataset.peekX = Math.round(cfg.px);
+      img.dataset.peekY = Math.round(cfg.py);
+      img.dataset.rot = cfg.rot.toFixed(1);
+      img.style.cssText = cfg.pos;
+      hero.insertBefore(img, heroContent);
+    });
+
+    // Entrance animation
+    gsap.fromTo(
+      '.hero__peek',
+      { opacity: 0 },
+      { opacity: 0.45, duration: 1, ease: 'power2.out', delay: 0.5, stagger: 0.04 }
+    );
+
+    // Proximity interaction
+    const peeks = hero.querySelectorAll('.hero__peek');
     const baseOpacity = 0.45;
     const maxOpacity = 1.0;
     let opacityReady = false;
-    setTimeout(() => { opacityReady = true; }, 2400);
+    const animEnd = 500 + (peeks.length - 1) * 40 + 1000 + 300;
+    setTimeout(() => { opacityReady = true; }, animEnd);
 
     const state = Array.from(peeks).map((el) => ({
       el,
       px: parseFloat(el.dataset.peekX) || 0,
       py: parseFloat(el.dataset.peekY) || 0,
       rot: parseFloat(el.dataset.rot) || 0,
-      cx: 0,
-      cy: 0,
-      co: baseOpacity,
+      cx: 0, cy: 0, co: baseOpacity,
     }));
 
     let mouseX = -1;

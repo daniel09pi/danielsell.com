@@ -407,6 +407,8 @@
     const imgSize = 170;
     const baseOpacity = 0.45;
     const maxOpacity = 1.0;
+    const baseSat = 0;
+    const maxSat = 1;
 
     // Interaction state (persists across rebuilds)
     let mouseX = -1;
@@ -522,7 +524,7 @@
           px: parseFloat(el.dataset.peekX) || 0,
           py: parseFloat(el.dataset.peekY) || 0,
           rot: parseFloat(el.dataset.rot) || 0,
-          cx: 0, cy: 0, co: baseOpacity,
+          cx: 0, cy: 0, co: baseOpacity, cs: baseSat,
           tapPhase: null, holdStart: 0,
         };
         if (isTouch) {
@@ -555,13 +557,14 @@
         let tx = 0;
         let ty = 0;
         let targetOp = baseOpacity;
+        let targetSat = baseSat;
 
         if (isTouch && s.tapPhase) {
           if (s.tapPhase === 'in') {
             tx = s.px;
             ty = s.py;
             targetOp = maxOpacity;
-            // When close enough to target, switch to hold phase
+            targetSat = maxSat;
             if (Math.abs(s.cx - s.px) < 2 && Math.abs(s.cy - s.py) < 2) {
               s.tapPhase = 'hold';
               s.holdStart = Date.now();
@@ -570,11 +573,11 @@
             tx = s.px;
             ty = s.py;
             targetOp = maxOpacity;
+            targetSat = maxSat;
             if (Date.now() - s.holdStart > 1000) {
               s.tapPhase = 'out';
             }
           } else if (s.tapPhase === 'out') {
-            // tx/ty stay 0, targetOp stays baseOpacity — lerps back
             if (Math.abs(s.cx) < 1 && Math.abs(s.cy) < 1) {
               s.tapPhase = null;
             }
@@ -589,11 +592,13 @@
           tx = s.px * eased;
           ty = s.py * eased;
           targetOp = baseOpacity + (maxOpacity - baseOpacity) * eased;
+          targetSat = baseSat + (maxSat - baseSat) * eased;
         }
 
         s.cx += (tx - s.cx) * 0.065;
         s.cy += (ty - s.cy) * 0.065;
         s.co += (targetOp - s.co) * 0.065;
+        s.cs += (targetSat - s.cs) * 0.065;
 
         if (Math.abs(s.cx) < 0.1 && Math.abs(s.cy) < 0.1 && tx === 0 && ty === 0) {
           s.cx = 0;
@@ -606,6 +611,7 @@
 
         if (opacityReady) {
           s.el.style.opacity = s.co.toFixed(3);
+          s.el.style.filter = 'saturate(' + s.cs.toFixed(3) + ')';
         }
       });
       requestAnimationFrame(tick);

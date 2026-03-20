@@ -129,6 +129,11 @@
 
   function closeProject(row, callback) {
     const expanded = row.querySelector('.index__expanded');
+    // Capture current height (maxHeight may be 'none' after open)
+    const h = expanded.scrollHeight;
+    expanded.style.maxHeight = h + 'px';
+    // Force reflow so GSAP can tween from the numeric value
+    expanded.offsetHeight;
     gsap.to(expanded, {
       maxHeight: 0,
       opacity: 0,

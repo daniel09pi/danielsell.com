@@ -207,6 +207,31 @@ button {
   transition: opacity 0.3s ease;
 }
 
+/* --- Quote --- */
+.quote {
+  padding: 6rem clamp(1.5rem, 4vw, 4rem) 6rem;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.quote__text {
+  font-family: var(--serif);
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  font-weight: 400;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.quote__author {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
 /* --- Section Headline (shared) --- */
 .section-headline {
   font-family: var(--serif);
@@ -641,11 +666,13 @@ button {
   max-width: 420px;
   border-radius: 2px;
   filter: saturate(0.7) contrast(1.05);
-  transition: filter 0.5s ease;
+  transform: rotate(-1.5deg);
+  transition: filter 0.5s ease, transform 0.5s ease;
 }
 
 .about__img:hover {
   filter: saturate(1) contrast(1);
+  transform: rotate(1deg);
 }
 
 .about__caption {
@@ -892,9 +919,18 @@ button {
     max-height: 240px;
   }
 
+  .gallery__controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
   .gallery__fullscreen-btn {
     position: static;
-    margin-left: auto;
+    order: -1;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.25rem;
   }
 
   .index__expanded-inner {

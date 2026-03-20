@@ -869,13 +869,15 @@ button {
     --nav-height: 60px;
   }
 
-  .hero__peek {
-    display: none;
-  }
-
   .nav__links {
     gap: 1.25rem;
     font-size: 0.65rem;
+  }
+
+  .hero__peek {
+    width: 120px;
+    pointer-events: auto;
+    cursor: pointer;
   }
 
   .hero__title {

@@ -408,7 +408,7 @@
     let mouseY = -1;
     let state = [];
     let opacityReady = false;
-    let tickRunning = false;
+    const isTouch = matchMedia('(hover: none)').matches;
 
     hero.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
     hero.addEventListener('mouseleave', () => { mouseX = -1; mouseY = -1; });
@@ -509,13 +509,25 @@
 
       // Build interaction state
       const peeks = hero.querySelectorAll('.hero__peek');
-      state = Array.from(peeks).map((el) => ({
-        el,
-        px: parseFloat(el.dataset.peekX) || 0,
-        py: parseFloat(el.dataset.peekY) || 0,
-        rot: parseFloat(el.dataset.rot) || 0,
-        cx: 0, cy: 0, co: baseOpacity,
-      }));
+      state = Array.from(peeks).map((el) => {
+        const s = {
+          el,
+          px: parseFloat(el.dataset.peekX) || 0,
+          py: parseFloat(el.dataset.peekY) || 0,
+          rot: parseFloat(el.dataset.rot) || 0,
+          cx: 0, cy: 0, co: baseOpacity,
+          tapped: false, tappedAt: 0,
+        };
+        if (isTouch) {
+          el.addEventListener('click', () => {
+            if (!s.tapped) {
+              s.tapped = true;
+              s.tappedAt = Date.now();
+            }
+          });
+        }
+        return s;
+      });
 
       // Entrance animation
       if (animate) {
@@ -538,7 +550,16 @@
         let ty = 0;
         let targetOp = baseOpacity;
 
-        if (mouseX >= 0) {
+        if (isTouch && s.tapped) {
+          // Hold for 1 second then release
+          if (Date.now() - s.tappedAt > 1000) {
+            s.tapped = false;
+          } else {
+            tx = s.px;
+            ty = s.py;
+            targetOp = maxOpacity;
+          }
+        } else if (mouseX >= 0) {
           const rect = s.el.getBoundingClientRect();
           const baseX = rect.left + rect.width / 2 - s.cx;
           const baseY = rect.top + rect.height / 2 - s.cy;

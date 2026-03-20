@@ -533,6 +533,12 @@
         };
         if (isTouch) {
           el.addEventListener('click', () => {
+            // Dismiss any currently active image
+            state.forEach((o) => {
+              if (o !== s && o.tapPhase) {
+                o.tapPhase = 'out';
+              }
+            });
             if (!s.tapPhase) {
               s.tapPhase = 'in';
             }

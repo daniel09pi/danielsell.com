@@ -173,7 +173,7 @@ button {
 /* Hero peek images */
 .hero__peek {
   position: absolute;
-  width: 140px;
+  width: 170px;
   height: auto;
   border-radius: 3px;
   pointer-events: none;

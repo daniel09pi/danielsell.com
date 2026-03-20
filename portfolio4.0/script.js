@@ -305,6 +305,7 @@
       clone.loading = 'lazy';
       overlayBody.appendChild(clone);
     });
+    overlayBody.scrollTop = 0;
     overlay.classList.add('is-open');
     lenis.stop();
     document.body.style.overflow = 'hidden';

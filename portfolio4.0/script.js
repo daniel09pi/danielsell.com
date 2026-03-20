@@ -396,7 +396,7 @@
     if (!peeks.length) return;
 
     const baseOpacity = 0.45;
-    const maxOpacity = 0.85;
+    const maxOpacity = 1.0;
     let opacityReady = false;
     setTimeout(() => { opacityReady = true; }, 2400);
 
@@ -434,7 +434,7 @@
           const baseX = rect.left + rect.width / 2 - s.cx;
           const baseY = rect.top + rect.height / 2 - s.cy;
           const dist = Math.hypot(mouseX - baseX, mouseY - baseY);
-          const factor = Math.max(0, 1 - dist / 400);
+          const factor = Math.max(0, 1 - dist / 450);
           const eased = factor * factor;
           tx = s.px * eased;
           ty = s.py * eased;

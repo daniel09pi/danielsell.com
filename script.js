@@ -487,17 +487,14 @@
       });
 
       // --- SIDE IMAGES (up to 3 per side) ---
-      const centerY = H * 0.5;
-      // Random exclusion zone: 25-40% of H centered on middle
-      const zoneHalf = isTouch ? H * rand(0.125, 0.2) : 0;
+      // On mobile: 50% chance 2nd side image jumps 20% higher, 3rd always does
+      const bump = H * 0.2;
+      const bumpSecond = isTouch && Math.random() > 0.5;
 
       for (let i = 1; i <= 3; i++) {
         let y = H - sideStep * i - 30;
-        if (y < 0) break;
-        // On mobile push above center zone if inside it
-        if (isTouch && Math.abs(y - centerY) < zoneHalf) {
-          y = centerY - zoneHalf - 20;
-        }
+        if (isTouch && i === 2 && bumpSecond) y -= bump;
+        if (isTouch && i === 3) y -= bump;
         if (y < 0) break;
         configs.push({
           pos: 'left:' + rand(rCrossMin, rCrossMax) + 'px;top:' + (y + rand(-rMain, rMain)) + 'px',
@@ -507,10 +504,8 @@
 
       for (let i = 1; i <= 3; i++) {
         let y = H - sideStep * i - 30;
-        if (y < 0) break;
-        if (isTouch && Math.abs(y - centerY) < zoneHalf) {
-          y = centerY - zoneHalf - 20;
-        }
+        if (isTouch && i === 2 && bumpSecond) y -= bump;
+        if (isTouch && i === 3) y -= bump;
         if (y < 0) break;
         configs.push({
           pos: 'left:' + (W - rand(rCrossMin, rCrossMax)) + 'px;top:' + (y + rand(-rMain, rMain)) + 'px',

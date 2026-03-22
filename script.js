@@ -463,7 +463,7 @@
       const usableW = W * 0.92;
       const margin = (W - usableW) / 2;
 
-      const rot = () => { const a = rand(2, 6); return Math.random() > 0.5 ? a : -a; };
+      const rot = () => { const a = rand(4, 12); return Math.random() > 0.5 ? a : -a; };
 
       // --- BOTTOM ROW ---
       // Left corner: x -10..30 inward(right), y -10..30 inward(up)

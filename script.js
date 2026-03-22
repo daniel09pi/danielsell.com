@@ -466,44 +466,44 @@
       const rot = () => { const a = rand(2, 6); return Math.random() > 0.5 ? a : -a; };
 
       // --- BOTTOM ROW ---
-      // Left corner: x -5..15 inward(right), y -5..15 inward(up)
+      // Left corner: x -10..30 inward(right), y -10..30 inward(up)
       configs.push({
-        pos: 'left:' + rand(-5, 15) + 'px;top:' + (H - rand(-5, 15)) + 'px',
+        pos: 'left:' + rand(-10, 30) + 'px;top:' + (H - rand(-10, 30)) + 'px',
         px: 100, py: -75, rot: rot(),
       });
 
-      // Middle images: x ±20px, y -5..15 inward(up)
+      // Middle images: x ±35px, y -10..30 inward(up)
       const bottomStep = usableW / n;
       for (let i = 1; i < n; i++) {
         configs.push({
-          pos: 'left:' + (margin + bottomStep * i + rand(-20, 20)) + 'px;top:' + (H - rand(-5, 15)) + 'px',
+          pos: 'left:' + (margin + bottomStep * i + rand(-35, 35)) + 'px;top:' + (H - rand(-10, 30)) + 'px',
           px: 0, py: -75, rot: rot(),
         });
       }
 
-      // Right corner: x -5..15 inward(left), y -5..15 inward(up)
+      // Right corner: x -10..30 inward(left), y -10..30 inward(up)
       configs.push({
-        pos: 'left:' + (W - rand(-5, 15)) + 'px;top:' + (H - rand(-5, 15)) + 'px',
+        pos: 'left:' + (W - rand(-10, 30)) + 'px;top:' + (H - rand(-10, 30)) + 'px',
         px: -100, py: -75, rot: rot(),
       });
 
       // --- SIDE IMAGES (up to 3 per side) ---
-      // Left side: x -5..15 inward(right), y ±20px
+      // Left side: x -10..30 inward(right), y ±35px
       for (let i = 1; i <= 3; i++) {
         const y = H - sideStep * i - 30;
         if (y < 0) break;
         configs.push({
-          pos: 'left:' + rand(-5, 15) + 'px;top:' + (y + rand(-20, 20)) + 'px',
+          pos: 'left:' + rand(-10, 30) + 'px;top:' + (y + rand(-35, 35)) + 'px',
           px: 100, py: 0, rot: rot(),
         });
       }
 
-      // Right side: x -5..15 inward(left), y ±20px
+      // Right side: x -10..30 inward(left), y ±35px
       for (let i = 1; i <= 3; i++) {
         const y = H - sideStep * i - 30;
         if (y < 0) break;
         configs.push({
-          pos: 'left:' + (W - rand(-5, 15)) + 'px;top:' + (y + rand(-20, 20)) + 'px',
+          pos: 'left:' + (W - rand(-10, 30)) + 'px;top:' + (y + rand(-35, 35)) + 'px',
           px: -100, py: 0, rot: rot(),
         });
       }

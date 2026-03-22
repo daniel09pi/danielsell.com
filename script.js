@@ -460,7 +460,7 @@
       const sideStep = step * 0.75;
 
       // Bottom row uses 85% of width, centered
-      const usableW = W * 0.85;
+      const usableW = W * 0.92;
       const margin = (W - usableW) / 2;
 
       const rot = () => { const a = rand(2, 6); return Math.random() > 0.5 ? a : -a; };

@@ -429,9 +429,9 @@
     let mouseY = -1;
     let state = [];
     let opacityReady = false;
-    const isTouch = matchMedia('(hover: none)').matches;
+    const isMobile = window.innerWidth < 600;
 
-    if (!isTouch) {
+    if (!isMobile) {
       hero.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
       hero.addEventListener('mouseleave', () => { mouseX = -1; mouseY = -1; });
     }
@@ -486,15 +486,13 @@
         px: -100, py: -75, rot: rot(),
       });
 
-      // --- SIDE IMAGES (up to 3 per side) ---
-      const isMobile = W < 600;
-      const bump = H * 0.2;
-      const bumpSecond = isMobile && Math.random() > 0.5;
+      // --- SIDE IMAGES ---
+      const maxSide = isMobile ? 2 : 3;
+      const bump = H * 0.22;
 
-      for (let i = 1; i <= 3; i++) {
+      for (let i = 1; i <= maxSide; i++) {
         let y = H - sideStep * i - 30;
-        if (isMobile && i === 2 && bumpSecond) y -= bump;
-        if (isMobile && i === 3) y -= bump;
+        if (isMobile && i === 2) y -= bump;
         if (y < 0) break;
         configs.push({
           pos: 'left:' + rand(rCrossMin, rCrossMax) + 'px;top:' + (y + rand(-rMain, rMain)) + 'px',
@@ -502,10 +500,9 @@
         });
       }
 
-      for (let i = 1; i <= 3; i++) {
+      for (let i = 1; i <= maxSide; i++) {
         let y = H - sideStep * i - 30;
-        if (isMobile && i === 2 && bumpSecond) y -= bump;
-        if (isMobile && i === 3) y -= bump;
+        if (isMobile && i === 2) y -= bump;
         if (y < 0) break;
         configs.push({
           pos: 'left:' + (W - rand(rCrossMin, rCrossMax)) + 'px;top:' + (y + rand(-rMain, rMain)) + 'px',
@@ -538,7 +535,7 @@
           cx: 0, cy: 0, co: baseOpacity, cs: baseSat,
           tapPhase: null, holdStart: 0,
         };
-        if (isTouch) {
+        if (isMobile) {
           el.addEventListener('click', () => {
             // Dismiss any currently active image
             state.forEach((o) => {
@@ -576,7 +573,7 @@
         let targetOp = baseOpacity;
         let targetSat = baseSat;
 
-        if (isTouch && s.tapPhase) {
+        if (isMobile && s.tapPhase) {
           if (s.tapPhase === 'in') {
             tx = s.px;
             ty = s.py;

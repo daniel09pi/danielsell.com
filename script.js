@@ -513,23 +513,26 @@
 
       // --- SIDE IMAGES ---
       // Fill from bottom up, up to 3 per side, ~100px spacing
-      // On mobile (isTouch): avoid vertical center (title area), go higher
+      // Images are landscape so visual height is ~120px, not imgH
+      const sideVisualH = 130;
+      const sideSpacing = 80;
       const sideMaxPerSide = Math.min(3, Math.floor(remaining / 2));
 
-      // Side images start from bottom of the hero upwards
-      // Bottom boundary: above the bottom row (bottomY - imgH - spacing)
-      const sideBottomY = bottomY - imgH - spacing * 0.5;
-      // Top boundary: on mobile avoid center, on desktop go up to ~20% from top
+      // Side images start just above the bottom row
+      const sideBottomY = bottomY - sideVisualH;
+      // Top boundary: don't go above ~15% from top
       const centerY = H * 0.5;
-      const sideTopY = isTouch ? H * 0.15 : H * 0.2;
+      const sideTopY = H * 0.15;
 
       // Calculate how many actually fit vertically
       const sideRange = sideBottomY - sideTopY;
-      let sideCount = Math.min(sideMaxPerSide, Math.floor((sideRange + spacing) / (imgH + spacing)));
+      let sideCount = Math.min(sideMaxPerSide, Math.floor((sideRange + sideSpacing) / (sideVisualH + sideSpacing)));
       sideCount = Math.max(0, sideCount);
 
       // Even distribution from bottom up
       const sideStep = sideCount > 1 ? (sideBottomY - sideTopY) / (sideCount - 1) : 0;
+      // If only 1 image, place it roughly in the lower third
+      const singleSideY = sideBottomY;
 
       // On mobile: filter out positions too close to vertical center
       function sidePositions(count) {

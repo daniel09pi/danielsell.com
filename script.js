@@ -457,54 +457,48 @@
       let remaining = totalImages;
 
       // --- BOTTOM ROW ---
-      // Both corners get an image, then fill between with ~100px spacing
-      // Corner images are half off-screen
-      const cornerInset = imgW * 0.4; // how much of the corner image is visible
-      const bottomY = H - imgH * 0.35; // images peek from bottom
+      const cornerInset = imgW * 0.45;
+      const bottomY = H - imgH * 0.35;
 
-      // Left corner
+      // Corner positions — fixed, no randomization
       const leftCornerX = -imgW + cornerInset;
-      // Right corner
       const rightCornerX = W - cornerInset;
 
-      // Available space between corners for middle images
-      const innerLeft = cornerInset + spacing;
-      const innerRight = W - cornerInset - spacing;
+      // Middle images: fill between corners with less gap to corners
+      const cornerGap = 40; // small gap between corner and nearest middle image
+      const innerLeft = cornerInset + cornerGap;
+      const innerRight = W - cornerInset - cornerGap;
       const innerWidth = innerRight - innerLeft;
 
-      // How many middle images fit?
       let middleCount = 0;
       if (innerWidth >= imgW) {
         middleCount = Math.floor((innerWidth + spacing) / (imgW + spacing));
       }
+      if (2 + middleCount > remaining) middleCount = Math.max(0, remaining - 2);
 
-      // Cap to available images (2 corners + middles)
-      const bottomTotal = 2 + middleCount;
-      if (bottomTotal > remaining) middleCount = Math.max(0, remaining - 2);
-
-      // Recalculate spacing for even distribution
-      const actualMiddleSpacing = middleCount > 0
+      // Even distribution of middle images
+      const middleStep = middleCount > 0
         ? (innerWidth - middleCount * imgW) / (middleCount + 1)
         : 0;
 
-      // Place left corner
+      // Place left corner — fixed position
       configs.push({
         pos: 'left:' + leftCornerX + 'px;top:' + bottomY + 'px',
         px: 130, py: -65, rot: randRot(),
       });
       remaining--;
 
-      // Place middle images
+      // Place middle bottom images — slight randomization
       for (let i = 0; i < middleCount; i++) {
-        const x = innerLeft + actualMiddleSpacing * (i + 1) + imgW * i;
+        const x = innerLeft + middleStep * (i + 1) + imgW * i;
         configs.push({
-          pos: 'left:' + (x + rand(-20, 20)).toFixed(0) + 'px;top:' + (bottomY + rand(-20, 20)).toFixed(0) + 'px',
+          pos: 'left:' + (x + rand(-15, 15)).toFixed(0) + 'px;top:' + (bottomY + rand(-15, 15)).toFixed(0) + 'px',
           px: rand(-8, 8), py: rand(-85, -65), rot: randRot(),
         });
         remaining--;
       }
 
-      // Place right corner
+      // Place right corner — fixed position
       configs.push({
         pos: 'left:' + rightCornerX + 'px;top:' + bottomY + 'px',
         px: -130, py: -65, rot: randRot(),
@@ -512,62 +506,48 @@
       remaining--;
 
       // --- SIDE IMAGES ---
-      // Fill from bottom up, up to 3 per side, ~100px spacing
-      // Images are landscape so visual height is ~120px, not imgH
-      const sideVisualH = 130;
-      const sideSpacing = 80;
+      // Up to 3 per side, placed from bottom upward, each 200px higher
+      const sideStep = 200;
       const sideMaxPerSide = Math.min(3, Math.floor(remaining / 2));
 
-      // Side images start just above the bottom row
-      const sideBottomY = bottomY - sideVisualH;
-      // Top boundary: don't go above ~15% from top
-      const centerY = H * 0.5;
-      const sideTopY = H * 0.15;
+      // First side image starts well above the corner (more gap than between middles)
+      const sideStartY = bottomY - 250;
 
-      // Calculate how many actually fit vertically
-      const sideRange = sideBottomY - sideTopY;
-      let sideCount = Math.min(sideMaxPerSide, Math.floor((sideRange + sideSpacing) / (sideVisualH + sideSpacing)));
-      sideCount = Math.max(0, sideCount);
+      // On small screens (< 600px height), max 1 per side
+      const maxSide = H < 600 ? 1 : sideMaxPerSide;
 
-      // Even distribution from bottom up
-      const sideStep = sideCount > 1 ? (sideBottomY - sideTopY) / (sideCount - 1) : 0;
-      // If only 1 image, place it roughly in the lower third
-      const singleSideY = sideBottomY;
-
-      // On mobile: filter out positions too close to vertical center
-      function sidePositions(count) {
-        const positions = [];
-        for (let i = 0; i < count; i++) {
-          const y = sideBottomY - i * sideStep;
-          // On mobile, skip if image center is within 20% of screen center
-          if (isTouch && Math.abs(y + imgH / 2 - centerY) < H * 0.15) continue;
-          positions.push(y);
-        }
-        return positions;
+      // Calculate how many fit without going above 15% from top
+      const sideMinY = H * 0.15;
+      let sideCount = 0;
+      for (let i = 0; i < maxSide; i++) {
+        const y = sideStartY - i * sideStep;
+        if (y < sideMinY) break;
+        // On mobile: skip if too close to vertical center (title area)
+        if (isTouch && Math.abs(y + 65 - H * 0.5) < H * 0.12) continue;
+        sideCount++;
       }
 
-      const leftPositions = sidePositions(sideCount);
-      const rightPositions = sidePositions(sideCount);
-
-      // Left side
-      leftPositions.forEach((y) => {
-        if (remaining <= 0) return;
+      // Place left side
+      for (let i = 0; i < sideCount; i++) {
+        if (remaining <= 0) break;
+        const y = sideStartY - i * sideStep;
         configs.push({
-          pos: 'left:' + (-imgW + cornerInset + rand(-20, 20)).toFixed(0) + 'px;top:' + (y + rand(-20, 20)).toFixed(0) + 'px',
+          pos: 'left:' + (-imgW + cornerInset + rand(-15, 15)).toFixed(0) + 'px;top:' + (y + rand(-15, 15)).toFixed(0) + 'px',
           px: rand(135, 160), py: rand(-8, 8), rot: randRot(),
         });
         remaining--;
-      });
+      }
 
-      // Right side
-      rightPositions.forEach((y) => {
-        if (remaining <= 0) return;
+      // Place right side
+      for (let i = 0; i < sideCount; i++) {
+        if (remaining <= 0) break;
+        const y = sideStartY - i * sideStep;
         configs.push({
-          pos: 'left:' + (W - cornerInset + rand(-20, 20)).toFixed(0) + 'px;top:' + (y + rand(-20, 20)).toFixed(0) + 'px',
+          pos: 'left:' + (W - cornerInset + rand(-15, 15)).toFixed(0) + 'px;top:' + (y + rand(-15, 15)).toFixed(0) + 'px',
           px: rand(-160, -135), py: rand(-8, 8), rot: randRot(),
         });
         remaining--;
-      });
+      }
 
       // Create DOM elements
       configs.forEach((cfg) => {

@@ -47,7 +47,7 @@
         e.preventDefault();
         const target = document.querySelector(href);
         if (target) {
-          lenis.scrollTo(target, { offset: -60 });
+          lenis.scrollTo(target, { offset: -60, duration: 2 });
         }
       }
     });

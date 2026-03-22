@@ -653,11 +653,43 @@
     });
   }
 
-  /* --- Init everything --- */
-  initEntrance();
-  initReveals();
-  initIndexReveals();
-  initSkillReveals();
-  initCarousels();
-  initHeroPeek();
+  /* --- Loading screen & init --- */
+  const peekSrcs = [
+    'portfolio_files/alukeku/1.avif', 'portfolio_files/alukeku/2.avif', 'portfolio_files/alukeku/3.avif',
+    'portfolio_files/landeshut/1.avif', 'portfolio_files/landeshut/2.avif', 'portfolio_files/landeshut/3.avif',
+    'portfolio_files/stooney/1.avif', 'portfolio_files/stooney/2.avif', 'portfolio_files/stooney/3.avif',
+    'portfolio_files/project500/1.avif', 'portfolio_files/project500/2.avif', 'portfolio_files/project500/3.avif',
+    'portfolio_files/bookcover/1.avif', 'portfolio_files/bookcover/2.avif', 'portfolio_files/bookcover/3.avif',
+  ];
+
+  const loader = document.getElementById('loader');
+  const progressBar = document.getElementById('loaderProgress');
+  let loaded = 0;
+
+  function onImageLoaded() {
+    loaded++;
+    const pct = (loaded / peekSrcs.length) * 100;
+    progressBar.style.width = pct + '%';
+
+    if (loaded >= peekSrcs.length) {
+      // Small delay so bar reaches 100% visually
+      setTimeout(() => {
+        loader.classList.add('is-done');
+        initEntrance();
+        initReveals();
+        initIndexReveals();
+        initSkillReveals();
+        initCarousels();
+        initHeroPeek();
+      }, 300);
+    }
+  }
+
+  // Preload peek images with priority
+  peekSrcs.forEach((src) => {
+    const img = new Image();
+    img.onload = onImageLoaded;
+    img.onerror = onImageLoaded;
+    img.src = src;
+  });
 })();

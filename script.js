@@ -372,7 +372,7 @@
       })
         .then((res) => res.text())
         .then(() => {
-          feedback.innerHTML = '<p style="color:green">Message sent!</p>';
+          feedback.innerHTML = '<p style="color:var(--text)">Message sent!</p>';
           document.getElementById('message').value = '';
           document.getElementById('contact-input').value = '';
         })

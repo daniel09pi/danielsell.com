@@ -787,7 +787,7 @@ button {
 
 .contact__email {
   font-family: var(--mono);
-  font-size: clamp(1rem, 2vw, 1.35rem);
+  font-size: 0.85rem;
   font-weight: 400;
   transition: color 0.25s ease;
 }
@@ -806,7 +806,7 @@ button {
 
 .contact__social {
   font-family: var(--mono);
-  font-size: clamp(1rem, 2vw, 1.35rem);
+  font-size: 0.85rem;
   color: var(--muted);
   margin-top: 0.5rem;
   transition: color 0.25s ease;

@@ -454,7 +454,7 @@
 
       const configs = [];
 
-      const gridSize = isTouch ? 180 : 225;
+      const gridSize = W < 600 ? 180 : 225;
       const n = Math.max(2, Math.floor(W / gridSize));
       const step = W / n;
       const sideStep = step * 0.75;
@@ -463,9 +463,9 @@
       const margin = (W - usableW) / 2;
 
       const rot = () => { const a = rand(4, 12); return Math.random() > 0.5 ? a : -a; };
-      const rMain = isTouch ? 20 : 35;
-      const rCrossMin = isTouch ? -5 : -10;
-      const rCrossMax = isTouch ? 18 : 30;
+      const rMain = W < 600 ? 20 : 35;
+      const rCrossMin = W < 600 ? -5 : -10;
+      const rCrossMax = W < 600 ? 18 : 30;
 
       // --- BOTTOM ROW ---
       configs.push({
@@ -487,14 +487,14 @@
       });
 
       // --- SIDE IMAGES (up to 3 per side) ---
-      // On mobile: 50% chance 2nd side image jumps 20% higher, 3rd always does
+      const isMobile = W < 600;
       const bump = H * 0.2;
-      const bumpSecond = isTouch && Math.random() > 0.5;
+      const bumpSecond = isMobile && Math.random() > 0.5;
 
       for (let i = 1; i <= 3; i++) {
         let y = H - sideStep * i - 30;
-        if (isTouch && i === 2 && bumpSecond) y -= bump;
-        if (isTouch && i === 3) y -= bump;
+        if (isMobile && i === 2 && bumpSecond) y -= bump;
+        if (isMobile && i === 3) y -= bump;
         if (y < 0) break;
         configs.push({
           pos: 'left:' + rand(rCrossMin, rCrossMax) + 'px;top:' + (y + rand(-rMain, rMain)) + 'px',
@@ -504,8 +504,8 @@
 
       for (let i = 1; i <= 3; i++) {
         let y = H - sideStep * i - 30;
-        if (isTouch && i === 2 && bumpSecond) y -= bump;
-        if (isTouch && i === 3) y -= bump;
+        if (isMobile && i === 2 && bumpSecond) y -= bump;
+        if (isMobile && i === 3) y -= bump;
         if (y < 0) break;
         configs.push({
           pos: 'left:' + (W - rand(rCrossMin, rCrossMax)) + 'px;top:' + (y + rand(-rMain, rMain)) + 'px',

@@ -735,6 +735,11 @@ button {
   color: var(--accent);
 }
 
+.skills__check-out {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* --- Contact --- */
 .contact {
   padding: 8rem clamp(1.5rem, 4vw, 4rem);

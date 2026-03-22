@@ -459,33 +459,36 @@
       const step = W / n;
       const sideStep = step * 0.75;
 
-      // Positions are center of image; translate(-50%,-50%) in tick handles centering
+      // Bottom row uses 85% of width, centered
+      const usableW = W * 0.85;
+      const margin = (W - usableW) / 2;
 
       // --- BOTTOM ROW ---
-      // Left corner: center at (0, H)
+      // Left corner: center at (margin, H)
       configs.push({
-        pos: 'left:0px;top:' + H + 'px',
+        pos: 'left:' + margin + 'px;top:' + H + 'px',
         px: 100, py: -75,
       });
 
-      // Middle images: centers at (step*i, H) for i = 1..n-1
+      // Middle images: centers at (margin + usableW/n * i, H)
+      const bottomStep = usableW / n;
       for (let i = 1; i < n; i++) {
         configs.push({
-          pos: 'left:' + (step * i) + 'px;top:' + H + 'px',
+          pos: 'left:' + (margin + bottomStep * i) + 'px;top:' + H + 'px',
           px: 0, py: -75,
         });
       }
 
-      // Right corner: center at (W, H)
+      // Right corner: center at (margin + usableW, H)
       configs.push({
-        pos: 'left:' + W + 'px;top:' + H + 'px',
+        pos: 'left:' + (margin + usableW) + 'px;top:' + H + 'px',
         px: -100, py: -75,
       });
 
       // --- SIDE IMAGES (up to 3 per side) ---
-      // Left side: center at (0, H - sideStep*i)
+      // Left side: center at (0, H - sideStep*i + 30)
       for (let i = 1; i <= 3; i++) {
-        const y = H - sideStep * i;
+        const y = H - sideStep * i + 30;
         if (y < 0) break;
         configs.push({
           pos: 'left:0px;top:' + y + 'px',
@@ -493,9 +496,9 @@
         });
       }
 
-      // Right side: center at (W, H - sideStep*i)
+      // Right side: center at (W, H - sideStep*i + 30)
       for (let i = 1; i <= 3; i++) {
-        const y = H - sideStep * i;
+        const y = H - sideStep * i + 30;
         if (y < 0) break;
         configs.push({
           pos: 'left:' + W + 'px;top:' + y + 'px',

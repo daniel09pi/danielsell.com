@@ -151,6 +151,24 @@ button {
   width: 100%;
 }
 
+.nav__toggle {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--muted);
+  transition: color 0.25s ease, border-color 0.25s ease;
+  margin-left: 0.5rem;
+}
+
+.nav__toggle:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 /* --- Hero --- */
 .hero {
   display: flex;

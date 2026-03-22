@@ -345,6 +345,24 @@
     });
   }
 
+  /* --- Copy email on click --- */
+  document.querySelectorAll('.contact__copyable').forEach((el) => {
+    el.addEventListener('click', () => {
+      const email = el.dataset.email;
+      navigator.clipboard.writeText(email).then(() => {
+        let tip = el.querySelector('.contact__copied');
+        if (!tip) {
+          tip = document.createElement('span');
+          tip.className = 'contact__copied';
+          tip.textContent = 'copied!';
+          el.appendChild(tip);
+        }
+        tip.classList.add('is-visible');
+        setTimeout(() => tip.classList.remove('is-visible'), 1500);
+      });
+    });
+  });
+
   /* --- Contact form --- */
   const contactForm = document.getElementById('contactForm');
   if (contactForm) {

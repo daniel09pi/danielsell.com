@@ -796,6 +796,27 @@ button {
   color: var(--accent);
 }
 
+.contact__copyable {
+  cursor: pointer;
+  position: relative;
+}
+
+.contact__copied {
+  position: absolute;
+  left: calc(100% + 0.75rem);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.65rem;
+  color: var(--muted);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.contact__copied.is-visible {
+  opacity: 1;
+}
+
 .contact__email--secondary {
   color: var(--muted);
 }

@@ -614,6 +614,43 @@
     });
   }
 
+  /* --- Contact form --- */
+  const contactForm = document.getElementById('contactForm');
+  if (contactForm) {
+    contactForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const message = document.getElementById('message').value.trim();
+      const contact = document.getElementById('contact-input').value.trim();
+      const feedback = document.getElementById('feedback');
+
+      if (message.length < 5) {
+        feedback.innerHTML = '<p style="color:var(--accent)">Please write a longer message.</p>';
+        return;
+      }
+      if (contact.length < 3) {
+        feedback.innerHTML = '<p style="color:var(--accent)">Please enter a valid contact option.</p>';
+        return;
+      }
+
+      feedback.innerHTML = '<p style="color:var(--muted)">Sending message...</p>';
+
+      fetch('send.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: message, contact: contact }),
+      })
+        .then((res) => res.text())
+        .then(() => {
+          feedback.innerHTML = '<p style="color:green">Message sent!</p>';
+          document.getElementById('message').value = '';
+          document.getElementById('contact-input').value = '';
+        })
+        .catch(() => {
+          feedback.innerHTML = '<p style="color:var(--accent)">Something went wrong. Please try again.</p>';
+        });
+    });
+  }
+
   /* --- Init everything --- */
   initEntrance();
   initReveals();

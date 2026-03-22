@@ -797,7 +797,6 @@ button {
 }
 
 .contact__email--secondary {
-  font-size: clamp(0.85rem, 1.5vw, 1rem);
   color: var(--muted);
 }
 
@@ -806,7 +805,8 @@ button {
 }
 
 .contact__social {
-  font-size: 0.8rem;
+  font-family: var(--mono);
+  font-size: clamp(1rem, 2vw, 1.35rem);
   color: var(--muted);
   margin-top: 0.5rem;
   transition: color 0.25s ease;
@@ -821,6 +821,18 @@ button {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.contact__form-label {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.03em;
+}
+
+#feedback {
+  font-family: var(--mono);
+  font-size: 0.8rem;
 }
 
 .contact__input,

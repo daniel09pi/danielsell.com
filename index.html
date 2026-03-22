@@ -320,9 +320,11 @@
         <a href="https://instagram.com/daniel.sell_" target="_blank" rel="noopener" class="contact__social">Instagram: daniel.sell_</a>
       </div>
       <form class="contact__form reveal-up" id="contactForm">
-        <textarea class="contact__input contact__textarea" placeholder="Your message" rows="4" required></textarea>
-        <input type="text" class="contact__input" placeholder="Your email or contact" required>
+        <span class="contact__form-label">Or send me a message directly:</span>
+        <textarea class="contact__input contact__textarea" id="message" placeholder="Your message" rows="4" required></textarea>
+        <input type="text" class="contact__input" id="contact-input" placeholder="Your email or contact" required>
         <button type="submit" class="contact__submit">Send</button>
+        <div id="feedback"></div>
       </form>
     </div>
   </section>

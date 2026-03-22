@@ -463,48 +463,48 @@
       const usableW = W * 0.85;
       const margin = (W - usableW) / 2;
 
-      const r = () => rand(-4, 4);
+      const rot = () => { const a = rand(2, 6); return Math.random() > 0.5 ? a : -a; };
 
       // --- BOTTOM ROW ---
-      // Left corner: 0-15px right, 0-15px up
+      // Left corner: 0-20px right, 0-20px up
       configs.push({
-        pos: 'left:' + rand(0, 15) + 'px;top:' + (H - rand(0, 15)) + 'px',
-        px: 100, py: -75, rot: r(),
+        pos: 'left:' + rand(0, 20) + 'px;top:' + (H - rand(0, 20)) + 'px',
+        px: 100, py: -75, rot: rot(),
       });
 
-      // Middle images: 85% width centered, 0-15px any direction but down
+      // Middle images: x ±20px, y 0-20px up
       const bottomStep = usableW / n;
       for (let i = 1; i < n; i++) {
         configs.push({
-          pos: 'left:' + (margin + bottomStep * i + rand(-15, 15)) + 'px;top:' + (H - rand(0, 15)) + 'px',
-          px: 0, py: -75, rot: r(),
+          pos: 'left:' + (margin + bottomStep * i + rand(-20, 20)) + 'px;top:' + (H - rand(0, 20)) + 'px',
+          px: 0, py: -75, rot: rot(),
         });
       }
 
-      // Right corner: 0-15px left, 0-15px up
+      // Right corner: 0-20px left, 0-20px up
       configs.push({
-        pos: 'left:' + (W - rand(0, 15)) + 'px;top:' + (H - rand(0, 15)) + 'px',
-        px: -100, py: -75, rot: r(),
+        pos: 'left:' + (W - rand(0, 20)) + 'px;top:' + (H - rand(0, 20)) + 'px',
+        px: -100, py: -75, rot: rot(),
       });
 
       // --- SIDE IMAGES (up to 3 per side) ---
-      // Left side: 0-15px any direction but right
+      // Left side: 0-20px left, y ±20px
       for (let i = 1; i <= 3; i++) {
         const y = H - sideStep * i - 30;
         if (y < 0) break;
         configs.push({
-          pos: 'left:' + (-rand(0, 15)) + 'px;top:' + (y + rand(-15, 15)) + 'px',
-          px: 100, py: 0, rot: r(),
+          pos: 'left:' + (-rand(0, 20)) + 'px;top:' + (y + rand(-20, 20)) + 'px',
+          px: 100, py: 0, rot: rot(),
         });
       }
 
-      // Right side: 0-15px any direction but left
+      // Right side: 0-20px right, y ±20px
       for (let i = 1; i <= 3; i++) {
         const y = H - sideStep * i - 30;
         if (y < 0) break;
         configs.push({
-          pos: 'left:' + (W + rand(0, 15)) + 'px;top:' + (y + rand(-15, 15)) + 'px',
-          px: -100, py: 0, rot: r(),
+          pos: 'left:' + (W + rand(0, 20)) + 'px;top:' + (y + rand(-20, 20)) + 'px',
+          px: -100, py: 0, rot: rot(),
         });
       }
 

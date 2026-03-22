@@ -326,16 +326,30 @@ button {
   height: 80px;
   object-fit: cover;
   border-radius: 2px;
-  transform: rotate(-1deg);
-  transition: transform 0.3s ease;
+  transform: rotate(-1.5deg);
+  filter: saturate(0.7) contrast(1.05);
+  transition: transform 0.5s ease, filter 0.5s ease;
 }
 
 .index__thumb:nth-child(2) {
-  transform: rotate(1.5deg) translateY(4px);
+  transform: rotate(2deg) translateY(4px);
 }
 
 .index__thumb:nth-child(3) {
-  transform: rotate(-0.5deg) translateY(-2px);
+  transform: rotate(-1deg) translateY(-2px);
+}
+
+.index__thumb:hover {
+  filter: saturate(1) contrast(1);
+  transform: rotate(1deg);
+}
+
+.index__thumb:nth-child(2):hover {
+  transform: rotate(-0.5deg) translateY(4px);
+}
+
+.index__thumb:nth-child(3):hover {
+  transform: rotate(1.5deg) translateY(-2px);
 }
 
 /* Hover state — show thumbs (desktop only) */

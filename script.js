@@ -444,85 +444,46 @@
       const W = hero.offsetWidth;
       const H = hero.offsetHeight;
 
-      // Shuffle pool fresh each build
-      const pool = [...imagePool];
-      for (let i = pool.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [pool[i], pool[j]] = [pool[j], pool[i]];
-      }
-      let imgIdx = 0;
-      const nextSrc = () => pool[imgIdx++ % pool.length];
-
       const configs = [];
-      let remaining = totalImages;
 
       // --- BOTTOM ROW ---
       const cornerInset = imgW * 0.45;
       const bottomY = H - imgH * 0.35;
 
-      // Corner positions — fixed, no randomization
-      const leftCornerX = -imgW + cornerInset;
-      const rightCornerX = W - cornerInset;
+      // Distribute evenly from left edge to right edge
+      const leftEdge = -imgW + cornerInset;
+      const rightEdge = W - cornerInset;
+      const totalSpan = rightEdge - leftEdge;
 
-      // Middle images: fill between corners with less gap to corners
-      const cornerGap = 40; // small gap between corner and nearest middle image
-      const innerLeft = cornerInset + cornerGap;
-      const innerRight = W - cornerInset - cornerGap;
-      const innerWidth = innerRight - innerLeft;
+      // How many bottom images fit
+      let bottomCount = Math.max(2, Math.floor(totalSpan / (imgW + 60)) + 1);
+      const bottomStep = (totalSpan) / (bottomCount - 1);
 
-      let middleCount = 0;
-      if (innerWidth >= imgW) {
-        middleCount = Math.floor((innerWidth + spacing) / (imgW + spacing));
-      }
-      if (2 + middleCount > remaining) middleCount = Math.max(0, remaining - 2);
-
-      // Even distribution of middle images
-      const middleStep = middleCount > 0
-        ? (innerWidth - middleCount * imgW) / (middleCount + 1)
-        : 0;
-
-      // Place left corner — fixed position
-      configs.push({
-        pos: 'left:' + leftCornerX + 'px;top:' + bottomY + 'px',
-        px: 130, py: -65, rot: randRot(),
-      });
-      remaining--;
-
-      // Place middle bottom images — slight randomization
-      for (let i = 0; i < middleCount; i++) {
-        const x = innerLeft + middleStep * (i + 1) + imgW * i;
+      for (let i = 0; i < bottomCount; i++) {
+        const x = leftEdge + bottomStep * i;
+        const isEdge = i === 0 || i === bottomCount - 1;
+        // Edge images push inward, middle images push up
+        const pushX = i === 0 ? 130 : i === bottomCount - 1 ? -130 : rand(-8, 8);
+        const pushY = isEdge ? -65 : rand(-85, -65);
         configs.push({
-          pos: 'left:' + (x + rand(-15, 15)).toFixed(0) + 'px;top:' + (bottomY + rand(-15, 15)).toFixed(0) + 'px',
-          px: rand(-8, 8), py: rand(-85, -65), rot: randRot(),
+          pos: 'left:' + (x + (isEdge ? 0 : rand(-5, 5))).toFixed(0) + 'px;top:' + (bottomY + (isEdge ? 0 : rand(-5, 5))).toFixed(0) + 'px',
+          px: pushX, py: pushY, rot: randRot(),
         });
-        remaining--;
       }
 
-      // Place right corner — fixed position
-      configs.push({
-        pos: 'left:' + rightCornerX + 'px;top:' + bottomY + 'px',
-        px: -130, py: -65, rot: randRot(),
-      });
-      remaining--;
+      let remaining = totalImages - bottomCount;
 
       // --- SIDE IMAGES ---
-      // Up to 3 per side, placed from bottom upward, each 200px higher
       const sideStep = 200;
       const sideMaxPerSide = Math.min(3, Math.floor(remaining / 2));
-
-      // First side image starts well above the corner (more gap than between middles)
       const sideStartY = bottomY - 250;
-
-      // On small screens (< 600px height), max 1 per side
       const maxSide = H < 600 ? 1 : sideMaxPerSide;
-
-      // Calculate how many fit without going above 15% from top
       const sideMinY = H * 0.15;
+
       let sideCount = 0;
       for (let i = 0; i < maxSide; i++) {
         const y = sideStartY - i * sideStep;
         if (y < sideMinY) break;
-        // On mobile: skip if too close to vertical center (title area)
         if (isTouch && Math.abs(y + 65 - H * 0.5) < H * 0.12) continue;
         sideCount++;
       }
@@ -532,7 +493,7 @@
         if (remaining <= 0) break;
         const y = sideStartY - i * sideStep;
         configs.push({
-          pos: 'left:' + (-imgW + cornerInset + rand(-15, 15)).toFixed(0) + 'px;top:' + (y + rand(-15, 15)).toFixed(0) + 'px',
+          pos: 'left:' + (-imgW + cornerInset + rand(-5, 5)).toFixed(0) + 'px;top:' + (y + rand(-5, 5)).toFixed(0) + 'px',
           px: rand(135, 160), py: rand(-8, 8), rot: randRot(),
         });
         remaining--;
@@ -543,7 +504,7 @@
         if (remaining <= 0) break;
         const y = sideStartY - i * sideStep;
         configs.push({
-          pos: 'left:' + (W - cornerInset + rand(-15, 15)).toFixed(0) + 'px;top:' + (y + rand(-15, 15)).toFixed(0) + 'px',
+          pos: 'left:' + (W - cornerInset + rand(-5, 5)).toFixed(0) + 'px;top:' + (y + rand(-5, 5)).toFixed(0) + 'px',
           px: rand(-160, -135), py: rand(-8, 8), rot: randRot(),
         });
         remaining--;
@@ -553,7 +514,7 @@
       configs.forEach((cfg) => {
         const img = document.createElement('img');
         img.className = 'hero__peek';
-        img.src = nextSrc();
+        img.src = imagePool[Math.floor(Math.random() * imagePool.length)];
         img.alt = '';
         img.loading = 'lazy';
         img.dataset.peekX = Math.round(cfg.px);

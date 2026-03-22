@@ -727,6 +727,14 @@ button {
   border-bottom: none;
 }
 
+.skills__list a {
+  transition: color 0.25s ease;
+}
+
+.skills__list a:hover {
+  color: var(--accent);
+}
+
 /* --- Contact --- */
 .contact {
   padding: 8rem clamp(1.5rem, 4vw, 4rem);

@@ -53,38 +53,6 @@
     });
   });
 
-  /* --- Hero rotating text --- */
-  const rotatingEl = document.getElementById('heroRotating');
-  const phrases = [
-    'Designer \u2014 Developer \u2014 Currently in Argentina',
-    'Brand Identity \u2014 Web Development \u2014 Editorial Design',
-    'Munich, Germany \u2014 Salta, Argentina',
-  ];
-  let phraseIndex = 0;
-
-  function rotatePhrase() {
-    gsap.to(rotatingEl, {
-      opacity: 0,
-      y: -6,
-      duration: 0.35,
-      ease: 'power2.in',
-      onComplete: () => {
-        phraseIndex = (phraseIndex + 1) % phrases.length;
-        rotatingEl.textContent = phrases[phraseIndex];
-        gsap.fromTo(
-          rotatingEl,
-          { opacity: 0, y: 6 },
-          { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }
-        );
-      },
-    });
-  }
-
-  // Set initial phrase
-  rotatingEl.textContent = phrases[0];
-  gsap.set(rotatingEl, { opacity: 1 });
-  setInterval(rotatePhrase, 3500);
-
   /* --- Reveal on scroll --- */
   function initReveals() {
     const reveals = document.querySelectorAll('.reveal-up');

@@ -327,3 +327,147 @@ p.selected{
     position: relative;
     z-index: 1;
 }
+
+
+/* ==================== RESPONSIVE ==================== */
+
+#mainContainer {
+	max-width: 1140px;
+	max-height: 1140px;
+}
+
+#navToggle {
+	display: none;
+}
+
+@media (max-width: 767px) {
+
+	body {
+		overflow-y: auto;
+		height: auto;
+	}
+
+	#mainContainer {
+		max-width: 100% !important;
+		max-height: none !important;
+		height: auto !important;
+		padding: 1rem !important;
+		gap: 1rem !important;
+	}
+
+	/* Navigation */
+	#navToggle {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	#navBar {
+		display: none !important;
+	}
+
+	#navBar.nav-open {
+		display: flex !important;
+		flex-direction: column;
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		width: 100%;
+		height: auto !important;
+		z-index: 10000;
+		padding: 1rem;
+		border-radius: 12px;
+		margin-top: 0.5rem;
+	}
+
+	#navBar.nav-open > div {
+		padding: 0.5rem 0;
+	}
+
+	/* Scroll container + sections */
+	#scrollcontainer {
+		overflow: visible !important;
+		height: auto !important;
+	}
+
+	#scrollcontainer > div {
+		height: auto !important;
+		min-height: auto;
+		padding-bottom: 2rem;
+	}
+
+	#scrollcontainer .h-100:not(.full_image_container) {
+		height: auto !important;
+	}
+
+	#scrollcontainer .p-5 {
+		padding: 1.25rem !important;
+	}
+
+	#scrollcontainer .ps-5 {
+		padding-left: 1.25rem !important;
+	}
+
+	/* Hero */
+	#hero_container {
+		min-height: 50vh;
+		padding: 2rem 0;
+	}
+
+	h1 {
+		font-size: clamp(48px, 15vw, 120px) !important;
+	}
+
+	/* Portfolio */
+	#portfolioRow {
+		height: auto !important;
+	}
+
+	#hover_container {
+		flex-direction: row !important;
+		height: 60px !important;
+		gap: 0.5rem !important;
+		margin-top: 0.75rem;
+	}
+
+	#hover_container .img-box {
+		flex: 1 !important;
+		height: 100% !important;
+	}
+
+	#hover_container .img-box.big {
+		flex: 1.3 !important;
+		height: 100% !important;
+	}
+
+	.full_image_container {
+		height: 250px !important;
+	}
+
+	/* Skills - hide rotating logos */
+	.logo-container {
+		display: none !important;
+	}
+
+	#scrollcontainer .w-50 {
+		width: 100% !important;
+	}
+
+	/* Hide custom scrollbar on mobile */
+	.scrollbar {
+		display: none !important;
+	}
+
+	.overflow_scroll2 {
+		overflow: visible !important;
+		height: auto !important;
+	}
+
+	/* Hide decorative overlays */
+	.my_stroke,
+	.responsive-box,
+	#mainContainer > .position-absolute {
+		display: none !important;
+	}
+}

@@ -10,13 +10,15 @@
 	<link href="portfolio_files/_assets/DS-Logo.svg" rel="icon" type="image/svg+xml">
 </head>
 <body class="d-flex align-items-center">
-	<div class="hide-at-1140 container h-100 w-100 d-flex p-3 justify-content-center align-items-center">
-		<h3 class="text-mine text-center">This page is currently too ugly on mobile devices, please look at it with a screen wider that 1140px.</h3>
-	</div>
-	<div class="container-lg hide-below-1140 noborder h-100 py-5 px-5 position-relative d-flex flex-column gap-4" style="max-width: 1140px !important; max-height: 1140px !important;">
-		<div class="noborder d-flex gap-2">
+	<div id="mainContainer" class="container-lg noborder h-100 py-5 px-5 position-relative d-flex flex-column gap-4">
+		<div class="noborder d-flex gap-2 position-relative">
 			<img src="portfolio_files/_assets/DS-Logo.svg">
-			<div class="d-flex justify-content-between w-100 align-items-center bg-mine round-1" style="height: 48px;">
+			<button id="navToggle" class="bg-mine text-white border-0 round-1 ms-auto" style="width: 48px; height: 48px;">
+				<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+					<path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+				</svg>
+			</button>
+			<div id="navBar" class="d-flex justify-content-between w-100 align-items-center bg-mine round-1" style="height: 48px;">
 
 					<div class="flex-fill d-flex justify-content-center align-items-center">
 							<p class="cursor-pointer nav-item active m-0" data-index="0">home</p>
@@ -49,7 +51,7 @@
 			
 			<div class="h-100 d-flex align-items-center justify-content-center ">
 				<div class="row w-100 h-100 p-5">
-					<div class="scrollbarcontainer col-6 d-flex gap-5 h-100 ps-0">
+					<div class="scrollbarcontainer col-12 col-md-6 d-flex gap-5 h-100 ps-0 order-2 order-md-0">
 
 							<!-- Custom Scrollbar -->
 							<div class="scrollbar bg-mine-light">
@@ -76,16 +78,16 @@
 							</div>
 
 					</div>
-					<div class="col-1"></div>
-					<div class="col-5 justify-content-end">
+					<div class="d-none d-md-block col-md-1"></div>
+					<div class="col-12 col-md-5 justify-content-end order-1 order-md-0 mb-4 mb-md-0">
 						<img class="w-100" src="portfolio_files/_assets/daniel-lama2-inframe.webp">
 						<p class="text-mine mt-4 text-end">Me (right) and Lama (left) <br/>4000+m high in the nowhere of north-argentina</p>
 					</div>
 				</div>
 			</div>
 			<div class="h-100 d-flex flex-column align-items-center justify-content-start ">
-				<div class="row w-100 p-5 pb-4" style="z-index: 102; height: calc(100% - 205px);" >
-					<div id="hover_container" class="col-2 ps-0 d-flex flex-column gap-2 h-100">
+				<div id="portfolioRow" class="row w-100 p-5 pb-4" style="z-index: 102; height: calc(100% - 205px);" >
+					<div id="hover_container" class="col-12 col-md-2 ps-0 d-flex flex-column gap-2 h-100 order-2 order-md-1">
 						<div class="img-box big " 
 						data-is-selected="true" 
 						data-current-project="alukeku"
@@ -118,7 +120,7 @@
 						</div>
 						
 					</div>
-					<div class="col-10 d-flex px-0 h-100 full_image_container justify-content-center" style="z-index: -10000;">
+					<div class="col-12 col-md-10 d-flex px-0 h-100 full_image_container justify-content-center order-1 order-md-2" style="z-index: -10000;">
 						<div class="bg-layer bg1"></div>
 						<div class="bg-layer bg2"></div>
 
@@ -131,8 +133,8 @@
 					</div>
 				</div>
 				<div class="row w-100 mb-3"> 
-					<div class="col-2"></div>
-					<div class="col-8 d-flex justify-content-center">
+					<div class="d-none d-md-block col-md-2"></div>
+					<div class="col-12 col-md-8 d-flex justify-content-center">
 						<div class="d-flex gap-3 text-mine align-items-center" id="carouselNav">
 							<svg id="prevBtn" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
 								<path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
@@ -146,7 +148,7 @@
 					</div>
 				</div>
 				<div class="row w-100 ps-5 mt-3">
-					<div class="col-8 p-0 d-flex flex-column gap-2">
+					<div class="col-12 col-md-8 p-0 d-flex flex-column gap-2">
 						<h4 id="project-title" class="text-mine"></h4>
 						<p id="project-description" class="text-start text-mine"></p>
 					</div>
@@ -224,7 +226,7 @@
 			</div>
 			<div class="h-100 d-flex align-items-center justify-content-center ">
 				<div class="row w-100 h-100 p-5">
-					<div class="scrollbarcontainer col-8 d-flex gap-5 h-100 ps-0">
+					<div class="scrollbarcontainer col-12 col-md-8 d-flex gap-5 h-100 ps-0">
 
 							<!-- Custom Scrollbar -->
 							<div class="scrollbar bg-mine-light">
@@ -289,7 +291,7 @@
 							</div>
 
 					</div>
-					<div class="col-4 d-flex align-items-center justify-content-end">
+					<div class="col-md-4 d-none d-md-flex align-items-center justify-content-end">
 						<dotlottie-player
 							src="portfolio_files/_assets/Flirting Dog.lottie"
 							background="transparent"
@@ -324,7 +326,7 @@
 				<img class="w-100" src="portfolio_files/_assets/top-gradient.png">
 		</div>
 
-		<div class="position-absolute bottom-0" style="right: 3rem; z-index: 1000; width: 1044px; pointer-events: none; margin-bottom: calc(3rem - 2px);">
+		<div class="position-absolute bottom-0" style="right: 3rem; z-index: 1000; width: 1044px; max-width: calc(100% - 3rem); pointer-events: none; margin-bottom: calc(3rem - 2px);">
 			<img class="w-100" src="portfolio_files/_assets/full-bg-3.svg">
 		</div>
 

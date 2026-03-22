@@ -80,7 +80,26 @@ document.addEventListener("DOMContentLoaded", () => {
 		let currentSection = 0;
 		const sectionCount = navItems.length;
 
+		const isMobile = () => window.innerWidth < 768;
+		const navToggleBtn = document.getElementById('navToggle');
+		const navBarEl = document.getElementById('navBar');
+
+		if (navToggleBtn && navBarEl) {
+				navToggleBtn.addEventListener('click', () => {
+						navBarEl.classList.toggle('nav-open');
+				});
+		}
+
 		function smoothScrollToSection(index, duration = 900) {
+				if (isMobile()) {
+						const sections = scrollcontainer.children;
+						if (sections[index]) {
+								sections[index].scrollIntoView({ behavior: 'smooth' });
+						}
+						currentSection = index;
+						updateActiveNav(index);
+						return;
+				}
 				const containerHeight = scrollcontainer.clientHeight;
 				const target = index * containerHeight;
 				const start = scrollcontainer.scrollTop;
@@ -123,6 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 
 		function detectCurrentSection() {
+				if (isMobile()) return;
 				const containerHeight = scrollcontainer.clientHeight;
 				const index = Math.round(scrollcontainer.scrollTop / containerHeight);
 
@@ -152,11 +172,32 @@ document.addEventListener("DOMContentLoaded", () => {
 				item.addEventListener("click", () => {
 						const index = parseInt(item.dataset.index);
 						smoothScrollToSection(index);
+						if (navBarEl) navBarEl.classList.remove('nav-open');
 				});
 		});
 
 		updateActiveNav(0);
 		updateButtons(0);
+
+		// Mobile: detect current section via window scroll
+		window.addEventListener('scroll', () => {
+				if (!isMobile()) return;
+				const sections = Array.from(scrollcontainer.children);
+				let closestIndex = 0;
+				let closestDistance = Infinity;
+				sections.forEach((section, index) => {
+						const rect = section.getBoundingClientRect();
+						const distance = Math.abs(rect.top);
+						if (distance < closestDistance) {
+								closestDistance = distance;
+								closestIndex = index;
+						}
+				});
+				if (closestIndex !== currentSection) {
+						currentSection = closestIndex;
+						updateActiveNav(closestIndex);
+				}
+		});
 
 		function updateButtonState(index) {
 				if (index === 0) {

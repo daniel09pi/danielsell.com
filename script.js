@@ -406,11 +406,11 @@
     const heroContent = hero.querySelector('.hero__content');
 
     const imagePool = [
-      'portfolio_files/alukeku/thumbs/1.avif', 'portfolio_files/alukeku/thumbs/2.avif', 'portfolio_files/alukeku/thumbs/3.avif',
-      'portfolio_files/landeshut/thumbs/1.avif', 'portfolio_files/landeshut/thumbs/2.avif', 'portfolio_files/landeshut/thumbs/3.avif',
-      'portfolio_files/stooney/thumbs/1.avif', 'portfolio_files/stooney/thumbs/2.avif', 'portfolio_files/stooney/thumbs/3.avif',
-      'portfolio_files/project500/thumbs/1.avif', 'portfolio_files/project500/thumbs/2.avif', 'portfolio_files/project500/thumbs/3.avif',
-      'portfolio_files/bookcover/thumbs/1.avif', 'portfolio_files/bookcover/thumbs/2.avif', 'portfolio_files/bookcover/thumbs/3.avif',
+      'portfolio_files/thumbs/alukeku-1.avif', 'portfolio_files/thumbs/alukeku-2.avif', 'portfolio_files/thumbs/alukeku-3.avif',
+      'portfolio_files/thumbs/landeshut-1.avif', 'portfolio_files/thumbs/landeshut-2.avif', 'portfolio_files/thumbs/landeshut-3.avif',
+      'portfolio_files/thumbs/stooney-1.avif', 'portfolio_files/thumbs/stooney-2.avif', 'portfolio_files/thumbs/stooney-3.avif',
+      'portfolio_files/thumbs/project500-1.avif', 'portfolio_files/thumbs/project500-2.avif', 'portfolio_files/thumbs/project500-3.avif',
+      'portfolio_files/thumbs/bookcover-1.avif', 'portfolio_files/thumbs/bookcover-2.avif', 'portfolio_files/thumbs/bookcover-3.avif',
     ];
 
     const rand = (min, max) => min + Math.random() * (max - min);
@@ -455,9 +455,9 @@
       const configs = [];
 
       // Grid unit: n = floor(W / 215), step = W / n
-      const n = Math.max(2, Math.floor(W / 215));
+      const n = Math.max(2, Math.floor(W / 225));
       const step = W / n;
-      const sideStep = step * 2 / 3;
+      const sideStep = step * 0.75;
 
       // Positions are center of image; translate(-50%,-50%) in tick handles centering
 
@@ -643,11 +643,11 @@
 
   /* --- Loading screen & init --- */
   const peekSrcs = [
-    'portfolio_files/alukeku/thumbs/1.avif', 'portfolio_files/alukeku/thumbs/2.avif', 'portfolio_files/alukeku/thumbs/3.avif',
-    'portfolio_files/landeshut/thumbs/1.avif', 'portfolio_files/landeshut/thumbs/2.avif', 'portfolio_files/landeshut/thumbs/3.avif',
-    'portfolio_files/stooney/thumbs/1.avif', 'portfolio_files/stooney/thumbs/2.avif', 'portfolio_files/stooney/thumbs/3.avif',
-    'portfolio_files/project500/thumbs/1.avif', 'portfolio_files/project500/thumbs/2.avif', 'portfolio_files/project500/thumbs/3.avif',
-    'portfolio_files/bookcover/thumbs/1.avif', 'portfolio_files/bookcover/thumbs/2.avif', 'portfolio_files/bookcover/thumbs/3.avif',
+    'portfolio_files/thumbs/alukeku-1.avif', 'portfolio_files/thumbs/alukeku-2.avif', 'portfolio_files/thumbs/alukeku-3.avif',
+    'portfolio_files/thumbs/landeshut-1.avif', 'portfolio_files/thumbs/landeshut-2.avif', 'portfolio_files/thumbs/landeshut-3.avif',
+    'portfolio_files/thumbs/stooney-1.avif', 'portfolio_files/thumbs/stooney-2.avif', 'portfolio_files/thumbs/stooney-3.avif',
+    'portfolio_files/thumbs/project500-1.avif', 'portfolio_files/thumbs/project500-2.avif', 'portfolio_files/thumbs/project500-3.avif',
+    'portfolio_files/thumbs/bookcover-1.avif', 'portfolio_files/thumbs/bookcover-2.avif', 'portfolio_files/thumbs/bookcover-3.avif',
   ];
 
   const loader = document.getElementById('loader');

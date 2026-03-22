@@ -532,7 +532,7 @@
           px: parseFloat(el.dataset.peekX) || 0,
           py: parseFloat(el.dataset.peekY) || 0,
           rot: parseFloat(el.dataset.rot) || 0,
-          activeRot: (Math.random() > 0.5 ? 1 : -1) * rand(2, 8),
+          activeRot: (parseFloat(el.dataset.rot) >= 0 ? -1 : 1) * rand(2, 8),
           cx: 0, cy: 0, cr: 0, co: baseOpacity, cs: baseSat,
           tapPhase: null, holdStart: 0,
         };

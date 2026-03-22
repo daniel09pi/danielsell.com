@@ -444,6 +444,14 @@
       const W = hero.offsetWidth;
       const H = hero.offsetHeight;
 
+      // Shuffle image pool — no repeats, random order each build
+      const shuffled = [...imagePool];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      let imgIdx = 0;
+
       const configs = [];
 
       // --- BOTTOM ROW ---
@@ -455,9 +463,9 @@
       const rightEdge = W - cornerInset;
       const totalSpan = rightEdge - leftEdge;
 
-      // How many bottom images fit
-      let bottomCount = Math.max(2, Math.floor(totalSpan / (imgW + 60)) + 1);
-      const bottomStep = (totalSpan) / (bottomCount - 1);
+      // Round instead of floor to keep gaps consistent (~50px)
+      let bottomCount = Math.max(2, Math.round(totalSpan / (imgW + 50)) + 1);
+      const bottomStep = totalSpan / (bottomCount - 1);
 
       for (let i = 0; i < bottomCount; i++) {
         const x = leftEdge + bottomStep * i;
@@ -514,7 +522,7 @@
       configs.forEach((cfg) => {
         const img = document.createElement('img');
         img.className = 'hero__peek';
-        img.src = imagePool[Math.floor(Math.random() * imagePool.length)];
+        img.src = shuffled[imgIdx++ % shuffled.length];
         img.alt = '';
         img.loading = 'lazy';
         img.dataset.peekX = Math.round(cfg.px);

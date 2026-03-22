@@ -463,46 +463,48 @@
       const usableW = W * 0.85;
       const margin = (W - usableW) / 2;
 
+      const r = () => rand(-4, 4);
+
       // --- BOTTOM ROW ---
-      // Left corner: center at (0, H)
+      // Left corner: 0-15px right, 0-15px up
       configs.push({
-        pos: 'left:0px;top:' + H + 'px',
-        px: 100, py: -75,
+        pos: 'left:' + rand(0, 15) + 'px;top:' + (H - rand(0, 15)) + 'px',
+        px: 100, py: -75, rot: r(),
       });
 
-      // Middle images: 85% width centered
+      // Middle images: 85% width centered, 0-15px any direction but down
       const bottomStep = usableW / n;
       for (let i = 1; i < n; i++) {
         configs.push({
-          pos: 'left:' + (margin + bottomStep * i) + 'px;top:' + H + 'px',
-          px: 0, py: -75,
+          pos: 'left:' + (margin + bottomStep * i + rand(-15, 15)) + 'px;top:' + (H - rand(0, 15)) + 'px',
+          px: 0, py: -75, rot: r(),
         });
       }
 
-      // Right corner: center at (W, H)
+      // Right corner: 0-15px left, 0-15px up
       configs.push({
-        pos: 'left:' + W + 'px;top:' + H + 'px',
-        px: -100, py: -75,
+        pos: 'left:' + (W - rand(0, 15)) + 'px;top:' + (H - rand(0, 15)) + 'px',
+        px: -100, py: -75, rot: r(),
       });
 
       // --- SIDE IMAGES (up to 3 per side) ---
-      // Left side: center at (0, H - sideStep*i - 30)
+      // Left side: 0-15px any direction but right
       for (let i = 1; i <= 3; i++) {
         const y = H - sideStep * i - 30;
         if (y < 0) break;
         configs.push({
-          pos: 'left:0px;top:' + y + 'px',
-          px: 100, py: 0,
+          pos: 'left:' + (-rand(0, 15)) + 'px;top:' + (y + rand(-15, 15)) + 'px',
+          px: 100, py: 0, rot: r(),
         });
       }
 
-      // Right side: center at (W, H - sideStep*i - 30)
+      // Right side: 0-15px any direction but left
       for (let i = 1; i <= 3; i++) {
         const y = H - sideStep * i - 30;
         if (y < 0) break;
         configs.push({
-          pos: 'left:' + W + 'px;top:' + y + 'px',
-          px: -100, py: 0,
+          pos: 'left:' + (W + rand(0, 15)) + 'px;top:' + (y + rand(-15, 15)) + 'px',
+          px: -100, py: 0, rot: r(),
         });
       }
 
@@ -515,6 +517,7 @@
         img.loading = 'lazy';
         img.dataset.peekX = cfg.px;
         img.dataset.peekY = cfg.py;
+        img.dataset.rot = cfg.rot.toFixed(1);
         img.style.cssText = cfg.pos;
         hero.insertBefore(img, heroContent);
       });
@@ -526,6 +529,7 @@
           el,
           px: parseFloat(el.dataset.peekX) || 0,
           py: parseFloat(el.dataset.peekY) || 0,
+          rot: parseFloat(el.dataset.rot) || 0,
           cx: 0, cy: 0, co: baseOpacity, cs: baseSat,
           tapPhase: null, holdStart: 0,
         };
@@ -611,10 +615,10 @@
         if (Math.abs(s.cx) < 0.1 && Math.abs(s.cy) < 0.1 && tx === 0 && ty === 0) {
           s.cx = 0;
           s.cy = 0;
-          s.el.style.transform = 'translate(-50%,-50%)';
+          s.el.style.transform = 'translate(-50%,-50%) rotate(' + s.rot + 'deg)';
         } else {
           s.el.style.transform =
-            'translate(calc(-50% + ' + s.cx.toFixed(1) + 'px),calc(-50% + ' + s.cy.toFixed(1) + 'px))';
+            'translate(calc(-50% + ' + s.cx.toFixed(1) + 'px),calc(-50% + ' + s.cy.toFixed(1) + 'px)) rotate(' + s.rot + 'deg)';
         }
 
         if (opacityReady) {

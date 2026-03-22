@@ -488,12 +488,17 @@
 
       // --- SIDE IMAGES (up to 3 per side) ---
       const centerY = H * 0.5;
+      // Random exclusion zone: 25-40% of H centered on middle
+      const zoneHalf = isTouch ? H * rand(0.125, 0.2) : 0;
 
       for (let i = 1; i <= 3; i++) {
-        const y = H - sideStep * i - 30;
+        let y = H - sideStep * i - 30;
         if (y < 0) break;
-        // On mobile skip if too close to vertical center
-        if (isTouch && Math.abs(y - centerY) < H * 0.12) continue;
+        // On mobile push above center zone if inside it
+        if (isTouch && Math.abs(y - centerY) < zoneHalf) {
+          y = centerY - zoneHalf - 20;
+        }
+        if (y < 0) break;
         configs.push({
           pos: 'left:' + rand(rCrossMin, rCrossMax) + 'px;top:' + (y + rand(-rMain, rMain)) + 'px',
           px: 100, py: 0, rot: rot(),
@@ -501,9 +506,12 @@
       }
 
       for (let i = 1; i <= 3; i++) {
-        const y = H - sideStep * i - 30;
+        let y = H - sideStep * i - 30;
         if (y < 0) break;
-        if (isTouch && Math.abs(y - centerY) < H * 0.12) continue;
+        if (isTouch && Math.abs(y - centerY) < zoneHalf) {
+          y = centerY - zoneHalf - 20;
+        }
+        if (y < 0) break;
         configs.push({
           pos: 'left:' + (W - rand(rCrossMin, rCrossMax)) + 'px;top:' + (y + rand(-rMain, rMain)) + 'px',
           px: -100, py: 0, rot: rot(),

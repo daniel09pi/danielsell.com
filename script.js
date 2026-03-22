@@ -454,68 +454,54 @@
 
       const configs = [];
 
+      // Grid unit: n = floor(W / 250), step = W / n
+      const n = Math.max(2, Math.floor(W / 250));
+      const step = W / n;
+
+      // Coordinates = center of image; offset to get CSS left/top
+      const offX = imgW / 2;
+      const offY = imgH / 2;
+
       // --- BOTTOM ROW ---
-      const cornerInset = imgW * 0.45;
-      const bottomY = H - imgH * 0.35;
+      // Left corner: center at (0, H)
+      configs.push({
+        pos: 'left:' + (-offX) + 'px;top:' + (H - offY) + 'px',
+        px: 100, py: -75,
+      });
 
-      // Distribute evenly from left edge to right edge
-      const leftEdge = -imgW + cornerInset;
-      const rightEdge = W - cornerInset;
-      const totalSpan = rightEdge - leftEdge;
-
-      // Round instead of floor to keep gaps consistent (~50px)
-      let bottomCount = Math.max(2, Math.round(totalSpan / (imgW + 50)) + 1);
-      const bottomStep = totalSpan / (bottomCount - 1);
-
-      for (let i = 0; i < bottomCount; i++) {
-        const x = leftEdge + bottomStep * i;
-        const isEdge = i === 0 || i === bottomCount - 1;
-        // Edge images push inward, middle images push up
-        const pushX = i === 0 ? 130 : i === bottomCount - 1 ? -130 : rand(-8, 8);
-        const pushY = isEdge ? -65 : rand(-85, -65);
+      // Middle images: centers at (step*i, H) for i = 1..n-1
+      for (let i = 1; i < n; i++) {
         configs.push({
-          pos: 'left:' + (x + (isEdge ? 0 : rand(-5, 5))).toFixed(0) + 'px;top:' + (bottomY + (isEdge ? 0 : rand(-5, 5))).toFixed(0) + 'px',
-          px: pushX, py: pushY, rot: randRot(),
+          pos: 'left:' + (step * i - offX) + 'px;top:' + (H - offY) + 'px',
+          px: 0, py: -75,
         });
       }
 
-      let remaining = totalImages - bottomCount;
+      // Right corner: center at (W, H)
+      configs.push({
+        pos: 'left:' + (W - offX) + 'px;top:' + (H - offY) + 'px',
+        px: -100, py: -75,
+      });
 
-      // --- SIDE IMAGES ---
-      const sideStep = 200;
-      const sideMaxPerSide = Math.min(3, Math.floor(remaining / 2));
-      const sideStartY = bottomY - 250;
-      const maxSide = H < 600 ? 1 : sideMaxPerSide;
-      const sideMinY = H * 0.15;
-
-      let sideCount = 0;
-      for (let i = 0; i < maxSide; i++) {
-        const y = sideStartY - i * sideStep;
-        if (y < sideMinY) break;
-        if (isTouch && Math.abs(y + 65 - H * 0.5) < H * 0.12) continue;
-        sideCount++;
+      // --- SIDE IMAGES (up to 3 per side) ---
+      // Left side: center at (0, H - step*i)
+      for (let i = 1; i <= 3; i++) {
+        const y = H - step * i;
+        if (y - offY < 0) break;
+        configs.push({
+          pos: 'left:' + (-offX) + 'px;top:' + (y - offY) + 'px',
+          px: 100, py: 0,
+        });
       }
 
-      // Place left side
-      for (let i = 0; i < sideCount; i++) {
-        if (remaining <= 0) break;
-        const y = sideStartY - i * sideStep;
+      // Right side: center at (W, H - step*i)
+      for (let i = 1; i <= 3; i++) {
+        const y = H - step * i;
+        if (y - offY < 0) break;
         configs.push({
-          pos: 'left:' + (-imgW + cornerInset + rand(-5, 5)).toFixed(0) + 'px;top:' + (y + rand(-5, 5)).toFixed(0) + 'px',
-          px: rand(135, 160), py: rand(-8, 8), rot: randRot(),
+          pos: 'left:' + (W - offX) + 'px;top:' + (y - offY) + 'px',
+          px: -100, py: 0,
         });
-        remaining--;
-      }
-
-      // Place right side
-      for (let i = 0; i < sideCount; i++) {
-        if (remaining <= 0) break;
-        const y = sideStartY - i * sideStep;
-        configs.push({
-          pos: 'left:' + (W - cornerInset + rand(-5, 5)).toFixed(0) + 'px;top:' + (y + rand(-5, 5)).toFixed(0) + 'px',
-          px: rand(-160, -135), py: rand(-8, 8), rot: randRot(),
-        });
-        remaining--;
       }
 
       // Create DOM elements
@@ -525,9 +511,8 @@
         img.src = shuffled[imgIdx++ % shuffled.length];
         img.alt = '';
         img.loading = 'lazy';
-        img.dataset.peekX = Math.round(cfg.px);
-        img.dataset.peekY = Math.round(cfg.py);
-        img.dataset.rot = cfg.rot.toFixed(1);
+        img.dataset.peekX = cfg.px;
+        img.dataset.peekY = cfg.py;
         img.style.cssText = cfg.pos;
         hero.insertBefore(img, heroContent);
       });
@@ -539,7 +524,6 @@
           el,
           px: parseFloat(el.dataset.peekX) || 0,
           py: parseFloat(el.dataset.peekY) || 0,
-          rot: parseFloat(el.dataset.rot) || 0,
           cx: 0, cy: 0, co: baseOpacity, cs: baseSat,
           tapPhase: null, holdStart: 0,
         };
@@ -625,10 +609,10 @@
         if (Math.abs(s.cx) < 0.1 && Math.abs(s.cy) < 0.1 && tx === 0 && ty === 0) {
           s.cx = 0;
           s.cy = 0;
-          s.el.style.transform = 'rotate(' + s.rot + 'deg)';
+          s.el.style.transform = '';
         } else {
           s.el.style.transform =
-            'translate(' + s.cx.toFixed(1) + 'px,' + s.cy.toFixed(1) + 'px) rotate(' + s.rot + 'deg)';
+            'translate(' + s.cx.toFixed(1) + 'px,' + s.cy.toFixed(1) + 'px)';
         }
 
         if (opacityReady) {

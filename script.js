@@ -454,52 +454,51 @@
 
       const configs = [];
 
-      // Grid unit: n = floor(W / 250), step = W / n
-      const n = Math.max(2, Math.floor(W / 250));
+      // Grid unit: n = floor(W / 215), step = W / n
+      const n = Math.max(2, Math.floor(W / 215));
       const step = W / n;
+      const sideStep = step * 2 / 3;
 
-      // Coordinates = center of image; offset to get CSS left/top
-      const offX = imgW / 2;
-      const offY = imgH / 2;
+      // Positions are center of image; translate(-50%,-50%) in tick handles centering
 
       // --- BOTTOM ROW ---
       // Left corner: center at (0, H)
       configs.push({
-        pos: 'left:' + (-offX) + 'px;top:' + (H - offY) + 'px',
+        pos: 'left:0px;top:' + H + 'px',
         px: 100, py: -75,
       });
 
       // Middle images: centers at (step*i, H) for i = 1..n-1
       for (let i = 1; i < n; i++) {
         configs.push({
-          pos: 'left:' + (step * i - offX) + 'px;top:' + (H - offY) + 'px',
+          pos: 'left:' + (step * i) + 'px;top:' + H + 'px',
           px: 0, py: -75,
         });
       }
 
       // Right corner: center at (W, H)
       configs.push({
-        pos: 'left:' + (W - offX) + 'px;top:' + (H - offY) + 'px',
+        pos: 'left:' + W + 'px;top:' + H + 'px',
         px: -100, py: -75,
       });
 
       // --- SIDE IMAGES (up to 3 per side) ---
-      // Left side: center at (0, H - step*i)
+      // Left side: center at (0, H - sideStep*i)
       for (let i = 1; i <= 3; i++) {
-        const y = H - step * i;
-        if (y - offY < 0) break;
+        const y = H - sideStep * i;
+        if (y < 0) break;
         configs.push({
-          pos: 'left:' + (-offX) + 'px;top:' + (y - offY) + 'px',
+          pos: 'left:0px;top:' + y + 'px',
           px: 100, py: 0,
         });
       }
 
-      // Right side: center at (W, H - step*i)
+      // Right side: center at (W, H - sideStep*i)
       for (let i = 1; i <= 3; i++) {
-        const y = H - step * i;
-        if (y - offY < 0) break;
+        const y = H - sideStep * i;
+        if (y < 0) break;
         configs.push({
-          pos: 'left:' + (W - offX) + 'px;top:' + (y - offY) + 'px',
+          pos: 'left:' + W + 'px;top:' + y + 'px',
           px: -100, py: 0,
         });
       }
@@ -609,10 +608,10 @@
         if (Math.abs(s.cx) < 0.1 && Math.abs(s.cy) < 0.1 && tx === 0 && ty === 0) {
           s.cx = 0;
           s.cy = 0;
-          s.el.style.transform = '';
+          s.el.style.transform = 'translate(-50%,-50%)';
         } else {
           s.el.style.transform =
-            'translate(' + s.cx.toFixed(1) + 'px,' + s.cy.toFixed(1) + 'px)';
+            'translate(calc(-50% + ' + s.cx.toFixed(1) + 'px),calc(-50% + ' + s.cy.toFixed(1) + 'px))';
         }
 
         if (opacityReady) {

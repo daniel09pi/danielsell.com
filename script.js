@@ -454,56 +454,58 @@
 
       const configs = [];
 
-      // Grid unit: n = floor(W / 215), step = W / n
-      const n = Math.max(2, Math.floor(W / 225));
+      const gridSize = isTouch ? 180 : 225;
+      const n = Math.max(2, Math.floor(W / gridSize));
       const step = W / n;
       const sideStep = step * 0.75;
 
-      // Bottom row uses 85% of width, centered
       const usableW = W * 0.92;
       const margin = (W - usableW) / 2;
 
       const rot = () => { const a = rand(4, 12); return Math.random() > 0.5 ? a : -a; };
+      const rMain = isTouch ? 20 : 35;
+      const rCrossMin = isTouch ? -5 : -10;
+      const rCrossMax = isTouch ? 18 : 30;
 
       // --- BOTTOM ROW ---
-      // Left corner: x -10..30 inward(right), y -10..30 inward(up)
       configs.push({
-        pos: 'left:' + rand(-10, 30) + 'px;top:' + (H - rand(-10, 30)) + 'px',
+        pos: 'left:' + rand(rCrossMin, rCrossMax) + 'px;top:' + (H - rand(rCrossMin, rCrossMax)) + 'px',
         px: 100, py: -75, rot: rot(),
       });
 
-      // Middle images: x ±35px, y -10..30 inward(up)
       const bottomStep = usableW / n;
       for (let i = 1; i < n; i++) {
         configs.push({
-          pos: 'left:' + (margin + bottomStep * i + rand(-35, 35)) + 'px;top:' + (H - rand(-10, 30)) + 'px',
+          pos: 'left:' + (margin + bottomStep * i + rand(-rMain, rMain)) + 'px;top:' + (H - rand(rCrossMin, rCrossMax)) + 'px',
           px: 0, py: -75, rot: rot(),
         });
       }
 
-      // Right corner: x -10..30 inward(left), y -10..30 inward(up)
       configs.push({
-        pos: 'left:' + (W - rand(-10, 30)) + 'px;top:' + (H - rand(-10, 30)) + 'px',
+        pos: 'left:' + (W - rand(rCrossMin, rCrossMax)) + 'px;top:' + (H - rand(rCrossMin, rCrossMax)) + 'px',
         px: -100, py: -75, rot: rot(),
       });
 
       // --- SIDE IMAGES (up to 3 per side) ---
-      // Left side: x -10..30 inward(right), y ±35px
+      const centerY = H * 0.5;
+
       for (let i = 1; i <= 3; i++) {
         const y = H - sideStep * i - 30;
         if (y < 0) break;
+        // On mobile skip if too close to vertical center
+        if (isTouch && Math.abs(y - centerY) < H * 0.12) continue;
         configs.push({
-          pos: 'left:' + rand(-10, 30) + 'px;top:' + (y + rand(-35, 35)) + 'px',
+          pos: 'left:' + rand(rCrossMin, rCrossMax) + 'px;top:' + (y + rand(-rMain, rMain)) + 'px',
           px: 100, py: 0, rot: rot(),
         });
       }
 
-      // Right side: x -10..30 inward(left), y ±35px
       for (let i = 1; i <= 3; i++) {
         const y = H - sideStep * i - 30;
         if (y < 0) break;
+        if (isTouch && Math.abs(y - centerY) < H * 0.12) continue;
         configs.push({
-          pos: 'left:' + (W - rand(-10, 30)) + 'px;top:' + (y + rand(-35, 35)) + 'px',
+          pos: 'left:' + (W - rand(rCrossMin, rCrossMax)) + 'px;top:' + (y + rand(-rMain, rMain)) + 'px',
           px: -100, py: 0, rot: rot(),
         });
       }

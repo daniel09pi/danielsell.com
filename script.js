@@ -415,7 +415,10 @@
 
     const rand = (min, max) => min + Math.random() * (max - min);
     const randRot = () => { const a = rand(6, 13); return Math.random() > 0.5 ? a : -a; };
-    const imgSize = 170;
+    const totalImages = 15; // change this when adding/removing projects
+    const imgW = 150; // approx image width with rotation
+    const imgH = 200; // approx image height with rotation
+    const spacing = 100;
     const baseOpacity = 0.45;
     const maxOpacity = 1.0;
     const baseSat = 0;
@@ -434,7 +437,6 @@
     }
 
     function buildLayout(animate) {
-      // Remove old peek images
       hero.querySelectorAll('.hero__peek').forEach((el) => el.remove());
       state = [];
       opacityReady = false;
@@ -451,67 +453,118 @@
       let imgIdx = 0;
       const nextSrc = () => pool[imgIdx++ % pool.length];
 
-      // Spacing — tighter on sides/bottom since images move inward (no overlap risk)
-      const bottomSpacing = imgSize + 40;
-      const sideSpacing = imgSize * 0.6 + 30;
-
-      // Counts
-      const bottomInner = W * 0.78;
-      const bottomCount = Math.max(1, Math.floor(bottomInner / bottomSpacing));
-
-      // Sides: start at 25%, end at 72% — avoid top area and leave gap for corners
-      const sideStartPct = 25;
-      const sideEndPct = 65;
-      const sideRangePx = H * (sideEndPct - sideStartPct) / 100;
-      const sideCount = Math.max(1, Math.floor(sideRangePx / sideSpacing));
-
-      // Corner exclusion: first/last bottom images start further from edge
-      // to avoid overlapping with corner images
-      const cornerZonePct = 14;
-
       const configs = [];
+      let remaining = totalImages;
 
-      // Bottom-left corner
+      // --- BOTTOM ROW ---
+      // Both corners get an image, then fill between with ~100px spacing
+      // Corner images are half off-screen
+      const cornerInset = imgW * 0.4; // how much of the corner image is visible
+      const bottomY = H - imgH * 0.35; // images peek from bottom
+
+      // Left corner
+      const leftCornerX = -imgW + cornerInset;
+      // Right corner
+      const rightCornerX = W - cornerInset;
+
+      // Available space between corners for middle images
+      const innerLeft = cornerInset + spacing;
+      const innerRight = W - cornerInset - spacing;
+      const innerWidth = innerRight - innerLeft;
+
+      // How many middle images fit?
+      let middleCount = 0;
+      if (innerWidth >= imgW) {
+        middleCount = Math.floor((innerWidth + spacing) / (imgW + spacing));
+      }
+
+      // Cap to available images (2 corners + middles)
+      const bottomTotal = 2 + middleCount;
+      if (bottomTotal > remaining) middleCount = Math.max(0, remaining - 2);
+
+      // Recalculate spacing for even distribution
+      const actualMiddleSpacing = middleCount > 0
+        ? (innerWidth - middleCount * imgW) / (middleCount + 1)
+        : 0;
+
+      // Place left corner
       configs.push({
-        pos: 'bottom:' + rand(-40, -28).toFixed(0) + 'px;left:' + rand(-80, -60).toFixed(0) + 'px',
+        pos: 'left:' + leftCornerX + 'px;top:' + bottomY + 'px',
         px: 130, py: -65, rot: randRot(),
       });
+      remaining--;
 
-      // Bottom middle — avoid corner zones
-      for (let i = 0; i < bottomCount; i++) {
-        const p = (i + 0.5) / bottomCount;
-        const leftPct = cornerZonePct + p * (100 - 2 * cornerZonePct);
+      // Place middle images
+      for (let i = 0; i < middleCount; i++) {
+        const x = innerLeft + actualMiddleSpacing * (i + 1) + imgW * i;
         configs.push({
-          pos: 'bottom:' + rand(-50, -30).toFixed(0) + 'px;left:' + leftPct.toFixed(1) + '%',
-          px: rand(-5, 5), py: rand(-85, -65), rot: randRot(),
+          pos: 'left:' + (x + rand(-20, 20)).toFixed(0) + 'px;top:' + (bottomY + rand(-20, 20)).toFixed(0) + 'px',
+          px: rand(-8, 8), py: rand(-85, -65), rot: randRot(),
         });
+        remaining--;
       }
 
-      // Bottom-right corner
+      // Place right corner
       configs.push({
-        pos: 'bottom:' + rand(-40, -28).toFixed(0) + 'px;right:' + rand(-75, -55).toFixed(0) + 'px',
-        px: -125, py: -65, rot: randRot(),
+        pos: 'left:' + rightCornerX + 'px;top:' + bottomY + 'px',
+        px: -130, py: -65, rot: randRot(),
       });
+      remaining--;
 
-      // Left edge (25% to 65%)
-      for (let i = 0; i < sideCount; i++) {
-        const p = sideCount > 1 ? i / (sideCount - 1) : 0.5;
-        const topPct = sideStartPct + p * (sideEndPct - sideStartPct);
+      // --- SIDE IMAGES ---
+      // Fill from bottom up, up to 3 per side, ~100px spacing
+      // On mobile (isTouch): avoid vertical center (title area), go higher
+      const sideMaxPerSide = Math.min(3, Math.floor(remaining / 2));
+
+      // Side images start from bottom of the hero upwards
+      // Bottom boundary: above the bottom row (bottomY - imgH - spacing)
+      const sideBottomY = bottomY - imgH - spacing * 0.5;
+      // Top boundary: on mobile avoid center, on desktop go up to ~20% from top
+      const centerY = H * 0.5;
+      const sideTopY = isTouch ? H * 0.15 : H * 0.2;
+
+      // Calculate how many actually fit vertically
+      const sideRange = sideBottomY - sideTopY;
+      let sideCount = Math.min(sideMaxPerSide, Math.floor((sideRange + spacing) / (imgH + spacing)));
+      sideCount = Math.max(0, sideCount);
+
+      // Even distribution from bottom up
+      const sideStep = sideCount > 1 ? (sideBottomY - sideTopY) / (sideCount - 1) : 0;
+
+      // On mobile: filter out positions too close to vertical center
+      function sidePositions(count) {
+        const positions = [];
+        for (let i = 0; i < count; i++) {
+          const y = sideBottomY - i * sideStep;
+          // On mobile, skip if image center is within 20% of screen center
+          if (isTouch && Math.abs(y + imgH / 2 - centerY) < H * 0.15) continue;
+          positions.push(y);
+        }
+        return positions;
+      }
+
+      const leftPositions = sidePositions(sideCount);
+      const rightPositions = sidePositions(sideCount);
+
+      // Left side
+      leftPositions.forEach((y) => {
+        if (remaining <= 0) return;
         configs.push({
-          pos: 'top:' + topPct.toFixed(1) + '%;left:' + rand(-100, -75).toFixed(0) + 'px',
+          pos: 'left:' + (-imgW + cornerInset + rand(-20, 20)).toFixed(0) + 'px;top:' + (y + rand(-20, 20)).toFixed(0) + 'px',
           px: rand(135, 160), py: rand(-8, 8), rot: randRot(),
         });
-      }
+        remaining--;
+      });
 
-      // Right edge (25% to 65%)
-      for (let i = 0; i < sideCount; i++) {
-        const p = sideCount > 1 ? i / (sideCount - 1) : 0.5;
-        const topPct = sideStartPct + p * (sideEndPct - sideStartPct);
+      // Right side
+      rightPositions.forEach((y) => {
+        if (remaining <= 0) return;
         configs.push({
-          pos: 'top:' + topPct.toFixed(1) + '%;right:' + rand(-95, -70).toFixed(0) + 'px',
+          pos: 'left:' + (W - cornerInset + rand(-20, 20)).toFixed(0) + 'px;top:' + (y + rand(-20, 20)).toFixed(0) + 'px',
           px: rand(-160, -135), py: rand(-8, 8), rot: randRot(),
         });
-      }
+        remaining--;
+      });
 
       // Create DOM elements
       configs.forEach((cfg) => {

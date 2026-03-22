@@ -532,7 +532,8 @@
           px: parseFloat(el.dataset.peekX) || 0,
           py: parseFloat(el.dataset.peekY) || 0,
           rot: parseFloat(el.dataset.rot) || 0,
-          cx: 0, cy: 0, co: baseOpacity, cs: baseSat,
+          activeRot: (Math.random() > 0.5 ? 1 : -1) * rand(2, 8),
+          cx: 0, cy: 0, cr: 0, co: baseOpacity, cs: baseSat,
           tapPhase: null, holdStart: 0,
         };
         if (isMobile) {
@@ -570,6 +571,7 @@
       state.forEach((s) => {
         let tx = 0;
         let ty = 0;
+        let tr = 0;
         let targetOp = baseOpacity;
         let targetSat = baseSat;
 
@@ -577,6 +579,7 @@
           if (s.tapPhase === 'in') {
             tx = s.px;
             ty = s.py;
+            tr = s.activeRot;
             targetOp = maxOpacity;
             targetSat = maxSat;
             if (Math.abs(s.cx - s.px) < 2 && Math.abs(s.cy - s.py) < 2) {
@@ -586,6 +589,7 @@
           } else if (s.tapPhase === 'hold') {
             tx = s.px;
             ty = s.py;
+            tr = s.activeRot;
             targetOp = maxOpacity;
             targetSat = maxSat;
             if (Date.now() - s.holdStart > 1000) {
@@ -605,22 +609,26 @@
           const eased = factor * factor;
           tx = s.px * eased;
           ty = s.py * eased;
+          tr = s.activeRot * eased;
           targetOp = baseOpacity + (maxOpacity - baseOpacity) * eased;
           targetSat = baseSat + (maxSat - baseSat) * eased;
         }
 
         s.cx += (tx - s.cx) * 0.065;
         s.cy += (ty - s.cy) * 0.065;
+        s.cr += (tr - s.cr) * 0.065;
         s.co += (targetOp - s.co) * 0.065;
         s.cs += (targetSat - s.cs) * 0.065;
 
-        if (Math.abs(s.cx) < 0.1 && Math.abs(s.cy) < 0.1 && tx === 0 && ty === 0) {
+        const curRot = (s.rot + s.cr).toFixed(1);
+        if (Math.abs(s.cx) < 0.1 && Math.abs(s.cy) < 0.1 && tx === 0 && ty === 0 && Math.abs(s.cr) < 0.1) {
           s.cx = 0;
           s.cy = 0;
+          s.cr = 0;
           s.el.style.transform = 'translate(-50%,-50%) rotate(' + s.rot + 'deg)';
         } else {
           s.el.style.transform =
-            'translate(calc(-50% + ' + s.cx.toFixed(1) + 'px),calc(-50% + ' + s.cy.toFixed(1) + 'px)) rotate(' + s.rot + 'deg)';
+            'translate(calc(-50% + ' + s.cx.toFixed(1) + 'px),calc(-50% + ' + s.cy.toFixed(1) + 'px)) rotate(' + curRot + 'deg)';
         }
 
         if (opacityReady) {

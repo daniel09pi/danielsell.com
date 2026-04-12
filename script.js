@@ -137,24 +137,32 @@
     });
   }
 
+  function handleRowClick(row) {
+    if (row === currentExpanded) {
+      closeProject(row);
+      currentExpanded = null;
+      return;
+    }
+
+    if (currentExpanded) {
+      closeProject(currentExpanded, () => {
+        openProject(row);
+      });
+    } else {
+      openProject(row);
+    }
+    currentExpanded = row;
+  }
+
   document.querySelectorAll('.index__row-header').forEach((header) => {
     header.addEventListener('click', () => {
-      const row = header.closest('.index__row');
+      handleRowClick(header.closest('.index__row'));
+    });
+  });
 
-      if (row === currentExpanded) {
-        closeProject(row);
-        currentExpanded = null;
-        return;
-      }
-
-      if (currentExpanded) {
-        closeProject(currentExpanded, () => {
-          openProject(row);
-        });
-      } else {
-        openProject(row);
-      }
-      currentExpanded = row;
+  document.querySelectorAll('.index__thumbnails').forEach((thumbs) => {
+    thumbs.addEventListener('click', () => {
+      handleRowClick(thumbs.closest('.index__row'));
     });
   });
 

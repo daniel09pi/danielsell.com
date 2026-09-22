@@ -419,11 +419,12 @@
       'portfolio_files/thumbs/stooney-1.jpg', 'portfolio_files/thumbs/stooney-2.jpg', 'portfolio_files/thumbs/stooney-3.jpg',
       'portfolio_files/thumbs/project500-1.jpg', 'portfolio_files/thumbs/project500-2.jpg', 'portfolio_files/thumbs/project500-3.jpg',
       'portfolio_files/thumbs/bookcover-1.jpg', 'portfolio_files/thumbs/bookcover-2.jpg', 'portfolio_files/thumbs/bookcover-3.jpg',
+      'portfolio_files/thumbs/bookcover-4.jpg', 'portfolio_files/thumbs/bookcover-5.jpg',
     ];
 
     const rand = (min, max) => min + Math.random() * (max - min);
     const randRot = () => { const a = rand(6, 13); return Math.random() > 0.5 ? a : -a; };
-    const totalImages = 15; // change this when adding/removing projects
+    const totalImages = 17; // change this when adding/removing projects
     const imgW = 150; // approx image width with rotation
     const imgH = 200; // approx image height with rotation
     const spacing = 100;
@@ -673,6 +674,7 @@
     'portfolio_files/thumbs/stooney-1.jpg', 'portfolio_files/thumbs/stooney-2.jpg', 'portfolio_files/thumbs/stooney-3.jpg',
     'portfolio_files/thumbs/project500-1.jpg', 'portfolio_files/thumbs/project500-2.jpg', 'portfolio_files/thumbs/project500-3.jpg',
     'portfolio_files/thumbs/bookcover-1.jpg', 'portfolio_files/thumbs/bookcover-2.jpg', 'portfolio_files/thumbs/bookcover-3.jpg',
+    'portfolio_files/thumbs/bookcover-4.jpg', 'portfolio_files/thumbs/bookcover-5.jpg',
   ];
 
   const loader = document.getElementById('loader');

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 550" fill="none" role="img" aria-label="Daniel Sell logo">
+  <!-- Logo "lose": nur Linien und Kreis, Farbe über currentColor. Geometrie 1:1 aus der Visitenkarte (85 x 55 mm, 1 Einheit = 0,1 mm). -->
+  <g stroke="currentColor" stroke-width="43">
+    <path d="M-60 22H260V286M260 286H524V610M260 286L-60 606"/>
+    <circle cx="444.8" cy="101.2" r="79.2"/>
+  </g>
+  <rect x="-10" y="-10" width="291.5" height="25" fill="currentColor"/>
+</svg>

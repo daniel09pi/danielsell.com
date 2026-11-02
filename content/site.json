@@ -1,0 +1,62 @@
+{
+  "_hinweis": "Alle Texte und Links der Website. Werte in [eckigen Klammern] sind Platzhalter: einfach ersetzen. Ein leerer String \"\" blendet das Feld auf der Seite aus.",
+
+  "person": {
+    "name": "Daniel Sell",
+    "based": "Munich, Germany",
+    "email": "hello@danielsell.com",
+    "languages": ["German", "English", "Spanish"]
+  },
+
+  "hero": {
+    "subtitle": ["creative", "adventure", "dev"]
+  },
+
+  "seo": {
+    "title": "Daniel Sell — Designer & Developer",
+    "description": "Portfolio of Daniel Sell — brand identity designer and web developer from Munich, Germany."
+  },
+
+  "socials": [
+    { "name": "Instagram", "handle": "@daniel.sell_", "url": "https://instagram.com/daniel.sell_" },
+    { "name": "LinkedIn", "handle": "[LinkedIn-Name]", "url": "[LinkedIn-URL]" },
+    { "name": "GitHub", "handle": "daniel09pi", "url": "https://github.com/daniel09pi" }
+  ],
+
+  "currently": {
+    "updated": "2026-11-02",
+    "items": [
+      { "title": "danielsell.com v5", "text": "Redesign in the new identity.", "status": "building" },
+      { "title": "Personal identity", "text": "Logo, colours and business card.", "status": "print prep" },
+      { "title": "[Projekt]", "text": "[Ein Satz, worum es geht.]", "status": "[learning]" }
+    ]
+  },
+
+  "about": {
+    "intro": "Designer and developer from Munich. I design brand identities and book covers, and I build the websites and web apps that go with them.",
+    "photo": { "src": "portfolio_files/_assets/selfie daniel lama.avif", "alt": "Daniel with a llama in north Argentina", "caption": "Me (right) and Lama (left), 4000+ m up in north Argentina" },
+    "howItStarted": "[Eigener Text: wie alles angefangen hat. 2 bis 3 Sätze.]",
+    "facts": [
+      { "label": "Based in", "value": "Munich, Germany" },
+      { "label": "Speaks", "value": "German, English, Spanish" },
+      { "label": "Worked with", "value": "masselverlag, jedition, [weitere]" }
+    ],
+    "skills": {
+      "design": ["Logo & brand identity design", "Book design", "Graphic design", "UI/UX design"],
+      "designTools": ["Illustrator", "Figma", "Photoshop", "InDesign"],
+      "dev": ["Static websites", "Full-stack web apps", "Hosting & maintenance"],
+      "devStack": ["HTML", "CSS", "JavaScript", "Vue", "PHP", "Laravel", "MySQL", "Python"]
+    },
+    "offScreen": ["travelling", "volleyball", "table tennis", "football", "motorbike", "fishing", "fast boats"]
+  },
+
+  "legal": {
+    "impressum": {
+      "name": "Daniel Sell",
+      "address": "[Straße Hausnummer, PLZ Ort]",
+      "email": "hello@danielsell.com",
+      "phone": "[optional]"
+    },
+    "datenschutz": "[Datenschutzerklärung: Text folgt. Die Seite setzt keine Cookies, lädt keine externen Schriften und hat kein Tracking.]"
+  }
+}

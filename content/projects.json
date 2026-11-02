@@ -1,0 +1,138 @@
+{
+  "_hinweis": "Alle Projekte. category: creative | adventure | dev. Pro Kategorie zeigt die Startseite das Projekt mit \"featured\": true, die Projektseite zeigt alle. Reihenfolge in der Liste = Reihenfolge auf der Seite. Werte in [eckigen Klammern] sind Platzhalter, \"\" blendet ein Feld aus. Bilder: Pfade relativ zum Repo.",
+
+  "projects": [
+    {
+      "slug": "alukeku",
+      "category": "creative",
+      "featured": true,
+      "title": "ALUKEKU",
+      "kind": "Brand Identity",
+      "year": "2026",
+      "tags": ["Brand Identity", "Visual Guidelines"],
+      "text": "Design of the ALUKEKU brand identity and visual guidelines. ALUKEKU is an architecture and construction company from Angola.",
+      "links": [],
+      "images": ["portfolio_files/alukeku/1.avif", "portfolio_files/alukeku/2.avif", "portfolio_files/alukeku/3.avif", "portfolio_files/alukeku/4.avif", "portfolio_files/alukeku/5.avif", "portfolio_files/alukeku/6.avif", "portfolio_files/alukeku/7.avif", "portfolio_files/alukeku/8.avif", "portfolio_files/alukeku/9.avif"]
+    },
+    {
+      "slug": "bookcovers",
+      "category": "creative",
+      "featured": false,
+      "title": "Bookcovers",
+      "kind": "Book Design",
+      "year": "2024–2026",
+      "tags": ["Book Design", "Editorial"],
+      "text": "Various bookcovers designed for masselverlag as well as jedition.",
+      "links": [
+        { "label": "masselverlag", "url": "https://masselverlag.de" },
+        { "label": "jedition", "url": "https://jedition.de" }
+      ],
+      "images": ["portfolio_files/bookcover/1.avif", "portfolio_files/bookcover/2.avif", "portfolio_files/bookcover/3.avif", "portfolio_files/bookcover/4.avif", "portfolio_files/bookcover/5.avif", "portfolio_files/bookcover/6.avif", "portfolio_files/bookcover/7.avif", "portfolio_files/bookcover/8.avif"]
+    },
+    {
+      "slug": "stooney",
+      "category": "creative",
+      "featured": false,
+      "title": "Stooney",
+      "kind": "Brand Identity",
+      "year": "2024",
+      "tags": ["Brand Identity", "Product Design"],
+      "text": "Designs of the Stooney brand identity. Stooney is a Germany-based small company that makes high quality hand-made designer lamps made out of raw stones and gems.",
+      "links": [],
+      "images": ["portfolio_files/stooney/1.avif", "portfolio_files/stooney/2.avif", "portfolio_files/stooney/3.avif", "portfolio_files/stooney/4.avif", "portfolio_files/stooney/5.avif", "portfolio_files/stooney/6.avif"]
+    },
+    {
+      "slug": "project500",
+      "category": "creative",
+      "featured": false,
+      "title": "project500",
+      "kind": "Visual Identity",
+      "year": "2024",
+      "tags": ["Visual Identity", "Personal Project"],
+      "text": "Design of the project500 visual identity. Project500 or p500 was a personal fun project with the goal of learning new skills and later building a p500 dashboard website.",
+      "links": [],
+      "images": ["portfolio_files/project500/1.avif", "portfolio_files/project500/2.avif", "portfolio_files/project500/3.avif", "portfolio_files/project500/4.avif", "portfolio_files/project500/5.avif", "portfolio_files/project500/6.avif"]
+    },
+    {
+      "slug": "landeshut",
+      "category": "creative",
+      "featured": false,
+      "title": "Landeshut",
+      "kind": "Brand Identity",
+      "year": "2025",
+      "tags": ["Brand Identity", "Nonprofit"],
+      "text": "Design of the Landeshut brand identity. Landeshut is a local nonprofit organisation that brings local communities together in the area of Bavaria, Germany.",
+      "links": [],
+      "images": ["portfolio_files/landeshut/1.avif", "portfolio_files/landeshut/2.avif", "portfolio_files/landeshut/3.avif", "portfolio_files/landeshut/4.avif", "portfolio_files/landeshut/5.avif", "portfolio_files/landeshut/6.avif"]
+    },
+
+    {
+      "slug": "argentinien",
+      "category": "adventure",
+      "featured": true,
+      "title": "[Argentinien]",
+      "kind": "[z. B. Reise / Auslandsjahr]",
+      "year": "[Jahr]",
+      "tags": ["[Salta]", "[Anden]"],
+      "text": "[2 bis 4 Sätze über die Zeit in Argentinien.]",
+      "links": [],
+      "images": ["[Bilder aus C:/everything/portfolio/assets-raw/adventure/argentinien/ — der Agent optimiert sie und trägt die Pfade hier ein]"]
+    },
+
+    {
+      "slug": "flowinsync",
+      "category": "dev",
+      "featured": true,
+      "title": "flowinsync",
+      "kind": "Web App",
+      "year": "[Jahr]",
+      "tags": ["Realtime", "[Stack]"],
+      "text": "Realtime cross-device synced timer with live chat.",
+      "links": [
+        { "label": "Live", "url": "https://flowinsync.deam31.com/" },
+        { "label": "Source", "url": "[GitHub-URL oder leer lassen]" }
+      ],
+      "images": ["[Screenshots / Bildschirmaufnahme]"]
+    },
+    {
+      "slug": "mixer-dashboard",
+      "category": "dev",
+      "featured": false,
+      "title": "Mixer dashboard",
+      "kind": "Web App + Hardware",
+      "year": "[Jahr]",
+      "tags": ["Realtime", "Hardware", "[Stack]"],
+      "text": "Dashboard for real-time in-browser music controls connected to a physical mixing desk.",
+      "links": [],
+      "images": ["[Foto vom Mischpult + Screenshot vom Dashboard]"]
+    },
+    {
+      "slug": "werner-gehner",
+      "category": "dev",
+      "featured": false,
+      "title": "Werner Gehner",
+      "kind": "Website",
+      "year": "[Jahr]",
+      "tags": ["Client", "Website", "[Stack]"],
+      "text": "Homepage for Werner Gehner — psychospirituelle Begleitung.",
+      "links": [
+        { "label": "Live", "url": "https://www.mufuma.de/dsell/gehner_php/" }
+      ],
+      "images": ["[Screenshots]"]
+    },
+    {
+      "slug": "danielsell-com",
+      "category": "dev",
+      "featured": false,
+      "title": "danielsell.com",
+      "kind": "Website",
+      "year": "2026",
+      "tags": ["Design", "Development"],
+      "text": "This website. Designed and built by hand.",
+      "links": [
+        { "label": "Source", "url": "https://github.com/daniel09pi/danielsell.com" }
+      ],
+      "images": ["[Screenshots der neuen Seite, macht der Agent am Ende]"]
+    }
+  ]
+}

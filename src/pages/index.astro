@@ -1,10 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
-import Feature from '../components/Feature.astro';
+import Areas from '../components/Areas.astro';
 import Closing from '../components/Closing.astro';
 import Img from '../components/Img.astro';
 import T from '../components/T.astro';
-import { site, has, isPlaceholder, CATEGORIES, featured, byCategory, subtitleLinks, formatDate } from '../lib/content.js';
+import { site, has, isPlaceholder, CATEGORIES, byCategory, subtitleLinks, formatDate } from '../lib/content.js';
 import { resolveImage } from '../lib/images.js';
 
 const name = site.person?.name ?? '';
@@ -15,14 +15,12 @@ const areas = CATEGORIES.map((c) => ({
   word: words.find((w) => w.category === c)?.word ?? c,
   titles: byCategory(c).map((p) => p.title).filter(has),
 }));
-const features = CATEGORIES.map((c) => ({ category: c, project: featured(c) })).filter((f) => f.project);
 const currently = (site.currently?.items ?? []).filter((i) => has(i?.title) || has(i?.text));
 const about = site.about ?? {};
 const photo = has(about.photo?.src) && !isPlaceholder(about.photo.src) ? resolveImage(about.photo.src) : null;
 const facts = (about.facts ?? []).filter((f) => has(f?.label) && has(f?.value));
 const ph = (v) => (isPlaceholder(v) ? 'ph' : undefined);
-// Phase 1: Die Projektseite folgt in Phase 2. Bis dahin keine Links "All … projects" (sonst 404).
-const PROJECTS_PAGE = false;
+const quote = site.quote ?? {};
 ---
 <Base nav={[{ label: 'work', href: '#work' }, { label: 'about', href: '#about' }, { label: 'contact', href: '#contact' }]}>
   <section class="hero" aria-labelledby="hero-title">
@@ -40,20 +38,12 @@ const PROJECTS_PAGE = false;
     </ul>
   </section>
 
-  <div id="work">
-    {features.map((f, i) => (
-      <section class:list={['chapter', `chapter--${f.category}`]} id={f.category}>
-        <Feature
-          project={f.project}
-          side={i % 2 === 0 ? 'right' : 'left'}
-          eager={i === 0}
-          categoryHeading
-          headingLevel={3}
-          moreLink={PROJECTS_PAGE ? `/projects/#${f.category}` : undefined}
-        />
-      </section>
-    ))}
-  </div>
+  {has(quote.text) && (
+    <section class="quote wrap" aria-label={has(quote.label) ? quote.label : 'In short'}>
+      {has(quote.label) && <p class="quote__label" aria-hidden="true"><T v={quote.label} /></p>}
+      <blockquote class="quote__text"><p><T v={quote.text} /></p></blockquote>
+    </section>
+  )}
 
   {currently.length > 0 && (
     <section class="now wrap" {...(has(site.currently?.title) ? { "aria-labelledby": "now-title" } : { "aria-label": "Currently" })}>
@@ -73,9 +63,12 @@ const PROJECTS_PAGE = false;
     </section>
   )}
 
+  <Areas />
+
+
   <section class:list={["letter wrap", { "letter--nophoto": !photo }]} id="about" {...(has(about.greeting) ? { "aria-labelledby": "about-title" } : { "aria-label": "About" })}>
     {photo && (
-      <figure class="letter__photo tilt" style="--tilt:-1.5deg;--tilt-to:1deg">
+      <figure class="letter__photo tilt" style="--tilt:-0.6deg;--tilt-to:0.4deg">
         <Img meta={photo} alt={about.photo.alt ?? ''} sizes="(min-width: 960px) 36vw, 84vw" />
         {has(about.photo?.caption) && <figcaption><T v={about.photo.caption} /></figcaption>}
       </figure>

@@ -1,0 +1,76 @@
+---
+// Die drei Bereiche der Startseite in einem Abschnitt: drei Farbspalten wie im Hero.
+// Eine Spalte ist offen und zeigt ihr Beispielprojekt (Slideshow und Text), die anderen beiden sind
+// schmale Streifen mit ihrem Wort. Klick auf einen Streifen öffnet ihn. Handy: drei Bänder untereinander.
+// Ohne JavaScript sind alle drei offen und stehen untereinander.
+import Feature from './Feature.astro';
+import { CATEGORIES, featured, byCategory, categoryLabel, has } from '../lib/content.js';
+
+const areas = CATEGORIES.map((c) => {
+  const project = featured(c);
+  const all = byCategory(c);
+  return {
+    c,
+    label: categoryLabel(c),
+    project,
+    count: all.length,
+    also: all.filter((x) => x !== project).map((x) => x.title).filter(has),
+  };
+}).filter((a) => a.project);
+---
+<section class="areas" id="work" aria-labelledby="work-title">
+  <h2 class="sr-only" id="work-title">Work</h2>
+  <div class="areas__row" data-areas>
+    {areas.map((a, i) => (
+      <section class:list={['area', `area--${a.c}`, { 'is-open': i === 0 }]} id={a.c} data-area>
+        <h3 class="area__head">
+          <button type="button" class="area__toggle" id={`${a.c}-toggle`} aria-controls={`${a.c}-panel`} aria-expanded="true">
+            <span class="area__word">{a.label}</span>
+            <span class="area__count">{a.count} {a.count === 1 ? 'project' : 'projects'}</span>
+          </button>
+        </h3>
+        <div class="area__panel" id={`${a.c}-panel`} role="region" aria-labelledby={`${a.c}-toggle`}>
+          <div class="area__inner">
+            <Feature project={a.project} variant="panel" eager={i === 0} headingLevel={4} also={a.also} />
+          </div>
+        </div>
+      </section>
+    ))}
+  </div>
+</section>
+
+<script>
+  // Immer genau eine Spalte offen. Links auf #creative, #adventure, #dev (z. B. aus dem Hero) öffnen die Spalte.
+  const row = document.querySelector<HTMLElement>('[data-areas]');
+  if (row) {
+    const areas = Array.from(row.querySelectorAll<HTMLElement>('[data-area]'));
+    const parts = areas.map((area) => ({
+      area,
+      toggle: area.querySelector<HTMLButtonElement>('.area__toggle')!,
+      panel: area.querySelector<HTMLElement>('.area__panel')!,
+    }));
+    const open = (target: HTMLElement) => {
+      parts.forEach(({ area, toggle, panel }) => {
+        const isOpen = area === target;
+        area.classList.toggle('is-open', isOpen);
+        toggle.setAttribute('aria-expanded', String(isOpen));
+        // Die offene Spalte lässt sich nicht schließen, nur eine andere öffnen.
+        if (isOpen) toggle.setAttribute('aria-disabled', 'true'); else toggle.removeAttribute('aria-disabled');
+        panel.inert = !isOpen;
+      });
+    };
+    parts.forEach(({ area, toggle }) => toggle.addEventListener('click', () => open(area)));
+
+    const fromHash = (hash: string) => areas.find((a) => `#${a.id}` === hash);
+    window.addEventListener('hashchange', () => { const a = fromHash(location.hash); if (a) open(a); });
+    // Gleicher Link zweimal hintereinander löst kein hashchange aus, deshalb auch beim Klick öffnen.
+    document.addEventListener('click', (e) => {
+      const link = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#"]');
+      const a = link && fromHash(link.getAttribute('href') ?? '');
+      if (a) open(a);
+    });
+
+    row.classList.add('is-enhanced');
+    open(fromHash(location.hash) ?? areas[0]);
+  }
+</script>

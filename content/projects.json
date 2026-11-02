@@ -1,6 +1,5 @@
 {
   "_hinweis": "Alle Projekte. category: creative | adventure | dev. Pro Kategorie zeigt die Startseite das Projekt mit \"featured\": true, die Projektseite zeigt alle. Reihenfolge in der Liste = Reihenfolge auf der Seite. Werte in [eckigen Klammern] sind Platzhalter, \"\" blendet ein Feld aus. Bilder: Pfade relativ zum Repo. Neu in v5: Ein Bild darf statt eines Pfads auch ein Objekt { \"src\": \"portfolio_files/…\", \"alt\": \"Beschreibung des Bildes\" } sein; ohne alt erzeugt die Seite einen Alt-Text aus Titel und Nummer. Das erste Bild ist das Titelbild des Features.",
-
   "projects": [
     {
       "slug": "alukeku",
@@ -9,19 +8,49 @@
       "title": "ALUKEKU",
       "kind": "Brand Identity",
       "year": "2026",
-      "tags": ["Brand Identity", "Visual Guidelines"],
+      "tags": [
+        "Brand Identity",
+        "Visual Guidelines"
+      ],
       "text": "Design of the ALUKEKU brand identity and visual guidelines. ALUKEKU is an architecture and construction company from Angola.",
       "links": [],
       "images": [
-        { "src": "portfolio_files/alukeku/1.avif", "alt": "ALUKEKU logo, a five-pointed star mark above the wordmark, printed on white paper" },
-        { "src": "portfolio_files/alukeku/2.avif", "alt": "Construction drawing of the ALUKEKU star mark on its geometric grid" },
-        { "src": "portfolio_files/alukeku/3.avif", "alt": "ALUKEKU business cards, one white and one black, leaning on a concrete block" },
-        { "src": "portfolio_files/alukeku/4.avif", "alt": "The ALUKEKU website on a laptop: “Building with Purpose. Rooted in Heritage.”" },
-        { "src": "portfolio_files/alukeku/5.avif", "alt": "ALUKEKU poster with a blue, yellow and black pattern built from the star mark" },
-        { "src": "portfolio_files/alukeku/6.avif", "alt": "Brand guidelines page: logomark concept and symbolism" },
-        { "src": "portfolio_files/alukeku/7.avif", "alt": "Brand guidelines page: photo directions for structure, craft and material" },
-        { "src": "portfolio_files/alukeku/8.avif", "alt": "Brand guidelines page: photo mosaic of construction and material images" },
-        { "src": "portfolio_files/alukeku/9.avif", "alt": "Stacks of ALUKEKU business cards with the patterned backs" }
+        {
+          "src": "portfolio_files/alukeku/1.avif",
+          "alt": "ALUKEKU logo, a five-pointed star mark above the wordmark, printed on white paper"
+        },
+        {
+          "src": "portfolio_files/alukeku/2.avif",
+          "alt": "Construction drawing of the ALUKEKU star mark on its geometric grid"
+        },
+        {
+          "src": "portfolio_files/alukeku/3.avif",
+          "alt": "ALUKEKU business cards, one white and one black, leaning on a concrete block"
+        },
+        {
+          "src": "portfolio_files/alukeku/4.avif",
+          "alt": "The ALUKEKU website on a laptop: “Building with Purpose. Rooted in Heritage.”"
+        },
+        {
+          "src": "portfolio_files/alukeku/5.avif",
+          "alt": "ALUKEKU poster with a blue, yellow and black pattern built from the star mark"
+        },
+        {
+          "src": "portfolio_files/alukeku/6.avif",
+          "alt": "Brand guidelines page: logomark concept and symbolism"
+        },
+        {
+          "src": "portfolio_files/alukeku/7.avif",
+          "alt": "Brand guidelines page: photo directions for structure, craft and material"
+        },
+        {
+          "src": "portfolio_files/alukeku/8.avif",
+          "alt": "Brand guidelines page: photo mosaic of construction and material images"
+        },
+        {
+          "src": "portfolio_files/alukeku/9.avif",
+          "alt": "Stacks of ALUKEKU business cards with the patterned backs"
+        }
       ]
     },
     {
@@ -31,13 +60,31 @@
       "title": "Bookcovers",
       "kind": "Book Design",
       "year": "2024–2026",
-      "tags": ["Book Design", "Editorial"],
+      "tags": [
+        "Book Design",
+        "Editorial"
+      ],
       "text": "Various bookcovers designed for masselverlag as well as jedition.",
       "links": [
-        { "label": "masselverlag", "url": "https://masselverlag.de" },
-        { "label": "jedition", "url": "https://jedition.de" }
+        {
+          "label": "masselverlag",
+          "url": "https://masselverlag.de"
+        },
+        {
+          "label": "jedition",
+          "url": "https://jedition.de"
+        }
       ],
-      "images": ["portfolio_files/bookcover/1.avif", "portfolio_files/bookcover/2.avif", "portfolio_files/bookcover/3.avif", "portfolio_files/bookcover/4.avif", "portfolio_files/bookcover/5.avif", "portfolio_files/bookcover/6.avif", "portfolio_files/bookcover/7.avif", "portfolio_files/bookcover/8.avif"]
+      "images": [
+        "portfolio_files/bookcover/1.avif",
+        "portfolio_files/bookcover/2.avif",
+        "portfolio_files/bookcover/3.avif",
+        "portfolio_files/bookcover/4.avif",
+        "portfolio_files/bookcover/5.avif",
+        "portfolio_files/bookcover/6.avif",
+        "portfolio_files/bookcover/7.avif",
+        "portfolio_files/bookcover/8.avif"
+      ]
     },
     {
       "slug": "stooney",
@@ -46,10 +93,20 @@
       "title": "Stooney",
       "kind": "Brand Identity",
       "year": "2024",
-      "tags": ["Brand Identity", "Product Design"],
+      "tags": [
+        "Brand Identity",
+        "Product Design"
+      ],
       "text": "Designs of the Stooney brand identity. Stooney is a Germany-based small company that makes high quality hand-made designer lamps made out of raw stones and gems.",
       "links": [],
-      "images": ["portfolio_files/stooney/1.avif", "portfolio_files/stooney/2.avif", "portfolio_files/stooney/3.avif", "portfolio_files/stooney/4.avif", "portfolio_files/stooney/5.avif", "portfolio_files/stooney/6.avif"]
+      "images": [
+        "portfolio_files/stooney/1.avif",
+        "portfolio_files/stooney/2.avif",
+        "portfolio_files/stooney/3.avif",
+        "portfolio_files/stooney/4.avif",
+        "portfolio_files/stooney/5.avif",
+        "portfolio_files/stooney/6.avif"
+      ]
     },
     {
       "slug": "project500",
@@ -58,10 +115,20 @@
       "title": "project500",
       "kind": "Visual Identity",
       "year": "2024",
-      "tags": ["Visual Identity", "Personal Project"],
+      "tags": [
+        "Visual Identity",
+        "Personal Project"
+      ],
       "text": "Design of the project500 visual identity. Project500 or p500 was a personal fun project with the goal of learning new skills and later building a p500 dashboard website.",
       "links": [],
-      "images": ["portfolio_files/project500/1.avif", "portfolio_files/project500/2.avif", "portfolio_files/project500/3.avif", "portfolio_files/project500/4.avif", "portfolio_files/project500/5.avif", "portfolio_files/project500/6.avif"]
+      "images": [
+        "portfolio_files/project500/1.avif",
+        "portfolio_files/project500/2.avif",
+        "portfolio_files/project500/3.avif",
+        "portfolio_files/project500/4.avif",
+        "portfolio_files/project500/5.avif",
+        "portfolio_files/project500/6.avif"
+      ]
     },
     {
       "slug": "landeshut",
@@ -70,41 +137,64 @@
       "title": "Landeshut",
       "kind": "Brand Identity",
       "year": "2025",
-      "tags": ["Brand Identity", "Nonprofit"],
+      "tags": [
+        "Brand Identity",
+        "Nonprofit"
+      ],
       "text": "Design of the Landeshut brand identity. Landeshut is a local nonprofit organisation that brings local communities together in the area of Bavaria, Germany.",
       "links": [],
-      "images": ["portfolio_files/landeshut/1.avif", "portfolio_files/landeshut/2.avif", "portfolio_files/landeshut/3.avif", "portfolio_files/landeshut/4.avif", "portfolio_files/landeshut/5.avif", "portfolio_files/landeshut/6.avif"]
+      "images": [
+        "portfolio_files/landeshut/1.avif",
+        "portfolio_files/landeshut/2.avif",
+        "portfolio_files/landeshut/3.avif",
+        "portfolio_files/landeshut/4.avif",
+        "portfolio_files/landeshut/5.avif",
+        "portfolio_files/landeshut/6.avif"
+      ]
     },
-
     {
       "slug": "argentinien",
       "category": "adventure",
       "featured": true,
-      "title": "[Argentinien]",
-      "kind": "[z. B. Reise / Auslandsjahr]",
-      "year": "[Jahr]",
-      "tags": ["[Salta]", "[Anden]"],
-      "text": "[2 bis 4 Sätze über die Zeit in Argentinien.]",
+      "title": "Argentina",
+      "kind": "Travel",
+      "year": "2025",
+      "tags": [
+        "Salta",
+        "Andes"
+      ],
+      "text": "Three months in the north of Argentina: Salta, the Quebrada de Humahuaca and the high Andes above 4,000 metres. Photographs from the road, the salt flats and the villages in between.",
       "links": [],
-      "images": ["[Bilder aus C:/everything/portfolio/assets-raw/adventure/argentinien/ — der Agent optimiert sie und trägt die Pfade hier ein]"]
+      "images": [
+        {
+          "src": "portfolio_files/_assets/selfie daniel lama.avif",
+          "alt": "Daniel with a llama on a mountain road in north Argentina"
+        }
+      ]
     },
-
     {
       "slug": "flowinsync",
       "category": "dev",
       "featured": true,
       "title": "flowinsync",
       "kind": "Web App",
-      "year": "[Jahr]",
-      "tags": ["Realtime", "[Stack]"],
+      "year": "2025",
+      "tags": [
+        "Realtime",
+        "Vue"
+      ],
       "text": "Realtime cross-device synced timer with live chat.",
       "links": [
-        { "label": "Live", "url": "https://flowinsync.deam31.com/" },
-        { "label": "Source", "url": "[GitHub-URL oder leer lassen]" }
+        {
+          "label": "Live",
+          "url": "https://flowinsync.deam31.com/"
+        }
       ],
       "images": [
-        { "src": "portfolio_files/flowinsync/1.avif", "alt": "flowinsync start screen: create or join a room, with fields for your name, the room name, flow time and maximum users" },
-        "[Weitere Screenshots / Bildschirmaufnahme]"
+        {
+          "src": "portfolio_files/flowinsync/1.avif",
+          "alt": "flowinsync start screen: create or join a room, with fields for your name, the room name, flow time and maximum users"
+        }
       ]
     },
     {
@@ -113,11 +203,17 @@
       "featured": false,
       "title": "Mixer dashboard",
       "kind": "Web App + Hardware",
-      "year": "[Jahr]",
-      "tags": ["Realtime", "Hardware", "[Stack]"],
+      "year": "2024",
+      "tags": [
+        "Realtime",
+        "Hardware",
+        "Python"
+      ],
       "text": "Dashboard for real-time in-browser music controls connected to a physical mixing desk.",
       "links": [],
-      "images": ["[Foto vom Mischpult + Screenshot vom Dashboard]"]
+      "images": [
+        "[Foto vom Mischpult + Screenshot vom Dashboard]"
+      ]
     },
     {
       "slug": "werner-gehner",
@@ -125,13 +221,22 @@
       "featured": false,
       "title": "Werner Gehner",
       "kind": "Website",
-      "year": "[Jahr]",
-      "tags": ["Client", "Website", "[Stack]"],
+      "year": "2024",
+      "tags": [
+        "Client",
+        "Website",
+        "PHP"
+      ],
       "text": "Homepage for Werner Gehner — psychospirituelle Begleitung.",
       "links": [
-        { "label": "Live", "url": "https://www.mufuma.de/dsell/gehner_php/" }
+        {
+          "label": "Live",
+          "url": "https://www.mufuma.de/dsell/gehner_php/"
+        }
       ],
-      "images": ["[Screenshots]"]
+      "images": [
+        "[Screenshots]"
+      ]
     },
     {
       "slug": "danielsell-com",
@@ -140,12 +245,21 @@
       "title": "danielsell.com",
       "kind": "Website",
       "year": "2026",
-      "tags": ["Design", "Development"],
+      "tags": [
+        "Design",
+        "Development"
+      ],
       "text": "This website. Designed and built by hand.",
       "links": [
-        { "label": "Source", "url": "https://github.com/daniel09pi/danielsell.com" }
+        {
+          "label": "Source",
+          "url": "https://github.com/daniel09pi/danielsell.com"
+        }
       ],
-      "images": ["[Screenshots der neuen Seite, macht der Agent am Ende]"]
+      "images": [
+        "[Screenshots der neuen Seite, macht der Agent am Ende]"
+      ]
     }
-  ]
+  ],
+  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): argentinien (Titel, Art, Jahr, Tags, Text; Bild vorerst das About-Foto aus Argentinien), Jahre und Stack bei flowinsync, mixer-dashboard, werner-gehner. flowinsync: Source-Link entfernt."
 }

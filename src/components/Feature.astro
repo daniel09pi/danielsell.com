@@ -15,9 +15,10 @@ interface Props {
   categoryHeading?: boolean;    // Kategorie-Name als Überschrift über dem Projekt
   moreLink?: string;            // Link "All … projects"
   variant?: 'full' | 'panel';   // panel: in einer Spalte des Bereiche-Abschnitts der Startseite
-  also?: string[];              // weitere Projekttitel der Kategorie ("Also in creative: …")
+  also?: { title: string; href: string }[];  // weitere Projekte der Kategorie ("Also in creative: …")
+  pageHref?: string;            // eigene Seite des Projekts
 }
-const { project: p, side = 'right', eager = false, headingLevel = 3, categoryHeading = false, moreLink, variant = 'full', also = [] } = Astro.props;
+const { project: p, side = 'right', eager = false, headingLevel = 3, categoryHeading = false, moreLink, variant = 'full', also = [], pageHref } = Astro.props;
 const images = projectImages(p);
 const many = images.length > 1;
 const H = `h${headingLevel}`;
@@ -87,8 +88,9 @@ const cat = categoryLabel(p.category);
         {tags.map((t) => <li><T v={t} /></li>)}
       </ul>
     )}
-    {(links.length > 0 || moreLink) && (
+    {(links.length > 0 || moreLink || pageHref) && (
       <ul class="feature__links">
+        {pageHref && <li><a href={pageHref}>View project</a></li>}
         {links.map((l) =>
           isUrl(l.url) ? (
             <li><a href={l.url} {...(isExternal(l.url) ? { rel: 'noopener', target: '_blank' } : {})}>{l.label}{isExternal(l.url) && <span class="sr-only"> (opens in a new tab)</span>}</a></li>
@@ -100,7 +102,7 @@ const cat = categoryLabel(p.category);
       </ul>
     )}
     {also.length > 0 && (
-      <p class="feature__also">Also in {cat}: {also.map((t, i) => (<>{i > 0 && ', '}<T v={t} /></>))}</p>
+      <p class="feature__also">Also in {cat}: {also.map((a, i) => (<>{i > 0 && ', '}<a href={a.href}><T v={a.title} /></a></>))}</p>
     )}
   </div>
 </article>

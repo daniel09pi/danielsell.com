@@ -1,8 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 850">
-  <!-- Favicon: das ganze Logo-Negativ (brand/logo-knockout.svg), nur skaliert, Ink auf Beige, auf einem quadratischen Feld. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 550 550">
+  <!-- Favicon: das Logo-Negativ (brand/logo-knockout.svg), unverzerrt, quadratisch aus der Karte geschnitten (x 0–550).
+       Die Linien laufen wie auf der Karte über den Rand. -->
   <defs>
-    <mask id="m" maskUnits="userSpaceOnUse" x="0" y="0" width="850" height="550">
-      <rect width="850" height="550" fill="#fff"/>
+    <mask id="m" maskUnits="userSpaceOnUse" x="0" y="0" width="550" height="550">
+      <rect width="550" height="550" fill="#fff"/>
       <g fill="none" stroke="#000" stroke-width="43">
         <path d="M-60 22H260V286M260 286H524V610M260 286L-60 606"/>
         <circle cx="444.8" cy="101.2" r="79.2"/>
@@ -10,8 +11,6 @@
       <rect x="-10" y="-10" width="291.5" height="25" fill="#000"/>
     </mask>
   </defs>
-  <rect width="850" height="850" fill="#F5F2EB"/>
-  <g transform="translate(0 150)">
-    <rect width="850" height="550" fill="#1E0B4A" mask="url(#m)"/>
-  </g>
+  <rect width="550" height="550" fill="#F5F2EB"/>
+  <rect width="550" height="550" fill="#1E0B4A" mask="url(#m)"/>
 </svg>

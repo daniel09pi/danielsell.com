@@ -8,6 +8,9 @@ import { fileURLToPath } from 'node:url';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const DIST = path.join(ROOT, 'dist');
 const problems = [];
+// Seiten, die erst in Phase 2 entstehen: Links darauf sind erlaubt, werden aber gemeldet.
+const PENDING = [/^\/projects\//, /^\/about\/$/];
+const pending = new Set();
 
 async function walk(dir) {
   const out = [];
@@ -64,7 +67,11 @@ for (const f of files.filter((x) => x.endsWith('.html'))) {
     ...[...html.matchAll(/(?:href|src)="([^"]+)"/g)].map((m) => m[1]),
     ...[...html.matchAll(/srcset="([^"]+)"/g)].flatMap((m) => m[1].split(',').map((s) => s.trim().split(/\s+/)[0])),
   ];
-  for (const u of refs) if (u.startsWith('/') && !u.startsWith('//') && !inDist(u)) problems.push(`Toter interner Link in dist/${rel}: ${u}`);
+  for (const u of refs) {
+    if (!u.startsWith('/') || u.startsWith('//') || inDist(u)) continue;
+    if (PENDING.some((re) => re.test(u.split(/[?#]/)[0]))) pending.add(u.split(/[?#]/)[0]);
+    else problems.push(`Toter interner Link in dist/${rel}: ${u}`);
+  }
 }
 const robotsFile = path.join(DIST, 'robots.txt');
 if (existsSync(robotsFile)) {
@@ -80,4 +87,5 @@ if (problems.length) {
 let status = '';
 try { status = execSync('git status --porcelain -- dist', { cwd: ROOT, encoding: 'utf8' }).trim(); } catch {}
 console.log(`dist/ ist vollständig und aktuell (${files.length} Dateien).`);
+if (pending.size) console.log(`Hinweis: ${pending.size} Links auf Seiten, die noch fehlen (Phase 2): ${[...pending].join(', ')}`);
 console.log(status ? `Geänderte Dateien in dist/: ${status.split('\n').length}. Jetzt committen: git add -A && git commit` : 'dist/ entspricht dem letzten Commit.');

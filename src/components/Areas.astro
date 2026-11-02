@@ -1,20 +1,27 @@
 ---
 // Die drei Bereiche der Startseite in einem Abschnitt: drei Farbspalten wie im Hero.
-// Eine Spalte ist offen und zeigt ihr Beispielprojekt (Slideshow und Text), die anderen beiden sind
-// schmale Streifen mit ihrem Wort. Klick auf einen Streifen öffnet ihn. Handy: drei Bänder untereinander.
+// Ausgangszustand: alle drei gleich breit, jede mit Titelbild und Projektliste.
+// Klick auf eine Spalte: sie wird breit und zeigt ihr Beispielprojekt, die anderen werden schmale Streifen.
+// Erneuter Klick auf das Wort oder Escape: zurück zu drei gleich breiten Spalten.
 // Ohne JavaScript sind alle drei offen und stehen untereinander.
 import Feature from './Feature.astro';
+import Img from './Img.astro';
+import T from './T.astro';
 import { CATEGORIES, featured, byCategory, categoryLabel, has } from '../lib/content.js';
+import { projectImages } from '../lib/images.js';
 
+const projectHref = (p: any) => `/projects/${p.slug}/`;
 const areas = CATEGORIES.map((c) => {
   const project = featured(c);
-  const all = byCategory(c);
+  const all = byCategory(c).filter((x) => has(x.title));
+  const cover = project ? projectImages(project).find((im) => !im.placeholder) : null;
   return {
     c,
     label: categoryLabel(c),
     project,
-    count: all.length,
-    also: all.filter((x) => x !== project).map((x) => x.title).filter(has),
+    cover,
+    all,
+    also: all.filter((x) => x !== project).map((x) => ({ title: x.title, href: projectHref(x) })),
   };
 }).filter((a) => a.project);
 ---
@@ -22,16 +29,30 @@ const areas = CATEGORIES.map((c) => {
   <h2 class="sr-only" id="work-title">Work</h2>
   <div class="areas__row" data-areas>
     {areas.map((a, i) => (
-      <section class:list={['area', `area--${a.c}`, { 'is-open': i === 0 }]} id={a.c} data-area>
+      <section class:list={['area', `area--${a.c}`]} id={a.c} data-area>
         <h3 class="area__head">
           <button type="button" class="area__toggle" id={`${a.c}-toggle`} aria-controls={`${a.c}-panel`} aria-expanded="true">
             <span class="area__word">{a.label}</span>
-            <span class="area__count">{a.count} {a.count === 1 ? 'project' : 'projects'}</span>
+            <span class="area__count">{a.all.length} {a.all.length === 1 ? 'project' : 'projects'}</span>
           </button>
         </h3>
+
+        <div class="area__preview" aria-hidden="true" data-preview>
+          {a.cover && (
+            <div class="area__cover tilt" style={`--tilt:${i % 2 ? 0.6 : -0.6}deg;--tilt-to:${i % 2 ? -0.4 : 0.4}deg`} data-open>
+              <Img meta={a.cover.meta} alt="" sizes="(min-width: 960px) 26vw, 80vw" />
+            </div>
+          )}
+          <ul class="area__list">
+            {a.all.map((p) => (
+              <li><a href={projectHref(p)} tabindex="-1"><span class="area__title"><T v={p.title} /></span>{has(p.kind) && <span class="area__kind"><T v={p.kind} /></span>}</a></li>
+            ))}
+          </ul>
+        </div>
+
         <div class="area__panel" id={`${a.c}-panel`} role="region" aria-labelledby={`${a.c}-toggle`}>
           <div class="area__inner">
-            <Feature project={a.project} variant="panel" eager={i === 0} headingLevel={4} also={a.also} />
+            <Feature project={a.project} variant="panel" eager={false} headingLevel={4} pageHref={projectHref(a.project)} also={a.also} />
           </div>
         </div>
       </section>
@@ -40,37 +61,52 @@ const areas = CATEGORIES.map((c) => {
 </section>
 
 <script>
-  // Immer genau eine Spalte offen. Links auf #creative, #adventure, #dev (z. B. aus dem Hero) öffnen die Spalte.
   const row = document.querySelector<HTMLElement>('[data-areas]');
   if (row) {
-    const areas = Array.from(row.querySelectorAll<HTMLElement>('[data-area]'));
-    const parts = areas.map((area) => ({
+    const parts = Array.from(row.querySelectorAll<HTMLElement>('[data-area]')).map((area) => ({
       area,
       toggle: area.querySelector<HTMLButtonElement>('.area__toggle')!,
       panel: area.querySelector<HTMLElement>('.area__panel')!,
+      preview: area.querySelector<HTMLElement>('[data-preview]')!,
     }));
-    const open = (target: HTMLElement) => {
-      parts.forEach(({ area, toggle, panel }) => {
+    // target null = alle drei gleich breit
+    const show = (target: HTMLElement | null) => {
+      parts.forEach(({ area, toggle, panel, preview }) => {
         const isOpen = area === target;
         area.classList.toggle('is-open', isOpen);
         toggle.setAttribute('aria-expanded', String(isOpen));
-        // Die offene Spalte lässt sich nicht schließen, nur eine andere öffnen.
-        if (isOpen) toggle.setAttribute('aria-disabled', 'true'); else toggle.removeAttribute('aria-disabled');
         panel.inert = !isOpen;
+        // Die Vorschau (Titelbild und Projektliste) ist nur im Ausgangszustand zu sehen und zu bedienen.
+        const previewOn = target === null;
+        preview.inert = !previewOn;
+        preview.setAttribute('aria-hidden', String(!previewOn));
+        preview.querySelectorAll('a').forEach((link) => link.removeAttribute('tabindex'));
       });
+      row.classList.toggle('has-open', target !== null);
     };
-    parts.forEach(({ area, toggle }) => toggle.addEventListener('click', () => open(area)));
+    const current = () => parts.find((p) => p.area.classList.contains('is-open'))?.area ?? null;
 
-    const fromHash = (hash: string) => areas.find((a) => `#${a.id}` === hash);
-    window.addEventListener('hashchange', () => { const a = fromHash(location.hash); if (a) open(a); });
+    parts.forEach(({ area, toggle }) => {
+      toggle.addEventListener('click', () => show(current() === area ? null : area));
+      area.querySelector('[data-open]')?.addEventListener('click', () => show(area));
+    });
+    row.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || !current()) return;
+      const open = parts.find((p) => p.area === current());
+      show(null);
+      open?.toggle.focus();
+    });
+
+    const fromHash = (hash: string) => parts.find((p) => `#${p.area.id}` === hash)?.area ?? null;
+    window.addEventListener('hashchange', () => { const a = fromHash(location.hash); if (a) show(a); });
     // Gleicher Link zweimal hintereinander löst kein hashchange aus, deshalb auch beim Klick öffnen.
     document.addEventListener('click', (e) => {
       const link = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#"]');
       const a = link && fromHash(link.getAttribute('href') ?? '');
-      if (a) open(a);
+      if (a) show(a);
     });
 
     row.classList.add('is-enhanced');
-    open(fromHash(location.hash) ?? areas[0]);
+    show(fromHash(location.hash));
   }
 </script>

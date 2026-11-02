@@ -13,7 +13,7 @@ const words = subtitleLinks();
 const areas = CATEGORIES.map((c) => ({
   category: c,
   word: words.find((w) => w.category === c)?.word ?? c,
-  titles: byCategory(c).map((p) => p.title).filter(has),
+  projects: byCategory(c).filter((p) => has(p.title)),
 }));
 const currently = (site.currently?.items ?? []).filter((i) => has(i?.title) || has(i?.text));
 const about = site.about ?? {};
@@ -32,18 +32,31 @@ const quote = site.quote ?? {};
       {areas.map((a) => (
         <li class:list={['hero__area', `hero__area--${a.category}`]}>
           <a class="hero__word" href={`#${a.category}`}><T v={a.word} /></a>
-          {a.titles.length > 0 && <ul class="hero__titles">{a.titles.map((t) => <li><T v={t} /></li>)}</ul>}
+          {a.projects.length > 0 && <ul class="hero__titles">{a.projects.map((p) => <li><a href={`/projects/${p.slug}/`}><T v={p.title} /></a></li>)}</ul>}
         </li>
       ))}
     </ul>
   </section>
 
-  {has(quote.text) && (
-    <section class="quote wrap" aria-label={has(quote.label) ? quote.label : 'In short'}>
-      {has(quote.label) && <p class="quote__label" aria-hidden="true"><T v={quote.label} /></p>}
-      <blockquote class="quote__text"><p><T v={quote.text} /></p></blockquote>
-    </section>
-  )}
+  <section class:list={["letter wrap", { "letter--nophoto": !photo }]} id="about" {...(has(about.greeting) ? { "aria-labelledby": "about-title" } : { "aria-label": "About" })}>
+    {photo && (
+      <figure class="letter__photo tilt" style="--tilt:-0.6deg;--tilt-to:0.4deg">
+        <Img meta={photo} alt={about.photo.alt ?? ''} sizes="(min-width: 960px) 36vw, 84vw" />
+        {has(about.photo?.caption) && <figcaption><T v={about.photo.caption} /></figcaption>}
+      </figure>
+    )}
+    <div class="letter__text">
+      {has(about.greeting) && <h2 class="letter__title" id="about-title"><a href="/about/"><T v={about.greeting} /></a></h2>}
+      {has(about.intro) && <p class="letter__intro"><T v={about.intro} /></p>}
+      {facts.length > 0 && (
+        <dl class="letter__facts">
+          {facts.map((f) => (
+            <div><dt>{f.label}</dt><dd><T v={f.value} /></dd></div>
+          ))}
+        </dl>
+      )}
+    </div>
+  </section>
 
   {currently.length > 0 && (
     <section class="now wrap" {...(has(site.currently?.title) ? { "aria-labelledby": "now-title" } : { "aria-label": "Currently" })}>
@@ -65,26 +78,12 @@ const quote = site.quote ?? {};
 
   <Areas />
 
-
-  <section class:list={["letter wrap", { "letter--nophoto": !photo }]} id="about" {...(has(about.greeting) ? { "aria-labelledby": "about-title" } : { "aria-label": "About" })}>
-    {photo && (
-      <figure class="letter__photo tilt" style="--tilt:-0.6deg;--tilt-to:0.4deg">
-        <Img meta={photo} alt={about.photo.alt ?? ''} sizes="(min-width: 960px) 36vw, 84vw" />
-        {has(about.photo?.caption) && <figcaption><T v={about.photo.caption} /></figcaption>}
-      </figure>
-    )}
-    <div class="letter__text">
-      {has(about.greeting) && <h2 class="letter__title" id="about-title"><T v={about.greeting} /></h2>}
-      {has(about.intro) && <p class="letter__intro"><T v={about.intro} /></p>}
-      {facts.length > 0 && (
-        <dl class="letter__facts">
-          {facts.map((f) => (
-            <div><dt>{f.label}</dt><dd><T v={f.value} /></dd></div>
-          ))}
-        </dl>
-      )}
-    </div>
-  </section>
+  {has(quote.text) && (
+    <section class="quote wrap" aria-label={has(quote.label) ? quote.label : 'In short'}>
+      {has(quote.label) && <p class="quote__label" aria-hidden="true"><T v={quote.label} /></p>}
+      <blockquote class="quote__text"><p><T v={quote.text} /></p></blockquote>
+    </section>
+  )}
 
   <Closing slot="after" />
 </Base>

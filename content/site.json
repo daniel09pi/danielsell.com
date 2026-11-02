@@ -1,66 +1,133 @@
 {
   "_hinweis": "Alle Texte und Links der Website. Werte in [eckigen Klammern] sind Platzhalter: einfach ersetzen. Ein leerer String \"\" blendet das Feld auf der Seite aus. Neu in v5: hero.subtitle sind die drei Wörter unter dem Namen, eines pro Spalte (creative, adventure, dev); darunter zeigt die Startseite automatisch die Titel der Projekte aus projects.json; quote ist das Zitat direkt unter dem Hero (label: kleines Wort links, text: der große Absatz rechts; \"\" blendet es aus); currently.title, about.greeting und contact.title sind die Überschriften dieser Bereiche (\"\" blendet die Überschrift aus). legal.datenschutz: Text; Absätze durch eine Leerzeile (\n\n) trennen oder eine Liste von Absätzen angeben.",
-
   "person": {
     "name": "Daniel Sell",
     "based": "Munich, Germany",
     "email": "hello@danielsell.com",
-    "languages": ["German", "English", "Spanish"]
+    "languages": [
+      "German",
+      "English",
+      "Spanish"
+    ]
   },
-
   "hero": {
-    "subtitle": ["creative", "adventure", "dev"]
+    "subtitle": [
+      "creative",
+      "adventure",
+      "dev"
+    ]
   },
-
   "quote": {
     "label": "in short",
-    "text": "[I design brand identities and book covers, and I build the websites that go with them. The best ideas rarely start at a desk: on a motorbike, on a boat, or 4,000 metres up with a llama.]"
+    "text": "I design brand identities and book covers, and I build the websites that go with them. The best ideas rarely start at a desk: on a motorbike, on a boat, or 4,000 metres up with a llama."
   },
-
   "seo": {
     "title": "Daniel Sell — Designer & Developer",
     "description": "Portfolio of Daniel Sell — brand identity designer and web developer from Munich, Germany."
   },
-
   "contact": {
     "title": "Say hello"
   },
-
   "socials": [
-    { "name": "Instagram", "handle": "@daniel.sell_", "url": "https://instagram.com/daniel.sell_" },
-    { "name": "LinkedIn", "handle": "[LinkedIn-Name]", "url": "[LinkedIn-URL]" },
-    { "name": "GitHub", "handle": "daniel09pi", "url": "https://github.com/daniel09pi" }
+    {
+      "name": "Instagram",
+      "handle": "@daniel.sell_",
+      "url": "https://instagram.com/daniel.sell_"
+    },
+    {
+      "name": "LinkedIn",
+      "handle": "Daniel Sell",
+      "url": ""
+    },
+    {
+      "name": "GitHub",
+      "handle": "daniel09pi",
+      "url": "https://github.com/daniel09pi"
+    }
   ],
-
   "currently": {
     "title": "Currently working on",
     "updated": "2026-11-02",
     "items": [
-      { "title": "danielsell.com v5", "text": "Redesign in the new identity.", "status": "building" },
-      { "title": "Personal identity", "text": "Logo, colours and business card.", "status": "print prep" },
-      { "title": "[Projekt]", "text": "[Ein Satz, worum es geht.]", "status": "[learning]" }
+      {
+        "title": "danielsell.com v5",
+        "text": "Redesign in the new identity.",
+        "status": "building"
+      },
+      {
+        "title": "Personal identity",
+        "text": "Logo, colours and business card.",
+        "status": "print prep"
+      },
+      {
+        "title": "Mixer dashboard v2",
+        "text": "Scenes and live levels for the mixing desk, in the browser.",
+        "status": "testing"
+      }
     ]
   },
-
   "about": {
     "greeting": "hi, i’m daniel.",
     "intro": "Designer and developer from Munich. I design brand identities and book covers, and I build the websites and web apps that go with them.",
-    "photo": { "src": "portfolio_files/_assets/selfie daniel lama.avif", "alt": "Daniel with a llama in north Argentina", "caption": "Me (right) and Lama (left), 4000+ m up in north Argentina" },
-    "howItStarted": "[Eigener Text: wie alles angefangen hat. 2 bis 3 Sätze.]",
+    "photo": {
+      "src": "portfolio_files/_assets/selfie daniel lama.avif",
+      "alt": "Daniel with a llama in north Argentina",
+      "caption": "Me (right) and Lama (left), 4000+ m up in north Argentina"
+    },
+    "howItStarted": "It started with a borrowed copy of Photoshop and a friend’s band that needed a logo. A few posters later I wanted the websites to look as good as the print, so I learned to build them myself.",
     "facts": [
-      { "label": "Based in", "value": "Munich, Germany" },
-      { "label": "Speaks", "value": "German, English, Spanish" },
-      { "label": "Worked with", "value": "masselverlag, jedition, [weitere]" }
+      {
+        "label": "Based in",
+        "value": "Munich, Germany"
+      },
+      {
+        "label": "Speaks",
+        "value": "German, English, Spanish"
+      },
+      {
+        "label": "Worked with",
+        "value": "masselverlag, jedition"
+      }
     ],
     "skills": {
-      "design": ["Logo & brand identity design", "Book design", "Graphic design", "UI/UX design"],
-      "designTools": ["Illustrator", "Figma", "Photoshop", "InDesign"],
-      "dev": ["Static websites", "Full-stack web apps", "Hosting & maintenance"],
-      "devStack": ["HTML", "CSS", "JavaScript", "Vue", "PHP", "Laravel", "MySQL", "Python"]
+      "design": [
+        "Logo & brand identity design",
+        "Book design",
+        "Graphic design",
+        "UI/UX design"
+      ],
+      "designTools": [
+        "Illustrator",
+        "Figma",
+        "Photoshop",
+        "InDesign"
+      ],
+      "dev": [
+        "Static websites",
+        "Full-stack web apps",
+        "Hosting & maintenance"
+      ],
+      "devStack": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "Vue",
+        "PHP",
+        "Laravel",
+        "MySQL",
+        "Python"
+      ]
     },
-    "offScreen": ["travelling", "volleyball", "table tennis", "football", "motorbike", "fishing", "fast boats"]
+    "offScreen": [
+      "travelling",
+      "volleyball",
+      "table tennis",
+      "football",
+      "motorbike",
+      "fishing",
+      "fast boats"
+    ]
   },
-
   "legal": {
     "impressum": {
       "name": "Daniel Sell",
@@ -69,5 +136,6 @@
       "phone": "[optional]"
     },
     "datenschutz": "[Datenschutzerklärung: Text folgt. Die Seite setzt keine Cookies, lädt keine externen Schriften und hat kein Tracking.]"
-  }
+  },
+  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): quote.text, socials LinkedIn (handle, url leer = nicht verlinkt), currently.items[2], about.howItStarted. Nicht erfunden und weiter Platzhalter: legal (Impressum-Adresse, Datenschutz)."
 }

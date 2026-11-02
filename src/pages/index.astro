@@ -1,6 +1,5 @@
 ---
 import Base from '../layouts/Base.astro';
-import Logo from '../components/Logo.astro';
 import Feature from '../components/Feature.astro';
 import Closing from '../components/Closing.astro';
 import Img from '../components/Img.astro';
@@ -22,10 +21,7 @@ const PROJECTS_PAGE = false;
 ---
 <Base nav={[{ label: 'work', href: '#work' }, { label: 'about', href: '#about' }, { label: 'contact', href: '#contact' }]}>
   <section class="hero wrap" aria-labelledby="hero-title">
-    <div class="hero__mark">
-      <Logo variant="knockout" uid="hero" />
-    </div>
-    <h1 class="hero__name" id="hero-title">{name.toLowerCase()}</h1>
+    <h1 class="hero__name" id="hero-title">{name.toLowerCase()}<span class="hero__baseline" aria-hidden="true"></span></h1>
     {words.length > 0 && (
       <p class="hero__words">
         {words.map((w, i) => (

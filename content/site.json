@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Alle Texte und Links der Website. Werte in [eckigen Klammern] sind Platzhalter: einfach ersetzen. Ein leerer String \"\" blendet das Feld auf der Seite aus. Neu in v5: hero.text ist der Satz unter dem Namen auf der Startseite (sagt in einem Satz, was Daniel macht); hero.action ist die Beschriftung des E-Mail-Buttons im Hero; currently.title, about.greeting und contact.title sind die Überschriften dieser Bereiche (\"\" blendet die Überschrift aus). legal.datenschutz: Text; Absätze durch eine Leerzeile (\n\n) trennen oder eine Liste von Absätzen angeben.",
+  "_hinweis": "Alle Texte und Links der Website. Werte in [eckigen Klammern] sind Platzhalter: einfach ersetzen. Ein leerer String \"\" blendet das Feld auf der Seite aus. Neu in v5: hero.subtitle sind die drei Wörter unter dem Namen, eines pro Spalte (creative, adventure, dev); darunter zeigt die Startseite automatisch die Titel der Projekte aus projects.json; currently.title, about.greeting und contact.title sind die Überschriften dieser Bereiche (\"\" blendet die Überschrift aus). legal.datenschutz: Text; Absätze durch eine Leerzeile (\n\n) trennen oder eine Liste von Absätzen angeben.",
 
   "person": {
     "name": "Daniel Sell",
@@ -9,9 +9,7 @@
   },
 
   "hero": {
-    "subtitle": ["creative", "adventure", "dev"],
-    "text": "Designer and developer in Munich: brand identities, book covers, and the websites that go with them.",
-    "action": "Email me"
+    "subtitle": ["creative", "adventure", "dev"]
   },
 
   "seo": {

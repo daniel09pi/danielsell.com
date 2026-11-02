@@ -4,35 +4,40 @@ import Feature from '../components/Feature.astro';
 import Closing from '../components/Closing.astro';
 import Img from '../components/Img.astro';
 import T from '../components/T.astro';
-import { site, has, isPlaceholder, CATEGORIES, featured, subtitleLinks, formatDate } from '../lib/content.js';
+import { site, has, isPlaceholder, CATEGORIES, featured, byCategory, subtitleLinks, formatDate } from '../lib/content.js';
 import { resolveImage } from '../lib/images.js';
 
 const name = site.person?.name ?? '';
 const words = subtitleLinks();
+// Hero: eine Spalte pro Bereich, in der Reihenfolge creative, adventure, dev. Wort aus hero.subtitle, darunter die Projekttitel.
+const areas = CATEGORIES.map((c) => ({
+  category: c,
+  word: words.find((w) => w.category === c)?.word ?? c,
+  titles: byCategory(c).map((p) => p.title).filter(has),
+}));
 const features = CATEGORIES.map((c) => ({ category: c, project: featured(c) })).filter((f) => f.project);
 const currently = (site.currently?.items ?? []).filter((i) => has(i?.title) || has(i?.text));
 const about = site.about ?? {};
 const photo = has(about.photo?.src) && !isPlaceholder(about.photo.src) ? resolveImage(about.photo.src) : null;
 const facts = (about.facts ?? []).filter((f) => has(f?.label) && has(f?.value));
 const ph = (v) => (isPlaceholder(v) ? 'ph' : undefined);
-const email = site.person?.email ?? '';
 // Phase 1: Die Projektseite folgt in Phase 2. Bis dahin keine Links "All … projects" (sonst 404).
 const PROJECTS_PAGE = false;
 ---
 <Base nav={[{ label: 'work', href: '#work' }, { label: 'about', href: '#about' }, { label: 'contact', href: '#contact' }]}>
-  <section class="hero wrap" aria-labelledby="hero-title">
-    <h1 class="hero__name" id="hero-title">{name.toLowerCase()}<span class="hero__baseline" aria-hidden="true"></span></h1>
-    {words.length > 0 && (
-      <p class="hero__words">
-        {words.map((w, i) => (
-          <>{i > 0 && <span class="hero__dash" aria-hidden="true"> — </span>}<a href={`#${w.category}`}><T v={w.word} /></a></>
-        ))}
-      </p>
-    )}
-    <div class="hero__intro">
-      {has(site.hero?.text) && <p class="hero__text"><T v={site.hero.text} /></p>}
-      {has(email) && has(site.hero?.action) && <a class="button" href={`mailto:${email}`}><T v={site.hero.action} /></a>}
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero__stage">
+      {areas.map((a) => <div class:list={['hero__field', `hero__field--${a.category}`]} aria-hidden="true"></div>)}
+      <h1 class="hero__name" id="hero-title">{name.toLowerCase()}</h1>
     </div>
+    <ul class="hero__index">
+      {areas.map((a) => (
+        <li class:list={['hero__area', `hero__area--${a.category}`]}>
+          <a class="hero__word" href={`#${a.category}`}><T v={a.word} /></a>
+          {a.titles.length > 0 && <ul class="hero__titles">{a.titles.map((t) => <li><T v={t} /></li>)}</ul>}
+        </li>
+      ))}
+    </ul>
   </section>
 
   <div id="work">

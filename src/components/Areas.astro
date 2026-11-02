@@ -1,59 +1,78 @@
 ---
 // Die drei Bereiche der Startseite in einem Abschnitt: drei Farbspalten wie im Hero.
-// Ausgangszustand: alle drei gleich breit, jede mit Titelbild und Projektliste.
-// Klick auf eine Spalte: sie wird breit und zeigt ihr Beispielprojekt, die anderen werden schmale Streifen.
-// Erneuter Klick auf das Wort oder Escape: zurück zu drei gleich breiten Spalten.
+// Ausgangszustand: alle drei gleich breit, jede zeigt einen Stapel Abzüge, darunter Wort und Projektzahl.
+// Klick auf eine Spalte: sie wird breit (Bild randlos, darunter ein Textband), die anderen werden Streifen
+// mit senkrechtem Wort. Klick auf den Streifen der offenen Spalte oder Escape: zurück zum Ausgangszustand.
 // Ohne JavaScript sind alle drei offen und stehen untereinander.
 import Feature from './Feature.astro';
 import Img from './Img.astro';
-import T from './T.astro';
 import { CATEGORIES, featured, byCategory, categoryLabel, has } from '../lib/content.js';
 import { projectImages } from '../lib/images.js';
 
 const projectHref = (p: any) => `/projects/${p.slug}/`;
+// Lage der Abzüge im Stapel (von unten nach oben): Versatz in % und Winkel. Beim Hover fächern sie auf.
+const PRINTS = [
+  { dx: -7, dy: 3, r: -3 },
+  { dx: 6, dy: -3, r: 2.4 },
+  { dx: -3, dy: -1, r: -1.2 },
+  { dx: 1, dy: 1, r: 0.6 },
+];
 const areas = CATEGORIES.map((c) => {
   const project = featured(c);
   const all = byCategory(c).filter((x) => has(x.title));
-  const cover = project ? projectImages(project).find((im) => !im.placeholder) : null;
+  // Ein Bild pro Projekt (Beispielprojekt oben auf dem Stapel); reicht das nicht, weitere Bilder des Beispielprojekts.
+  const real = (p: any) => projectImages(p).filter((im) => !im.placeholder);
+  const others = all.filter((x) => x !== project).map((x) => real(x)[0]).filter(Boolean);
+  const own = project ? real(project) : [];
+  let stack = [...others.slice(0, 3), own[0]].filter(Boolean);
+  if (stack.length < 3) stack = [...own.slice(1, 1 + 3 - stack.length).reverse(), ...stack];
   return {
     c,
     label: categoryLabel(c),
     project,
-    cover,
-    all,
+    count: all.length,
+    stack: stack.slice(-4),
     also: all.filter((x) => x !== project).map((x) => ({ title: x.title, href: projectHref(x) })),
   };
 }).filter((a) => a.project);
+const countLabel = (n: number) => `${n} ${n === 1 ? 'project' : 'projects'}`;
 ---
 <section class="areas" id="work" aria-labelledby="work-title">
   <h2 class="sr-only" id="work-title">Work</h2>
   <div class="areas__row" data-areas>
-    {areas.map((a, i) => (
+    {areas.map((a) => (
       <section class:list={['area', `area--${a.c}`]} id={a.c} data-area>
         <h3 class="area__head">
           <button type="button" class="area__toggle" id={`${a.c}-toggle`} aria-controls={`${a.c}-panel`} aria-expanded="true">
-            <span class="area__word">{a.label}</span>
-            <span class="area__count">{a.all.length} {a.all.length === 1 ? 'project' : 'projects'}</span>
+            <span class="area__stack" aria-hidden="true">
+              {a.stack.map((im, k) => {
+                const pr = PRINTS[PRINTS.length - a.stack.length + k];
+                return (
+                  <span class="area__print" style={`--dx:${pr.dx}%;--dy:${pr.dy}%;--r:${pr.r}deg`}>
+                    <Img meta={im.meta} alt="" sizes="(min-width: 960px) 24vw, 60vw" />
+                  </span>
+                );
+              })}
+            </span>
+            <span class="area__label area__label--h">
+              <span class="area__word">{a.label}</span>
+              <span class="area__count">{countLabel(a.count)}</span>
+            </span>
+            <span class="area__label area__label--v" aria-hidden="true">
+              <span class="area__word">{a.label}</span>
+              <span class="area__count">{countLabel(a.count)}</span>
+            </span>
           </button>
         </h3>
-
-        <div class="area__preview" aria-hidden="true" data-preview>
-          {a.cover && (
-            <div class="area__cover tilt" style={`--tilt:${i % 2 ? 0.6 : -0.6}deg;--tilt-to:${i % 2 ? -0.4 : 0.4}deg`} data-open>
-              <Img meta={a.cover.meta} alt="" sizes="(min-width: 960px) 26vw, 80vw" />
-            </div>
-          )}
-          <ul class="area__list">
-            {a.all.map((p) => (
-              <li><a href={projectHref(p)} tabindex="-1"><span class="area__title"><T v={p.title} /></span>{has(p.kind) && <span class="area__kind"><T v={p.kind} /></span>}</a></li>
-            ))}
-          </ul>
-        </div>
-
         <div class="area__panel" id={`${a.c}-panel`} role="region" aria-labelledby={`${a.c}-toggle`}>
-          <div class="area__inner">
-            <Feature project={a.project} variant="panel" eager={false} headingLevel={4} pageHref={projectHref(a.project)} also={a.also} />
-          </div>
+          <Feature
+            project={a.project}
+            variant="panel"
+            headingLevel={4}
+            pageHref={projectHref(a.project)}
+            moreLink={`/projects/#${a.c}`}
+            also={a.also}
+          />
         </div>
       </section>
     ))}
@@ -67,34 +86,25 @@ const areas = CATEGORIES.map((c) => {
       area,
       toggle: area.querySelector<HTMLButtonElement>('.area__toggle')!,
       panel: area.querySelector<HTMLElement>('.area__panel')!,
-      preview: area.querySelector<HTMLElement>('[data-preview]')!,
     }));
-    // target null = alle drei gleich breit
+    // target null = Ausgangszustand, alle drei gleich breit
     const show = (target: HTMLElement | null) => {
-      parts.forEach(({ area, toggle, panel, preview }) => {
+      parts.forEach(({ area, toggle, panel }) => {
         const isOpen = area === target;
         area.classList.toggle('is-open', isOpen);
         toggle.setAttribute('aria-expanded', String(isOpen));
         panel.inert = !isOpen;
-        // Die Vorschau (Titelbild und Projektliste) ist nur im Ausgangszustand zu sehen und zu bedienen.
-        const previewOn = target === null;
-        preview.inert = !previewOn;
-        preview.setAttribute('aria-hidden', String(!previewOn));
-        preview.querySelectorAll('a').forEach((link) => link.removeAttribute('tabindex'));
       });
       row.classList.toggle('has-open', target !== null);
     };
-    const current = () => parts.find((p) => p.area.classList.contains('is-open'))?.area ?? null;
+    const current = () => parts.find((p) => p.area.classList.contains('is-open')) ?? null;
 
-    parts.forEach(({ area, toggle }) => {
-      toggle.addEventListener('click', () => show(current() === area ? null : area));
-      area.querySelector('[data-open]')?.addEventListener('click', () => show(area));
-    });
+    parts.forEach(({ area, toggle }) => toggle.addEventListener('click', () => show(current()?.area === area ? null : area)));
     row.addEventListener('keydown', (e) => {
-      if (e.key !== 'Escape' || !current()) return;
-      const open = parts.find((p) => p.area === current());
+      const open = current();
+      if (e.key !== 'Escape' || !open) return;
       show(null);
-      open?.toggle.focus();
+      open.toggle.focus();
     });
 
     const fromHash = (hash: string) => parts.find((p) => `#${p.area.id}` === hash)?.area ?? null;

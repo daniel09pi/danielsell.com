@@ -157,11 +157,19 @@ a:hover { text-decoration-color: currentColor; }
 /* ---------- Zitat (Layout wie "how it started": kleines Label links, großer Absatz rechts) ---------- */
 .quote { margin-top: var(--section); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); align-items: baseline; }
 .quote__label { grid-column: 1 / 4; color: var(--ink-soft); }
-.quote__text { margin: 0; grid-column: 4 / 13; font-size: clamp(1.75rem, 0.9rem + 2.7vw, 3.75rem); line-height: 1.12; letter-spacing: -0.025em; text-wrap: pretty; }
+.quote__text { margin: 0; grid-column: 4 / 12; font-size: clamp(1.5rem, 1rem + 1.1vw, 2.125rem); line-height: 1.3; letter-spacing: -0.015em; text-wrap: pretty; }
+/* Begriffe in den Farben der drei Bereiche, jeder führt zu seiner Spalte */
+.mark { text-decoration: none; padding: 0.02em 0.2em; margin-inline: -0.05em; -webkit-box-decoration-break: clone; box-decoration-break: clone; transition: background-color 0.25s var(--ease), color 0.25s var(--ease); }
+.mark--creative { background: var(--field-creative); color: var(--ink); }
+.mark--adventure { background: var(--field-adventure); color: var(--ground); }
+.mark--dev { background: var(--field-dev); color: var(--ink-deep); }
+.mark:hover { background: var(--ink); color: var(--lime); }
+.mark--adventure:hover { background: var(--lime); color: var(--ink); }
 
 /* ---------- Bereiche: drei Farbspalten (Startseite) ---------- */
-/* Zustände: alle drei gleich breit (wie im Hero) oder eine offen und zwei als Streifen.
-   Jede Spalte hat links einen festen Streifen mit dem senkrechten Wort; er ändert sich in keinem Zustand. */
+/* Ausgangszustand: drei gleich breite Spalten mit Stapel, Wort und Projektzahl.
+   Offen: eine Spalte breit (Streifen links, Bild randlos, Textband unten), die anderen sind Streifen.
+   Nichts verschiebt sich beim Hover. */
 .areas { margin-top: var(--section); }
 .area { position: relative; scroll-margin-top: 0; background: var(--area-bg); color: var(--area-fg); }
 .area--creative { --area-bg: var(--field-creative); --area-fg: var(--ink); --area-soft: var(--ink-soft); --area-hover: var(--ground); }
@@ -172,92 +180,120 @@ a:hover { text-decoration-color: currentColor; }
 .area a { color: inherit; }
 .area__head { font: inherit; }
 .area__toggle {
-  display: flex; width: 100%;
+  position: relative; display: flex; flex-direction: column; width: 100%;
   border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
 }
+.area__toggle:focus-visible { outline-offset: -6px; }
 .area__word { font-size: var(--step-head); line-height: 0.95; letter-spacing: -0.035em; }
 .area__count { color: var(--area-soft); font-size: var(--step-small); }
-.area__inner { height: 100%; }
-.area__preview { display: none; }
+.area__label { display: flex; align-items: baseline; gap: 0.75rem; }
+.area__label--v, .area__stack { display: none; }
+.area__label--h { padding: 1.5rem var(--margin); }
 
-/* Vorschau im Ausgangszustand: Titelbild als Abzug, darunter die Projekte als Links */
-.area__cover { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; padding: clamp(1rem, 4vh, 3rem) 0; cursor: pointer; }
-.area__cover picture { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
-.area__cover img { max-width: 100%; max-height: 100%; width: auto; height: auto; }
-.area__list { display: grid; gap: 0.1rem; }
-.area__list a { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding-block: 0.45rem; text-decoration: none; }
-.area__list a:hover .area__title { text-decoration: underline; text-decoration-thickness: 0.06em; text-underline-offset: 0.2em; }
-.area__title { font-size: var(--step-lead); line-height: 1.2; }
-.area__kind { color: var(--area-soft); font-size: var(--step-small); white-space: nowrap; }
+/* Unterstreichen beim Hover (Wort), ohne dass sich etwas bewegt */
+.area__word { text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 0.04em; text-underline-offset: 0.14em; transition: text-decoration-color 0.25s var(--ease); }
+.area__toggle:hover .area__word { text-decoration-color: currentColor; }
 
-/* Feature in der offenen Spalte: Text links oben, Steuerung links unten, Bilder rechts über die volle Höhe */
+/* Feature in der offenen Spalte: Bild randlos, darunter ein Textband */
 .area .feature--panel {
   display: grid; height: 100%;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 8fr);
-  grid-template-rows: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) auto;
   column-gap: var(--gutter);
-  padding: clamp(1.75rem, 5vh, 3.5rem) var(--margin) clamp(1.75rem, 5vh, 3.5rem) var(--gutter);
+  padding: 0;
 }
-.area .feature--panel .feature__stage { grid-column: 2; grid-row: 1 / 3; height: auto; margin: 0; background: none; }
-.area .feature--panel .feature__text { grid-column: 1; grid-row: 1; margin: 0; }
-.area .feature--panel .slideshow__controls { grid-column: 1; grid-row: 2; padding-top: 1.5rem; }
-.area .feature--panel.feature--no-stage .feature__text { grid-column: 1 / 3; }
-.area .feature__meta, .area .feature__tags { color: var(--area-soft); }
-.area .feature__also { margin-top: 2rem; color: var(--area-soft); max-width: 40ch; }
-.area .feature__also a { color: var(--area-fg); }
+.area .feature--panel .feature__stage { grid-column: 1 / -1; grid-row: 1; height: auto; min-height: 0; margin: 0; background: none; }
+.area .feature--panel .slide { flex-basis: 100%; padding: 0; }
+.area .feature--panel .slide picture { display: block; }
+.area .feature--panel .slide .slide__img { width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; transform: none !important; filter: none !important; } /* randlos, nicht gedreht */
+.area .feature--panel .slide__placeholder { width: 100%; height: 100%; aspect-ratio: auto; transform: none; }
+.area .feature--panel .feature__text {
+  grid-column: 1; grid-row: 2; margin: 0;
+  display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 5fr) minmax(0, 3fr); column-gap: var(--gutter);
+  align-items: start;
+  padding: 1.5rem 0 1.75rem var(--gutter);
+}
+.area .feature--panel .feature__text { grid-template-rows: auto 1fr; }
+.area .feature--panel .feature__head { grid-column: 1; grid-row: 1 / 3; }
+.area .feature--panel .feature__body { grid-column: 2; grid-row: 1 / 3; margin: 0; max-width: 46ch; }
+.area .feature--panel .feature__tags { display: none; }
+.area .feature--panel .feature__links { grid-column: 3; grid-row: 1; margin: 0; flex-direction: column; gap: 0; align-items: flex-start; }
+.area .feature--panel .feature__links a { padding-block: 0.3rem; }
+.area .feature--panel .feature__also { grid-column: 3; grid-row: 2; margin-top: 0.5rem; font-size: var(--step-small); color: var(--area-soft); }
+.area .feature--panel .feature__also a { color: inherit; }
+.area .feature--panel .slideshow__controls { grid-column: 2; grid-row: 2; align-self: start; padding: 1.5rem var(--margin) 0 0; }
+.area .feature--panel.feature--no-stage .feature__text { grid-column: 1 / -1; grid-row: 1 / -1; align-self: end; }
+.area .feature__meta { color: var(--area-soft); }
 .area .slideshow__btn { background: var(--area-fg); color: var(--area-bg); }
 .area .slideshow__btn:hover:not([aria-disabled="true"]) { background: var(--area-hover); color: var(--ink); }
 .area .slideshow__track:focus-visible { outline-color: var(--area-fg); }
-.area .slide { padding-block: clamp(1rem, 4%, 3rem); }
 
 @media (min-width: 60rem) {
   .areas__row { --strip: clamp(4.5rem, 6.5vw, 6.5rem); container-type: inline-size; }
   .area { display: flex; height: clamp(36rem, 88svh, 56rem); }
-  .area__head { flex: 0 0 var(--strip); }
-  .area__toggle { height: 100%; flex-direction: column-reverse; justify-content: space-between; align-items: center; padding-block: 1.75rem; }
-  /* Das Wort steht senkrecht, von unten nach oben zu lesen */
-  .area__word, .area__count { writing-mode: vertical-rl; transform: rotate(180deg); }
-  .area__word { font-size: calc(var(--strip) * 0.56); }
+  .area__head { display: flex; flex: 0 0 auto; }
+  .area__toggle { height: 100%; }
   .area__panel { flex: 1 1 auto; min-width: 0; }
 
-  /* Mit JavaScript: nebeneinander */
+  /* Ohne JavaScript: Streifen links mit senkrechtem Wort, daneben das Projekt */
+  .areas__row:not(.is-enhanced) .area__toggle { width: var(--strip); }
+  .areas__row:not(.is-enhanced) .area__label--h { display: none; }
+
+  /* Senkrechtes Wort im Streifen: von unten nach oben, die Projektzahl direkt dahinter */
+  .area__label--v {
+    display: flex; position: absolute; left: 0; bottom: 1.75rem; width: var(--strip);
+    justify-content: center;
+  }
+  .area__label--v > span:first-child { writing-mode: vertical-rl; transform: rotate(180deg); }
+  .area__label--v { flex-direction: column-reverse; align-items: center; gap: 0.75rem; }
+  .area__label--v .area__word { font-size: calc(var(--strip) * 0.56); }
+  .area__label--v .area__count { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
+
+  /* Mit JavaScript */
   .areas__row.is-enhanced { display: flex; }
   .is-enhanced .area { flex: 0 0 auto; width: calc(100cqi / 3); overflow: hidden; transition: width 0.7s var(--ease); }
   .is-enhanced.has-open .area { width: var(--strip); }
   .is-enhanced.has-open .area.is-open { width: calc(100cqi - 2 * var(--strip)); }
-  .is-enhanced.has-open .area:not(.is-open):has(.area__toggle:hover) { width: calc(var(--strip) + 1.5rem); }
-  .is-enhanced.has-open:has(.area:not(.is-open) .area__toggle:hover) .area.is-open { width: calc(100cqi - 2 * var(--strip) - 1.5rem); }
-
-  /* Beide Inhalte haben feste Breiten und werden nur abgedeckt: kein Umbruch während der Bewegung */
-  .is-enhanced .area__preview {
-    display: flex; flex-direction: column;
-    position: absolute; top: 0; bottom: 0; left: var(--strip);
-    width: calc(100cqi / 3 - var(--strip));
-    padding: clamp(1.75rem, 5vh, 3.5rem) var(--gutter) clamp(1.25rem, 4vh, 2.5rem) 0;
-  }
+  .is-enhanced .area__toggle { flex: 0 0 auto; width: calc(100cqi / 3); transition: width 0.7s var(--ease); }
+  .is-enhanced.has-open .area__toggle { width: var(--strip); }
   .is-enhanced .area__panel { flex: 0 0 auto; width: calc(100cqi - 3 * var(--strip)); }
-  .is-enhanced .area__preview, .is-enhanced .area__panel { transition: opacity 0.25s var(--ease), visibility 0s linear 0.25s; }
-  .is-enhanced:not(.has-open) .area__preview,
+
+  /* Ausgangszustand: Stapel und waagerechtes Wort; Streifen-Wort ausgeblendet */
+  .is-enhanced .area__stack { display: block; position: relative; flex: 1 1 auto; margin: clamp(2rem, 6vh, 4rem) var(--margin) 0; }
+  .is-enhanced .area__label--h { margin-top: auto; padding-bottom: 1.75rem; }
+  .is-enhanced :is(.area__stack, .area__label--h) { opacity: 1; transition: opacity 0.45s var(--ease) 0.3s; }
+  .is-enhanced .area__label--v { opacity: 0; transition: opacity 0.2s var(--ease); }
+  .is-enhanced.has-open :is(.area__stack, .area__label--h) { opacity: 0; transition: opacity 0.2s var(--ease); }
+  .is-enhanced.has-open .area__label--v { opacity: 1; transition: opacity 0.45s var(--ease) 0.35s; }
+  .is-enhanced .area__panel { opacity: 0; visibility: hidden; transition: opacity 0.2s var(--ease), visibility 0s linear 0.2s; }
   .is-enhanced .area.is-open .area__panel { opacity: 1; visibility: visible; transition: opacity 0.45s var(--ease) 0.3s; }
-  .is-enhanced.has-open .area__preview,
-  .is-enhanced .area:not(.is-open) .area__panel { opacity: 0; visibility: hidden; }
+
+  /* Abzüge im Stapel: übereinander, leicht versetzt; beim Hover fächern sie auf */
+  .area__print {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    transform: translate(var(--dx), var(--dy)) rotate(var(--r));
+    transition: transform 0.6s var(--ease);
+  }
+  .area__print picture { display: contents; }
+  .area__print img { max-width: 88%; max-height: 86%; width: auto; height: auto; filter: saturate(0.7); transition: filter 0.6s var(--ease); }
+  .is-enhanced:not(.has-open) .area__toggle:hover .area__print { transform: translate(calc(var(--dx) * 1.6), calc(var(--dy) * 1.4)) rotate(calc(var(--r) * 1.8)); }
+  .is-enhanced:not(.has-open) .area__toggle:hover .area__print img { filter: saturate(1); }
 }
 
 @media (max-width: 59.99rem) {
-  .area__toggle { justify-content: space-between; align-items: baseline; gap: 1rem; padding: 1.5rem var(--margin); }
-  .area .feature--panel { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; padding: 0 var(--margin) 2.5rem; }
-  .area .feature--panel .feature__stage { grid-column: 1; grid-row: 1; height: clamp(16rem, 44svh, 28rem); margin-inline: calc(-1 * var(--margin)); }
-  .area .feature--panel .slideshow__controls { grid-row: 2; padding-top: 1rem; }
-  .area .feature--panel .feature__text { grid-row: 3; margin-top: 1.75rem; }
-  .area .feature--panel.feature--no-stage .feature__text { grid-column: 1; grid-row: 1; margin-top: 0; }
+  .area__label--h { justify-content: space-between; }
+  .area .feature--panel .feature__stage { height: clamp(16rem, 44svh, 28rem); }
+  .area .feature--panel .feature__text { grid-template-columns: minmax(0, 1fr); padding: 1.25rem var(--margin) 2rem; row-gap: 0.5rem; }
+  .area .feature--panel :is(.feature__head, .feature__body, .feature__links, .feature__also) { grid-column: 1; grid-row: auto; }
+  .area .feature--panel .slideshow__controls { grid-column: 1 / -1; grid-row: 3; padding: 0 var(--margin) 2rem; }
   .is-enhanced .area__panel { display: grid; grid-template-rows: 0fr; visibility: hidden; transition: grid-template-rows 0.55s var(--ease), visibility 0s linear 0.55s; }
   .is-enhanced .area.is-open .area__panel { grid-template-rows: 1fr; visibility: visible; transition: grid-template-rows 0.55s var(--ease); }
-  .is-enhanced .area__inner { overflow: hidden; min-height: 0; }
+  .is-enhanced .area__panel > * { overflow: hidden; min-height: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .is-enhanced .area, .is-enhanced .area__panel, .is-enhanced .area__preview,
-  .is-enhanced .area.is-open .area__panel, .is-enhanced:not(.has-open) .area__preview { transition: none; }
+  .is-enhanced :is(.area, .area__toggle, .area__panel, .area__stack, .area__label--h, .area__label--v, .area__print) { transition: none !important; }
 }
 
 /* ---------- Kapitel und Feature ---------- */

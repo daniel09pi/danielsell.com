@@ -1,16 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 550 550">
-  <!-- Favicon: das Logo-Negativ (brand/logo-knockout.svg), unverzerrt, quadratisch aus der Karte geschnitten (x 0–550).
-       Die Linien laufen wie auf der Karte über den Rand. -->
+  <!-- Favicon: Ink-Quadrat, darin das Logo-Negativ (brand/logo-knockout.svg) verkleinert und mittig,
+       als quadratischer Ausschnitt der Karte (x 0–550), unverzerrt. Die beigen Linien enden am Ausschnitt. -->
   <defs>
-    <mask id="m" maskUnits="userSpaceOnUse" x="0" y="0" width="550" height="550">
-      <rect width="550" height="550" fill="#fff"/>
-      <g fill="none" stroke="#000" stroke-width="43">
-        <path d="M-60 22H260V286M260 286H524V610M260 286L-60 606"/>
-        <circle cx="444.8" cy="101.2" r="79.2"/>
-      </g>
-      <rect x="-10" y="-10" width="291.5" height="25" fill="#000"/>
-    </mask>
+    <clipPath id="c"><rect width="550" height="550"/></clipPath>
   </defs>
-  <rect width="550" height="550" fill="#F5F2EB"/>
-  <rect width="550" height="550" fill="#1E0B4A" mask="url(#m)"/>
+  <rect width="550" height="550" fill="#1E0B4A"/>
+  <g transform="translate(96 96) scale(0.65)" clip-path="url(#c)">
+    <g fill="none" stroke="#F5F2EB" stroke-width="43">
+      <path d="M-60 22H260V286M260 286H524V610M260 286L-60 606"/>
+      <circle cx="444.8" cy="101.2" r="79.2"/>
+    </g>
+    <rect x="-10" y="-10" width="291.5" height="25" fill="#F5F2EB"/>
+  </g>
 </svg>

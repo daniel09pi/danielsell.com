@@ -45,3 +45,17 @@ export const formatDate = (iso) => {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso ?? ''));
   return m ? `${Number(m[3])} ${MONTHS[Number(m[2]) - 1]} ${m[1]}` : String(iso ?? '');
 };
+
+/** Zitat mit Markierungen: "{creative: brand identities}" wird zu einem Teil mit Kategorie. */
+export const parseMarks = (text) => {
+  const parts = [];
+  const re = /\{\s*(creative|adventure|dev)\s*:\s*([^}]+?)\s*\}/g;
+  let last = 0, m;
+  while ((m = re.exec(String(text ?? '')))) {
+    if (m.index > last) parts.push({ text: text.slice(last, m.index) });
+    parts.push({ text: m[2], category: m[1] });
+    last = m.index + m[0].length;
+  }
+  if (last < String(text ?? '').length) parts.push({ text: String(text).slice(last) });
+  return parts;
+};

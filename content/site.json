@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Alle Texte und Links der Website. Werte in [eckigen Klammern] sind Platzhalter: einfach ersetzen. Ein leerer String \"\" blendet das Feld auf der Seite aus. Neu in v5: hero.subtitle sind die drei Wörter unter dem Namen, eines pro Spalte (creative, adventure, dev); darunter zeigt die Startseite automatisch die Titel der Projekte aus projects.json; quote ist das Zitat direkt unter dem Hero (label: kleines Wort links, text: der große Absatz rechts; \"\" blendet es aus); currently.title, about.greeting und contact.title sind die Überschriften dieser Bereiche (\"\" blendet die Überschrift aus). legal.datenschutz: Text; Absätze durch eine Leerzeile (\n\n) trennen oder eine Liste von Absätzen angeben.",
+  "_hinweis": "Alle Texte und Links der Website. Werte in [eckigen Klammern] sind Platzhalter: einfach ersetzen. Ein leerer String \"\" blendet das Feld auf der Seite aus. Neu in v5: hero.subtitle sind die drei Wörter unter dem Namen, eines pro Spalte (creative, adventure, dev); darunter zeigt die Startseite automatisch die Titel der Projekte aus projects.json; quote ist das Zitat \"in short\" (Begriffe in {creative: …}, {adventure: …} oder {dev: …} werden in der Farbe des Bereichs markiert und verlinken auf ihn) (label: kleines Wort links, text: der große Absatz rechts; \"\" blendet es aus); currently.title, about.greeting und contact.title sind die Überschriften dieser Bereiche (\"\" blendet die Überschrift aus). legal.datenschutz: Text; Absätze durch eine Leerzeile (\n\n) trennen oder eine Liste von Absätzen angeben.",
   "person": {
     "name": "Daniel Sell",
     "based": "Munich, Germany",
@@ -19,7 +19,7 @@
   },
   "quote": {
     "label": "in short",
-    "text": "I design brand identities and book covers, and I build the websites that go with them. The best ideas rarely start at a desk: on a motorbike, on a boat, or 4,000 metres up with a llama."
+    "text": "I design {creative: brand identities} and {creative: book covers}, and I build the {dev: websites} that go with them. The best ideas rarely start at a desk: on a motorbike, on a boat, or {adventure: 4,000 metres up} with a llama."
   },
   "seo": {
     "title": "Daniel Sell — Designer & Developer",

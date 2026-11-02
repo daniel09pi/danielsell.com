@@ -78,10 +78,12 @@ const cat = categoryLabel(p.category);
   )}
 
   <div class="feature__text">
-    <H class="feature__title" id={titleId}><T v={p.title} /></H>
-    {meta.length > 0 && (
-      <p class="feature__meta">{meta.map((m, i) => (<>{i > 0 && ', '}<T v={m} /></>))}</p>
-    )}
+    <div class="feature__head">
+      <H class="feature__title" id={titleId}><T v={p.title} /></H>
+      {meta.length > 0 && (
+        <p class="feature__meta">{meta.map((m, i) => (<>{i > 0 && ', '}<T v={m} /></>))}</p>
+      )}
+    </div>
     {has(p.text) && <p class="feature__body"><T v={p.text} /></p>}
     {tags.length > 0 && (
       <ul class="feature__tags" aria-label="Tags">

@@ -1,0 +1,16 @@
+---
+import TextPage from '../components/TextPage.astro';
+import T from '../components/T.astro';
+import { site, has } from '../lib/content.js';
+const i = site.legal?.impressum ?? {};
+---
+<TextPage title="Impressum" heading="Impressum" lang="de">
+  <p class="textpage__lead">Angaben gemäß § 5 DDG</p>
+  <address>
+    {has(i.name) && <p><T v={i.name} /></p>}
+    {has(i.address) && <p><T v={i.address} /></p>}
+  </address>
+  <h2>Kontakt</h2>
+  {has(i.email) && <p>E-Mail: <a href={`mailto:${i.email}`}>{i.email}</a></p>}
+  {has(i.phone) && <p>Telefon: <T v={i.phone} /></p>}
+</TextPage>

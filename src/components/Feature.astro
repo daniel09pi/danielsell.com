@@ -1,0 +1,181 @@
+---
+// Ein Projekt als Feature: Slideshow auf der Kategorie-Fläche, Text daneben (Desktop) bzw. darunter (Handy).
+// Gleiche Komponente auf der Startseite und auf der Projektseite.
+// Reihenfolge im HTML = Lese- und Tab-Reihenfolge: Kategorie, Bilder, Steuerung, Text.
+import Img from './Img.astro';
+import T from './T.astro';
+import { has, isUrl, isExternal, categoryLabel } from '../lib/content.js';
+import { projectImages } from '../lib/images.js';
+
+interface Props {
+  project: any;
+  side?: 'left' | 'right';      // Seite der Bildfläche
+  eager?: boolean;              // erstes sichtbares Bild der Seite
+  headingLevel?: 2 | 3;
+  categoryHeading?: boolean;    // Kategorie-Name als Überschrift über dem Projekt (Startseite)
+  moreLink?: string;            // Link "All … projects"
+}
+const { project: p, side = 'right', eager = false, headingLevel = 3, categoryHeading = false, moreLink } = Astro.props;
+const images = projectImages(p);
+const many = images.length > 1;
+const H = `h${headingLevel}`;
+const CatH = `h${headingLevel === 3 ? 2 : 3}`;
+const titleId = `${p.slug}-title`;
+const trackId = `${p.slug}-images`;
+// Ruhewinkel und Winkel bei Hover/Fokus (dreht in die Gegenrichtung, wie in v4)
+const tilts = [[-1.5, 1], [1.2, -1.3], [-0.8, 1.7], [2, -0.5], [-1.2, 1.3], [0.8, -1.7]];
+const tags = (p.tags ?? []).filter(has);
+const links = (p.links ?? []).filter((l) => has(l?.label) && has(l?.url));
+const meta = [p.kind, p.year].filter(has);
+const cat = categoryLabel(p.category);
+---
+<article
+  class:list={['feature', `feature--${p.category}`, `feature--stage-${side}`, { 'feature--no-stage': images.length === 0 }]}
+  id={categoryHeading ? undefined : p.slug}
+  aria-labelledby={titleId}
+  data-feature
+>
+  {categoryHeading && <CatH class="feature__category">{cat}</CatH>}
+
+  {images.length > 0 && (
+    <div class="feature__stage">
+      <div
+        class="slideshow__track"
+        id={trackId}
+        {...(many ? { tabindex: '0', role: 'region', 'aria-roledescription': 'carousel', 'aria-label': `${p.title}: images` } : {})}
+      >
+        {images.map((im, i) => (
+          <figure
+            class:list={['slide', { 'is-current': i === 0 }]}
+            style={`--tilt:${tilts[i % tilts.length][0]}deg;--tilt-to:${tilts[i % tilts.length][1]}deg`}
+            {...(many ? { role: 'group', 'aria-roledescription': 'slide', 'aria-label': `${i + 1} of ${images.length}` } : {})}
+          >
+            {im.placeholder ? (
+              <div class="slide__placeholder"><p>{im.label}</p></div>
+            ) : (
+              <Img meta={im.meta} alt={im.alt} sizes="(min-width: 960px) 52vw, 84vw" eager={eager && i === 0} class="slide__img" />
+            )}
+          </figure>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {many && (
+    <div class="slideshow__controls" data-controls hidden>
+      <button type="button" class="slideshow__btn" data-prev aria-controls={trackId} aria-label={`Previous image of ${p.title}`} aria-disabled="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+      </button>
+      <p class="slideshow__count" aria-hidden="true"><span data-current>1</span> / {images.length}</p>
+      <button type="button" class="slideshow__btn" data-next aria-controls={trackId} aria-label={`Next image of ${p.title}`}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+      </button>
+      <p class="sr-only" aria-live="polite" data-live></p>
+    </div>
+  )}
+
+  <div class="feature__text">
+    <H class="feature__title" id={titleId}><T v={p.title} /></H>
+    {meta.length > 0 && (
+      <p class="feature__meta">{meta.map((m, i) => (<>{i > 0 && ', '}<T v={m} /></>))}</p>
+    )}
+    {has(p.text) && <p class="feature__body"><T v={p.text} /></p>}
+    {tags.length > 0 && (
+      <ul class="feature__tags" aria-label="Tags">
+        {tags.map((t) => <li><T v={t} /></li>)}
+      </ul>
+    )}
+    {(links.length > 0 || moreLink) && (
+      <ul class="feature__links">
+        {links.map((l) =>
+          isUrl(l.url) ? (
+            <li><a href={l.url} {...(isExternal(l.url) ? { rel: 'noopener', target: '_blank' } : {})}>{l.label}{isExternal(l.url) && <span class="sr-only"> (opens in a new tab)</span>}</a></li>
+          ) : (
+            <li><span class="feature__nolink"><T v={l.label} />: <T v={l.url} /></span></li>
+          ),
+        )}
+        {moreLink && <li><a href={moreLink}>All {cat} projects</a></li>}
+      </ul>
+    )}
+  </div>
+</article>
+
+<script>
+  // Slideshow: Scroll-Snap-Reihe (wischen geht nativ; ohne JS oder wenn dieses Skript fehlschlägt,
+  // bleibt sie mit sichtbarer Scrollleiste bedienbar). Dazu Buttons, Pfeiltasten, Zähler, aria-live. Kein Autoplay.
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  document.querySelectorAll<HTMLElement>('[data-feature]').forEach((feature) => {
+    const track = feature.querySelector<HTMLElement>('.slideshow__track');
+    const controls = feature.querySelector<HTMLElement>('[data-controls]');
+    if (!track || !controls) return;
+    const slides = Array.from(track.children) as HTMLElement[];
+    const prev = controls.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = controls.querySelector<HTMLButtonElement>('[data-next]')!;
+    const current = controls.querySelector<HTMLElement>('[data-current]')!;
+    const live = controls.querySelector<HTMLElement>('[data-live]')!;
+    const title = feature.querySelector('.feature__title')?.textContent?.trim() ?? '';
+    const last = slides.length - 1;
+    let index = 0;
+    let pending: number | null = null;   // Ziel einer laufenden Bewegung (Button, Taste)
+    let settleTimer = 0;
+
+    const nearest = () => {
+      const x = track.scrollLeft;
+      if (x >= track.scrollWidth - track.clientWidth - 2) return last;
+      let best = 0;
+      slides.forEach((s, k) => { if (Math.abs(s.offsetLeft - x) < Math.abs(slides[best].offsetLeft - x)) best = k; });
+      return best;
+    };
+    const setDisabled = (btn: HTMLButtonElement, off: boolean) => btn.setAttribute('aria-disabled', String(off));
+    const render = () => {
+      current.textContent = String(index + 1);
+      setDisabled(prev, index === 0);
+      setDisabled(next, index === last);
+      slides.forEach((s, k) => s.classList.toggle('is-current', k === index));
+    };
+    const settle = () => {
+      index = nearest();
+      render();
+      if (pending !== null) {
+        live.textContent = `${title}: image ${index + 1} of ${slides.length}`;
+        pending = null;
+      }
+    };
+    const go = (target: number) => {
+      const t = Math.max(0, Math.min(last, target));
+      pending = t;
+      index = t;
+      render();
+      track.scrollTo({ left: slides[t].offsetLeft, behavior: reduce.matches ? 'auto' : 'smooth' });
+      if (reduce.matches) settle();
+    };
+    const step = (delta: number) => go((pending ?? index) + delta);
+
+    track.addEventListener('scroll', () => {
+      if (pending === null) { index = nearest(); render(); }
+      clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(settle, 160);
+    }, { passive: true });
+
+    prev.addEventListener('click', () => { if (prev.getAttribute('aria-disabled') !== 'true') step(-1); });
+    next.addEventListener('click', () => { if (next.getAttribute('aria-disabled') !== 'true') step(1); });
+    feature.addEventListener('keydown', (e) => {
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      const t = e.target as HTMLElement;
+      if (!(t === track || controls.contains(t))) return;
+      const map: Record<string, () => void> = {
+        ArrowRight: () => step(1),
+        ArrowLeft: () => step(-1),
+        Home: () => go(0),
+        End: () => go(last),
+      };
+      if (map[e.key]) { e.preventDefault(); map[e.key](); }
+    });
+    window.addEventListener('resize', () => { track.scrollLeft = slides[index].offsetLeft; });
+
+    controls.hidden = false;
+    feature.classList.add('is-enhanced');
+    render();
+  });
+</script>

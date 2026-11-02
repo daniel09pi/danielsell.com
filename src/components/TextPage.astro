@@ -1,0 +1,14 @@
+---
+// Schlichte Textseite (Impressum, Datenschutz, 404).
+import Base from '../layouts/Base.astro';
+import Closing from './Closing.astro';
+interface Props { title: string; heading: string; noindex?: boolean; lang?: string }
+const { title, heading, noindex, lang } = Astro.props;
+---
+<Base title={title} noindex={noindex} lang={lang}>
+  <section class="textpage wrap" aria-labelledby="page-title">
+    <h1 class="textpage__title" id="page-title">{heading}</h1>
+    <div class="textpage__body"><slot /></div>
+  </section>
+  <Closing slot="after" />
+</Base>

@@ -1,0 +1,96 @@
+---
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import Feature from '../components/Feature.astro';
+import Closing from '../components/Closing.astro';
+import Img from '../components/Img.astro';
+import T from '../components/T.astro';
+import { site, has, isPlaceholder, CATEGORIES, featured, subtitleLinks, formatDate } from '../lib/content.js';
+import { resolveImage } from '../lib/images.js';
+
+const name = site.person?.name ?? '';
+const words = subtitleLinks();
+const features = CATEGORIES.map((c) => ({ category: c, project: featured(c) })).filter((f) => f.project);
+const currently = (site.currently?.items ?? []).filter((i) => has(i?.title) || has(i?.text));
+const about = site.about ?? {};
+const photo = has(about.photo?.src) && !isPlaceholder(about.photo.src) ? resolveImage(about.photo.src) : null;
+const facts = (about.facts ?? []).filter((f) => has(f?.label) && has(f?.value));
+const ph = (v) => (isPlaceholder(v) ? 'ph' : undefined);
+const email = site.person?.email ?? '';
+// Phase 1: Die Projektseite folgt in Phase 2. Bis dahin keine Links "All … projects" (sonst 404).
+const PROJECTS_PAGE = false;
+---
+<Base nav={[{ label: 'work', href: '#work' }, { label: 'about', href: '#about' }, { label: 'contact', href: '#contact' }]}>
+  <section class="hero wrap" aria-labelledby="hero-title">
+    <div class="hero__mark">
+      <Logo variant="knockout" uid="hero" />
+    </div>
+    <h1 class="hero__name" id="hero-title">{name.toLowerCase()}</h1>
+    {words.length > 0 && (
+      <p class="hero__words">
+        {words.map((w, i) => (
+          <>{i > 0 && <span class="hero__dash" aria-hidden="true"> — </span>}<a href={`#${w.category}`}><T v={w.word} /></a></>
+        ))}
+      </p>
+    )}
+    <div class="hero__intro">
+      {has(site.hero?.text) && <p class="hero__text"><T v={site.hero.text} /></p>}
+      {has(email) && has(site.hero?.action) && <a class="button" href={`mailto:${email}`}><T v={site.hero.action} /></a>}
+    </div>
+  </section>
+
+  <div id="work">
+    {features.map((f, i) => (
+      <section class:list={['chapter', `chapter--${f.category}`]} id={f.category}>
+        <Feature
+          project={f.project}
+          side={i % 2 === 0 ? 'right' : 'left'}
+          eager={i === 0}
+          categoryHeading
+          headingLevel={3}
+          moreLink={PROJECTS_PAGE ? `/projects/#${f.category}` : undefined}
+        />
+      </section>
+    ))}
+  </div>
+
+  {currently.length > 0 && (
+    <section class="now wrap" {...(has(site.currently?.title) ? { "aria-labelledby": "now-title" } : { "aria-label": "Currently" })}>
+      {has(site.currently?.title) && <h2 class="now__title" id="now-title"><T v={site.currently.title} /></h2>}
+      {has(site.currently?.updated) && (
+        <p class="now__updated">Updated <time datetime={site.currently.updated}>{formatDate(site.currently.updated)}</time></p>
+      )}
+      <ul class="now__list">
+        {currently.map((item) => (
+          <li class="now__row">
+            <h3 class="now__item"><T v={item.title} /></h3>
+            {has(item.text) && <p class="now__text"><T v={item.text} /></p>}
+            {has(item.status) && <p class="now__status"><span class="marker"><T v={item.status} /></span></p>}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  <section class:list={["letter wrap", { "letter--nophoto": !photo }]} id="about" {...(has(about.greeting) ? { "aria-labelledby": "about-title" } : { "aria-label": "About" })}>
+    {photo && (
+      <figure class="letter__photo tilt" style="--tilt:-1.5deg;--tilt-to:1deg">
+        <Img meta={photo} alt={about.photo.alt ?? ''} sizes="(min-width: 960px) 36vw, 84vw" />
+        {has(about.photo?.caption) && <figcaption><T v={about.photo.caption} /></figcaption>}
+      </figure>
+    )}
+    <div class="letter__text">
+      {has(about.greeting) && <h2 class="letter__title" id="about-title"><T v={about.greeting} /></h2>}
+      {has(about.intro) && <p class="letter__intro"><T v={about.intro} /></p>}
+      {facts.length > 0 && (
+        <dl class="letter__facts">
+          {facts.map((f) => (
+            <div><dt>{f.label}</dt><dd><T v={f.value} /></dd></div>
+          ))}
+        </dl>
+      )}
+    </div>
+  </section>
+
+  <Closing slot="after" />
+</Base>

@@ -1,0 +1,66 @@
+---
+// Gemeinsamer Rahmen aller Seiten: <head>, Navigation, Inhalt. Nur hier gepflegt.
+import '@fontsource-variable/archivo/wdth.css';
+import '../styles/global.css';
+import Logo from '../components/Logo.astro';
+import { site, isPlaceholder } from '../lib/content.js';
+
+interface Props { title?: string; description?: string; nav?: { label: string; href: string }[]; noindex?: boolean; lang?: string }
+const {
+  title,
+  description = site.seo?.description ?? '',
+  nav = [
+    // Phase 1: Projekt- und About-Seite folgen; bis dahin zeigen die Links auf die Startseite.
+    { label: 'work', href: '/#work' },
+    { label: 'about', href: '/#about' },
+    { label: 'contact', href: '#contact' },
+  ],
+  noindex = false,
+  lang = 'en',
+} = Astro.props;
+const fullTitle = title ? `${title} — ${site.person?.name ?? ''}` : site.seo?.title ?? site.person?.name ?? '';
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const og = new URL('/og.png', Astro.site).href;
+const path = Astro.url.pathname;
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    {description && !isPlaceholder(description) && <meta name="description" content={description} />}
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <meta name="theme-color" content="#F5F2EB" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    {description && <meta property="og:description" content={description} />}
+    {!noindex && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={og} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-nav wrap">
+      <a class="site-nav__home" href="/" aria-label={`${site.person?.name ?? 'Home'}, home`} aria-current={path === '/' ? 'page' : undefined}>
+        <Logo variant="loose" uid="nav" />
+      </a>
+      <nav aria-label="Main">
+        <ul>
+          {nav.map((l) => (
+            <li><a href={l.href} aria-current={l.href === path ? 'page' : undefined}>{l.label}</a></li>
+          ))}
+        </ul>
+      </nav>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <slot name="after" />
+  </body>
+</html>

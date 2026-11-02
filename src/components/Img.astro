@@ -1,0 +1,23 @@
+---
+// Responsives Bild aus src/generated/media.json: AVIF mit WebP-Fallback, width/height gegen Layout-Sprünge.
+interface Props { meta: { width: number; height: number; variants: Record<string, { w: number; url: string }[]> }; alt: string; sizes: string; eager?: boolean; class?: string }
+const { meta, alt, sizes, eager = false, class: cls } = Astro.props;
+const set = (fmt: string) => meta.variants[fmt].map((v) => `${encodeURI(v.url)} ${v.w}w`).join(', ');
+const webp = meta.variants.webp;
+const fallback = webp[Math.min(1, webp.length - 1)];
+---
+<picture>
+  <source type="image/avif" srcset={set('avif')} sizes={sizes} />
+  <img
+    src={encodeURI(fallback.url)}
+    srcset={set('webp')}
+    sizes={sizes}
+    width={meta.width}
+    height={meta.height}
+    alt={alt}
+    loading={eager ? 'eager' : 'lazy'}
+    fetchpriority={eager ? 'high' : undefined}
+    decoding={eager ? 'sync' : 'async'}
+    class={cls}
+  />
+</picture>

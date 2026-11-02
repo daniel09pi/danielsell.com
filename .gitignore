@@ -1,0 +1,7 @@
+node_modules/
+.astro/
+.taste-skill/
+.DS_Store
+# dist/ wird bewusst mitcommittet: der Server liefert es direkt aus.
+public/media/
+src/generated/

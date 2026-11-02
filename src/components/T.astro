@@ -1,0 +1,6 @@
+---
+// Text aus der JSON. Teile in [eckigen Klammern] sind Platzhalter und werden markiert.
+interface Props { v: unknown }
+const parts = String(Astro.props.v ?? '').split(/(\[[^\]]*\])/g).filter(Boolean);
+---
+{parts.map((p) => (/^\[[^\]]*\]$/.test(p) ? <span class="ph">{p}</span> : p))}

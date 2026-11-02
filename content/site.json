@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Alle Texte und Links der Website. Werte in [eckigen Klammern] sind Platzhalter: einfach ersetzen. Ein leerer String \"\" blendet das Feld auf der Seite aus.",
+  "_hinweis": "Alle Texte und Links der Website. Werte in [eckigen Klammern] sind Platzhalter: einfach ersetzen. Ein leerer String \"\" blendet das Feld auf der Seite aus. Neu in v5: hero.text ist der Satz unter dem Namen auf der Startseite (sagt in einem Satz, was Daniel macht); hero.action ist die Beschriftung des E-Mail-Buttons im Hero; currently.title, about.greeting und contact.title sind die Überschriften dieser Bereiche (\"\" blendet die Überschrift aus). legal.datenschutz: Text; Absätze durch eine Leerzeile (\n\n) trennen oder eine Liste von Absätzen angeben.",
 
   "person": {
     "name": "Daniel Sell",
@@ -9,12 +9,18 @@
   },
 
   "hero": {
-    "subtitle": ["creative", "adventure", "dev"]
+    "subtitle": ["creative", "adventure", "dev"],
+    "text": "Designer and developer in Munich: brand identities, book covers, and the websites that go with them.",
+    "action": "Email me"
   },
 
   "seo": {
     "title": "Daniel Sell — Designer & Developer",
     "description": "Portfolio of Daniel Sell — brand identity designer and web developer from Munich, Germany."
+  },
+
+  "contact": {
+    "title": "Say hello"
   },
 
   "socials": [
@@ -24,6 +30,7 @@
   ],
 
   "currently": {
+    "title": "Currently working on",
     "updated": "2026-11-02",
     "items": [
       { "title": "danielsell.com v5", "text": "Redesign in the new identity.", "status": "building" },
@@ -33,6 +40,7 @@
   },
 
   "about": {
+    "greeting": "hi, i’m daniel.",
     "intro": "Designer and developer from Munich. I design brand identities and book covers, and I build the websites and web apps that go with them.",
     "photo": { "src": "portfolio_files/_assets/selfie daniel lama.avif", "alt": "Daniel with a llama in north Argentina", "caption": "Me (right) and Lama (left), 4000+ m up in north Argentina" },
     "howItStarted": "[Eigener Text: wie alles angefangen hat. 2 bis 3 Sätze.]",

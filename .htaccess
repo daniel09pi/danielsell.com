@@ -1,0 +1,63 @@
+# danielsell.com v5
+# Der Server liefert das Git-Arbeitsverzeichnis aus. Ausgeliefert wird nur der Build-Ordner dist/:
+# Jede Anfrage wird intern nach dist/ umgeleitet; alles andere im Repo ist so nicht erreichbar.
+
+Options -Indexes -MultiViews
+DirectoryIndex index.html
+AddDefaultCharset utf-8
+ErrorDocument 403 /404.html
+ErrorDocument 404 /404.html
+
+<IfModule mod_mime.c>
+  AddType image/avif .avif
+  AddType image/webp .webp
+  AddType font/woff2 .woff2
+  AddType image/svg+xml .svg
+</IfModule>
+
+# Zweite Sicherung, falls mod_rewrite ausfällt: Quellen, Konfiguration und Dotfiles sperren.
+RedirectMatch 404 ^/(\.|src/|content/|brand/|scripts/|node_modules/|portfolio_files/|public/|archive/|other-design-XD/|logs/)
+RedirectMatch 404 (?i)\.(md|mjs|cjs|ts|astro|lock|env|sh|bundle|php|ya?ml|log)$
+RedirectMatch 404 ^/(package(-lock)?\.json|tsconfig\.json|astro\.config\.mjs)$
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Dotfiles und -ordner (.git, .htaccess, .gitignore …) gibt es nicht.
+  RewriteCond %{ENV:REDIRECT_STATUS} ^$
+  RewriteRule (^|/)\. - [R=404,L]
+
+  # dist/ direkt aufrufen gibt es nicht (sonst doppelte Adressen).
+  RewriteCond %{ENV:REDIRECT_STATUS} ^$
+  RewriteCond %{THE_REQUEST} \s/+dist(/|\s|\?) [NC]
+  RewriteRule ^ - [R=404,L]
+
+  # Saubere Adressen: /projects -> /projects/
+  RewriteCond %{REQUEST_URI} !^/dist/
+  RewriteRule ^((?:[^/]+/)*[^/.]+)$ /$1/ [R=301,L]
+
+  # Alles intern aus dist/ ausliefern.
+  RewriteCond %{REQUEST_URI} !^/dist/
+  RewriteRule ^(.*)$ dist/$1 [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType image/avif "access plus 30 days"
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/svg+xml "access plus 7 days"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType text/javascript "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+</IfModule>

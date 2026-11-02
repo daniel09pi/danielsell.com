@@ -1,0 +1,11 @@
+---
+import TextPage from '../components/TextPage.astro';
+import T from '../components/T.astro';
+import { site, has } from '../lib/content.js';
+const d = site.legal?.datenschutz;
+// Text darf ein String sein (Absätze durch Leerzeile getrennt) oder eine Liste von Absätzen.
+const paras = (Array.isArray(d) ? d : String(d ?? '').split(/\n\s*\n/)).filter(has);
+---
+<TextPage title="Datenschutz" heading="Datenschutz" lang="de">
+  {paras.map((p) => <p><T v={p} /></p>)}
+</TextPage>

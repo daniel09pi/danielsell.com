@@ -1,0 +1,50 @@
+---
+// Abschluss jeder Seite: die E-Mail als großer Satz, Socials, eine ruhige Fußzeile.
+import T from './T.astro';
+import { site, has, isPlaceholder, isUrl } from '../lib/content.js';
+
+const email = site.person?.email ?? '';
+const [local, domain] = String(email).split('@');
+const socials = (site.socials ?? []).filter((s) => has(s?.name) && (has(s?.url) || has(s?.handle)));
+const year = new Date().getFullYear();
+const name = site.person?.name ?? '';
+const based = site.person?.based ?? '';
+---
+<footer class="closing" id="contact" {...(has(site.contact?.title) ? { "aria-labelledby": "contact-title" } : { "aria-label": "Contact" })}>
+  <div class="closing__inner wrap">
+    {has(site.contact?.title) && <h2 class="closing__title" id="contact-title"><T v={site.contact.title} /></h2>}
+    {has(email) && (
+      <p class="closing__email">
+        <a href={`mailto:${email}`}><span>{local}@</span><wbr /><span>{domain}</span></a>
+      </p>
+    )}
+    {socials.length > 0 && (
+      <ul class="closing__socials" aria-label="Elsewhere">
+        {socials.map((s) => (
+          <li>
+            {isUrl(s.url) ? (
+              <a href={s.url} rel="me noopener" target="_blank">
+                <span class="closing__net">{s.name}</span>
+                {has(s.handle) && <span class:list={['closing__handle', { ph: isPlaceholder(s.handle) }]}>{s.handle}</span>}
+                <span class="sr-only"> (opens in a new tab)</span>
+              </a>
+            ) : (
+              <span class="closing__nolink">
+                <span class="closing__net">{s.name}</span>
+                <span class="closing__handle ph">{s.handle}{isPlaceholder(s.url) ? ` ${s.url}` : ''}</span>
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+    )}
+    <div class="closing__line">
+      <p>{[name, based].filter(has).join(', ')}</p>
+      <ul aria-label="Legal">
+        <li><a href="/impressum/" lang="de">Impressum</a></li>
+        <li><a href="/datenschutz/" lang="de">Datenschutz</a></li>
+      </ul>
+      <p>© {year}</p>
+    </div>
+  </div>
+</footer>

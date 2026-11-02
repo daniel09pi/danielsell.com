@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Alle Projekte. category: creative | adventure | dev. Pro Kategorie zeigt die Startseite das Projekt mit \"featured\": true, die Projektseite zeigt alle. Reihenfolge in der Liste = Reihenfolge auf der Seite. Werte in [eckigen Klammern] sind Platzhalter, \"\" blendet ein Feld aus. Bilder: Pfade relativ zum Repo.",
+  "_hinweis": "Alle Projekte. category: creative | adventure | dev. Pro Kategorie zeigt die Startseite das Projekt mit \"featured\": true, die Projektseite zeigt alle. Reihenfolge in der Liste = Reihenfolge auf der Seite. Werte in [eckigen Klammern] sind Platzhalter, \"\" blendet ein Feld aus. Bilder: Pfade relativ zum Repo. Neu in v5: Ein Bild darf statt eines Pfads auch ein Objekt { \"src\": \"portfolio_files/…\", \"alt\": \"Beschreibung des Bildes\" } sein; ohne alt erzeugt die Seite einen Alt-Text aus Titel und Nummer. Das erste Bild ist das Titelbild des Features.",
 
   "projects": [
     {
@@ -12,7 +12,17 @@
       "tags": ["Brand Identity", "Visual Guidelines"],
       "text": "Design of the ALUKEKU brand identity and visual guidelines. ALUKEKU is an architecture and construction company from Angola.",
       "links": [],
-      "images": ["portfolio_files/alukeku/1.avif", "portfolio_files/alukeku/2.avif", "portfolio_files/alukeku/3.avif", "portfolio_files/alukeku/4.avif", "portfolio_files/alukeku/5.avif", "portfolio_files/alukeku/6.avif", "portfolio_files/alukeku/7.avif", "portfolio_files/alukeku/8.avif", "portfolio_files/alukeku/9.avif"]
+      "images": [
+        { "src": "portfolio_files/alukeku/1.avif", "alt": "ALUKEKU logo, a five-pointed star mark above the wordmark, printed on white paper" },
+        { "src": "portfolio_files/alukeku/2.avif", "alt": "Construction drawing of the ALUKEKU star mark on its geometric grid" },
+        { "src": "portfolio_files/alukeku/3.avif", "alt": "ALUKEKU business cards, one white and one black, leaning on a concrete block" },
+        { "src": "portfolio_files/alukeku/4.avif", "alt": "The ALUKEKU website on a laptop: “Building with Purpose. Rooted in Heritage.”" },
+        { "src": "portfolio_files/alukeku/5.avif", "alt": "ALUKEKU poster with a blue, yellow and black pattern built from the star mark" },
+        { "src": "portfolio_files/alukeku/6.avif", "alt": "Brand guidelines page: logomark concept and symbolism" },
+        { "src": "portfolio_files/alukeku/7.avif", "alt": "Brand guidelines page: photo directions for structure, craft and material" },
+        { "src": "portfolio_files/alukeku/8.avif", "alt": "Brand guidelines page: photo mosaic of construction and material images" },
+        { "src": "portfolio_files/alukeku/9.avif", "alt": "Stacks of ALUKEKU business cards with the patterned backs" }
+      ]
     },
     {
       "slug": "bookcovers",
@@ -92,7 +102,10 @@
         { "label": "Live", "url": "https://flowinsync.deam31.com/" },
         { "label": "Source", "url": "[GitHub-URL oder leer lassen]" }
       ],
-      "images": ["[Screenshots / Bildschirmaufnahme]"]
+      "images": [
+        { "src": "portfolio_files/flowinsync/1.avif", "alt": "flowinsync start screen: create or join a room, with fields for your name, the room name, flow time and maximum users" },
+        "[Weitere Screenshots / Bildschirmaufnahme]"
+      ]
     },
     {
       "slug": "mixer-dashboard",

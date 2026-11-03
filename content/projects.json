@@ -169,6 +169,30 @@
         {
           "src": "portfolio_files/_assets/selfie daniel lama.avif",
           "alt": "Daniel with a llama on a mountain road in north Argentina"
+        },
+        {
+          "src": "portfolio_files/project500/1.avif",
+          "alt": "project500 wordmark printed on white paper"
+        },
+        {
+          "src": "portfolio_files/project500/2.avif",
+          "alt": "project500 monogram in white on a dark navy background"
+        },
+        {
+          "src": "portfolio_files/project500/3.avif",
+          "alt": "project500 wordmark over a blurred photo of a dancer in red fabric"
+        },
+        {
+          "src": "portfolio_files/project500/4.avif",
+          "alt": "The 500 mark of project500 above a diver in shafts of blue light"
+        },
+        {
+          "src": "portfolio_files/project500/5.avif",
+          "alt": "project500 wordmark in black on white"
+        },
+        {
+          "src": "portfolio_files/project500/6.avif",
+          "alt": "The 500 mark of project500 in dark navy on mint green"
         }
       ]
     },
@@ -194,6 +218,30 @@
         {
           "src": "portfolio_files/flowinsync/1.avif",
           "alt": "flowinsync start screen: create or join a room, with fields for your name, the room name, flow time and maximum users"
+        },
+        {
+          "src": "portfolio_files/stooney/1.avif",
+          "alt": "Stooney logo printed on white paper"
+        },
+        {
+          "src": "portfolio_files/stooney/2.avif",
+          "alt": "Stooney logo in white on red sandstone"
+        },
+        {
+          "src": "portfolio_files/stooney/3.avif",
+          "alt": "Stooney business cards on a beige stone wall"
+        },
+        {
+          "src": "portfolio_files/stooney/4.avif",
+          "alt": "Stooney lamps glowing in a bathroom niche and in a living room"
+        },
+        {
+          "src": "portfolio_files/stooney/5.avif",
+          "alt": "Stooney business card on a wooden tray with amber glass candle holders"
+        },
+        {
+          "src": "portfolio_files/stooney/6.avif",
+          "alt": "Stooney poster: a hand holding stones by the sea, with the line designer lampen"
         }
       ]
     },
@@ -261,5 +309,5 @@
       ]
     }
   ],
-  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): argentinien (Titel, Art, Jahr, Tags, Text; Bild vorerst das About-Foto aus Argentinien), Jahre und Stack bei flowinsync, mixer-dashboard, werner-gehner. flowinsync: Source-Link entfernt."
+  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): argentinien (Titel, Art, Jahr, Tags, Text; Bild 1 vorerst das About-Foto aus Argentinien, Bilder 2–7 vorläufig von project500), flowinsync (Bilder 2–7 vorläufig von Stooney, bis es eigene Screenshots gibt), Jahre und Stack bei flowinsync, mixer-dashboard, werner-gehner. flowinsync: Source-Link entfernt."
 }

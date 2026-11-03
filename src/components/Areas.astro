@@ -1,37 +1,25 @@
 ---
 // Die drei Bereiche der Startseite in einem Abschnitt: drei Farbspalten wie im Hero.
-// Ausgangszustand: alle drei gleich breit, jede zeigt einen Stapel Abzüge, darunter Wort und Projektzahl.
-// Klick auf eine Spalte: sie wird breit (Bild randlos, darunter ein Textband), die anderen werden Streifen
-// mit senkrechtem Wort. Klick auf den Streifen der offenen Spalte oder Escape: zurück zum Ausgangszustand.
-// Ohne JavaScript sind alle drei offen und stehen untereinander.
+// Ausgangszustand: drei gleich breite Spalten. Jede zeigt oben den Hinweis "Featured project: …", ein Bild
+// des Projekts mit Punkten und Pfeilen zum Blättern, unten Wort und Projektzahl.
+// Klick auf das Wort oder das Bild: die Spalte wird breit (Bild links, Text rechts, Kreuz oben rechts),
+// die anderen werden Streifen mit senkrechtem Wort. Kreuz, Klick auf den Streifen der offenen Spalte oder
+// Escape: zurück zum Ausgangszustand. Die Slideshow ist in beiden Zuständen dieselbe (gleiches Bild).
+// Ohne JavaScript sind alle drei offen und stehen untereinander; die Wort-Buttons sind dann deaktiviert.
+// Es ist immer genau eins der beiden Wörter (waagerecht, senkrecht) sichtbar; das gibt dem Button seinen Namen.
 import Feature from './Feature.astro';
-import Img from './Img.astro';
+import T from './T.astro';
 import { CATEGORIES, featured, byCategory, categoryLabel, has } from '../lib/content.js';
-import { projectImages } from '../lib/images.js';
 
 const projectHref = (p: any) => `/projects/${p.slug}/`;
-// Lage der Abzüge im Stapel (von unten nach oben): Versatz in % und Winkel. Beim Hover fächern sie auf.
-const PRINTS = [
-  { dx: -7, dy: 3, r: -3 },
-  { dx: 6, dy: -3, r: 2.4 },
-  { dx: -3, dy: -1, r: -1.2 },
-  { dx: 1, dy: 1, r: 0.6 },
-];
 const areas = CATEGORIES.map((c) => {
   const project = featured(c);
   const all = byCategory(c).filter((x) => has(x.title));
-  // Ein Bild pro Projekt (Beispielprojekt oben auf dem Stapel); reicht das nicht, weitere Bilder des Beispielprojekts.
-  const real = (p: any) => projectImages(p).filter((im) => !im.placeholder);
-  const others = all.filter((x) => x !== project).map((x) => real(x)[0]).filter(Boolean);
-  const own = project ? real(project) : [];
-  let stack = [...others.slice(0, 3), own[0]].filter(Boolean);
-  if (stack.length < 3) stack = [...own.slice(1, 1 + 3 - stack.length).reverse(), ...stack];
   return {
     c,
     label: categoryLabel(c),
     project,
     count: all.length,
-    stack: stack.slice(-4),
     also: all.filter((x) => x !== project).map((x) => ({ title: x.title, href: projectHref(x) })),
   };
 }).filter((a) => a.project);
@@ -43,34 +31,30 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'project' : 'projects'}`;
     {areas.map((a) => (
       <section class:list={['area', `area--${a.c}`]} id={a.c} data-area>
         <h3 class="area__head">
-          <button type="button" class="area__toggle" id={`${a.c}-toggle`} aria-controls={`${a.c}-panel`} aria-expanded="true">
-            <span class="area__stack" aria-hidden="true">
-              {a.stack.map((im, k) => {
-                const pr = PRINTS[PRINTS.length - a.stack.length + k];
-                return (
-                  <span class="area__print" style={`--dx:${pr.dx}%;--dy:${pr.dy}%;--r:${pr.r}deg`}>
-                    <Img meta={im.meta} alt="" sizes="(min-width: 960px) 24vw, 60vw" />
-                  </span>
-                );
-              })}
-            </span>
+          <button type="button" class="area__toggle" id={`${a.c}-toggle`} aria-controls={`${a.c}-panel`} disabled>
             <span class="area__label area__label--h">
               <span class="area__word">{a.label}</span>
               <span class="area__count">{countLabel(a.count)}</span>
             </span>
-            <span class="area__label area__label--v" aria-hidden="true">
+            <span class="area__label area__label--v">
               <span class="area__word">{a.label}</span>
               <span class="area__count">{countLabel(a.count)}</span>
             </span>
           </button>
         </h3>
         <div class="area__panel" id={`${a.c}-panel`} role="region" aria-labelledby={`${a.c}-toggle`}>
+          <div class="area__bar">
+            <p class="area__note">Featured project<span class="area__note-name">: <T v={a.project.title} /></span></p>
+            <button type="button" class="area__close" aria-controls={`${a.c}-panel`} aria-label={`Close ${a.label}`} hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+            </button>
+          </div>
           <Feature
             project={a.project}
             variant="panel"
             headingLevel={4}
             pageHref={projectHref(a.project)}
-            moreLink={`/projects/#${a.c}`}
+            moreLink={a.count > 1 ? `/projects/#${a.c}` : undefined}
             also={a.also}
           />
         </div>
@@ -82,30 +66,65 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'project' : 'projects'}`;
 <script>
   const row = document.querySelector<HTMLElement>('[data-areas]');
   if (row) {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const wide = window.matchMedia('(min-width: 60rem)');
     const parts = Array.from(row.querySelectorAll<HTMLElement>('[data-area]')).map((area) => ({
       area,
       toggle: area.querySelector<HTMLButtonElement>('.area__toggle')!,
       panel: area.querySelector<HTMLElement>('.area__panel')!,
+      close: area.querySelector<HTMLButtonElement>('.area__close')!,
+      stage: area.querySelector<HTMLElement>('.feature__stage'),
     }));
-    // target null = Ausgangszustand, alle drei gleich breit
-    const show = (target: HTMLElement | null) => {
-      parts.forEach(({ area, toggle, panel }) => {
+    let wanted: HTMLElement | null | undefined;   // zuletzt gewünschter Zustand (null = Ausgangszustand)
+    let timer = 0;
+
+    // target null = Ausgangszustand, alle drei gleich breit; sonst ist target die offene Spalte
+    const apply = (target: HTMLElement | null) => {
+      parts.forEach(({ area, toggle, panel, close }) => {
         const isOpen = area === target;
         area.classList.toggle('is-open', isOpen);
         toggle.setAttribute('aria-expanded', String(isOpen));
-        panel.inert = !isOpen;
+        // Nur auf breiten Bildschirmen werden die anderen Spalten zu Streifen; schmal bleiben sie sichtbar und bedienbar.
+        panel.inert = wide.matches && target !== null && !isOpen;
+        close.hidden = !isOpen;
       });
       row.classList.toggle('has-open', target !== null);
     };
-    const current = () => parts.find((p) => p.area.classList.contains('is-open')) ?? null;
+    // Erst ausblenden, dann umbauen; der Inhalt springt nie sichtbar ins neue Layout.
+    const show = (target: HTMLElement | null, instant = false) => {
+      if (target === wanted) return;
+      wanted = target;
+      clearTimeout(timer);
+      if (instant || reduce.matches || !wide.matches) {
+        row.classList.remove('is-leaving');
+        apply(target);
+        return;
+      }
+      row.classList.add('is-leaving');
+      timer = window.setTimeout(() => {
+        apply(target);
+        row.classList.remove('is-leaving');
+      }, 180);
+    };
 
-    parts.forEach(({ area, toggle }) => toggle.addEventListener('click', () => show(current()?.area === area ? null : area)));
-    row.addEventListener('keydown', (e) => {
-      const open = current();
-      if (e.key !== 'Escape' || !open) return;
-      show(null);
-      open.toggle.focus();
+    parts.forEach(({ area, toggle, close, stage }) => {
+      toggle.disabled = false;
+      // Doppelklick: nur der erste Klick zählt, sonst öffnet und schließt die Spalte in einem Zug.
+      toggle.addEventListener('click', (e) => { if (e.detail <= 1) show(wanted === area ? null : area); });
+      // preventScroll: der Streifen ist so hoch wie die Spalte, Fokus darauf würde die Seite verschieben.
+      close.addEventListener('click', () => { show(null); toggle.focus({ preventScroll: true }); });
+      // Klick aufs Bild öffnet die Spalte (Maus); per Tastatur öffnet das Wort.
+      stage?.addEventListener('click', () => { if (wanted === null) show(area); });
     });
+    // Escape schließt, egal wo der Fokus steht; zurück aufs Wort nur, wenn er in der offenen Spalte war.
+    document.addEventListener('keydown', (e) => {
+      const open = parts.find((p) => p.area === wanted);
+      if (e.key !== 'Escape' || !open) return;
+      const inside = open.area.contains(document.activeElement);
+      show(null);
+      if (inside) open.toggle.focus({ preventScroll: true });
+    });
+    wide.addEventListener('change', () => { if (wanted !== undefined) apply(wanted); });
 
     const fromHash = (hash: string) => parts.find((p) => `#${p.area.id}` === hash)?.area ?? null;
     window.addEventListener('hashchange', () => { const a = fromHash(location.hash); if (a) show(a); });
@@ -117,6 +136,6 @@ const countLabel = (n: number) => `${n} ${n === 1 ? 'project' : 'projects'}`;
     });
 
     row.classList.add('is-enhanced');
-    show(fromHash(location.hash));
+    show(fromHash(location.hash), true);
   }
 </script>

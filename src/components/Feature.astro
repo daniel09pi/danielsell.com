@@ -1,7 +1,10 @@
 ---
-// Ein Projekt als Feature: Slideshow auf der Kategorie-Fläche, Text daneben (Desktop) bzw. darunter (Handy).
-// Gleiche Komponente auf der Startseite und auf der Projektseite.
+// Ein Projekt als Feature: Slideshow und Text. Gleiche Komponente auf der Startseite und auf der Projektseite.
+// full: Slideshow auf der Kategorie-Fläche, Text daneben (Desktop) bzw. darunter (Handy).
+// panel: in einer Spalte des Bereiche-Abschnitts der Startseite; Bild in festem 4:3-Rahmen, Punkte und
+//        Pfeile direkt darunter, der Text daneben (nur in der offenen Spalte sichtbar).
 // Reihenfolge im HTML = Lese- und Tab-Reihenfolge: Kategorie, Bilder, Steuerung, Text.
+// Rangfolge im Text: Titel, Beschreibung, ein Hauptlink ("View project"); alles Weitere ist leise.
 import Img from './Img.astro';
 import T from './T.astro';
 import { has, isUrl, isExternal, categoryLabel } from '../lib/content.js';
@@ -21,6 +24,7 @@ interface Props {
 const { project: p, side = 'right', eager = false, headingLevel = 3, categoryHeading = false, moreLink, variant = 'full', also = [], pageHref } = Astro.props;
 const images = projectImages(p);
 const many = images.length > 1;
+const dots = variant === 'panel';   // Punkte statt Zähler
 const H = `h${headingLevel}`;
 const CatH = `h${Math.max(2, headingLevel - 1)}`;
 const titleId = `${p.slug}-title`;
@@ -56,7 +60,7 @@ const cat = categoryLabel(p.category);
             {im.placeholder ? (
               <div class="slide__placeholder"><p>{im.label}</p></div>
             ) : (
-              <Img meta={im.meta} alt={im.alt} sizes={variant === "panel" ? "(min-width: 960px) 50vw, 90vw" : "(min-width: 960px) 52vw, 84vw"} eager={eager && i === 0} class="slide__img" />
+              <Img meta={im.meta} alt={im.alt} sizes={variant === 'panel' ? '(min-width: 960px) 50vw, 90vw' : '(min-width: 960px) 52vw, 84vw'} eager={eager && i === 0} class="slide__img" />
             )}
           </figure>
         ))}
@@ -69,7 +73,13 @@ const cat = categoryLabel(p.category);
       <button type="button" class="slideshow__btn" data-prev aria-controls={trackId} aria-label={`Previous image of ${p.title}`} aria-disabled="true">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
       </button>
-      <p class="slideshow__count" aria-hidden="true"><span data-current>1</span> / {images.length}</p>
+      {dots ? (
+        <div class="slideshow__dots" aria-hidden="true">
+          {images.map((_, i) => <span class:list={['slideshow__dot', { 'is-current': i === 0 }]} data-dot={i}></span>)}
+        </div>
+      ) : (
+        <p class="slideshow__count" aria-hidden="true"><span data-current>1</span> / {images.length}</p>
+      )}
       <button type="button" class="slideshow__btn" data-next aria-controls={trackId} aria-label={`Next image of ${p.title}`}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
       </button>
@@ -90,28 +100,41 @@ const cat = categoryLabel(p.category);
         {tags.map((t) => <li><T v={t} /></li>)}
       </ul>
     )}
-    {(links.length > 0 || moreLink || pageHref) && (
-      <ul class="feature__links">
-        {pageHref && <li><a href={pageHref}>View project</a></li>}
-        {links.map((l) =>
-          isUrl(l.url) ? (
-            <li><a href={l.url} {...(isExternal(l.url) ? { rel: 'noopener', target: '_blank' } : {})}>{l.label}{isExternal(l.url) && <span class="sr-only"> (opens in a new tab)</span>}</a></li>
-          ) : (
-            <li><span class="feature__nolink"><T v={l.label} />: <T v={l.url} /></span></li>
-          ),
+    {(pageHref || links.length > 0) && (
+      <div class="feature__actions">
+        {pageHref && (
+          <a class="feature__primary" href={pageHref}>
+            View project<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" /></svg>
+          </a>
         )}
-        {moreLink && <li><a href={moreLink}>All {cat} projects</a></li>}
-      </ul>
+        {links.length > 0 && (
+          <ul class="feature__links">
+            {links.map((l) =>
+              isUrl(l.url) ? (
+                <li><a href={l.url} {...(isExternal(l.url) ? { rel: 'noopener', target: '_blank' } : {})}>{l.label}{isExternal(l.url) && <><span class="feature__ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></>}</a></li>
+              ) : (
+                <li><span class="feature__nolink"><T v={l.label} />: <T v={l.url} /></span></li>
+              ),
+            )}
+          </ul>
+        )}
+      </div>
     )}
-    {also.length > 0 && (
-      <p class="feature__also">Also in {cat}: {also.map((a, i) => (<>{i > 0 && ', '}<a href={a.href}><T v={a.title} /></a></>))}</p>
+    {(also.length > 0 || moreLink) && (
+      <div class="feature__more">
+        {also.length > 0 && (
+          <p class="feature__also">Also in {cat}: {also.map((a, i) => (<>{i > 0 && ', '}<a href={a.href}><T v={a.title} /></a></>))}</p>
+        )}
+        {moreLink && <a class="feature__all" href={moreLink}>All {cat} projects</a>}
+      </div>
     )}
   </div>
 </article>
 
 <script>
   // Slideshow: Scroll-Snap-Reihe (wischen geht nativ; ohne JS oder wenn dieses Skript fehlschlägt,
-  // bleibt sie mit sichtbarer Scrollleiste bedienbar). Dazu Buttons, Pfeiltasten, Zähler, aria-live. Kein Autoplay.
+  // bleibt sie mit sichtbarer Scrollleiste bedienbar). Dazu Buttons, Pfeiltasten, Zähler oder Punkte,
+  // aria-live. Kein Autoplay.
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   document.querySelectorAll<HTMLElement>('[data-feature]').forEach((feature) => {
@@ -121,13 +144,16 @@ const cat = categoryLabel(p.category);
     const slides = Array.from(track.children) as HTMLElement[];
     const prev = controls.querySelector<HTMLButtonElement>('[data-prev]')!;
     const next = controls.querySelector<HTMLButtonElement>('[data-next]')!;
-    const current = controls.querySelector<HTMLElement>('[data-current]')!;
+    const current = controls.querySelector<HTMLElement>('[data-current]');
+    const dots = Array.from(controls.querySelectorAll<HTMLElement>('[data-dot]'));
     const live = controls.querySelector<HTMLElement>('[data-live]')!;
     const title = feature.querySelector('.feature__title')?.textContent?.trim() ?? '';
     const last = slides.length - 1;
     let index = 0;
-    let pending: number | null = null;   // Ziel einer laufenden Bewegung (Button, Taste)
+    let pending: number | null = null;   // Ziel einer laufenden Bewegung (Button, Taste, Punkt)
     let settleTimer = 0;
+    let hold = 0;                        // bis dahin stammen Scroll-Ereignisse aus Layoutänderungen, nicht vom Besucher
+    let width = track.clientWidth;       // Breite beim letzten ResizeObserver-Lauf
 
     const nearest = () => {
       const x = track.scrollLeft;
@@ -138,7 +164,8 @@ const cat = categoryLabel(p.category);
     };
     const setDisabled = (btn: HTMLButtonElement, off: boolean) => btn.setAttribute('aria-disabled', String(off));
     const render = () => {
-      current.textContent = String(index + 1);
+      if (current) current.textContent = String(index + 1);
+      dots.forEach((d, k) => d.classList.toggle('is-current', k === index));
       setDisabled(prev, index === 0);
       setDisabled(next, index === last);
       slides.forEach((s, k) => s.classList.toggle('is-current', k === index));
@@ -156,12 +183,16 @@ const cat = categoryLabel(p.category);
       pending = t;
       index = t;
       render();
+      // Schon dort (z. B. aktueller Punkt, End auf dem letzten Bild): es käme kein Scroll-Ereignis mehr.
+      if (Math.abs(track.scrollLeft - slides[t].offsetLeft) < 1) { settle(); return; }
       track.scrollTo({ left: slides[t].offsetLeft, behavior: reduce.matches ? 'auto' : 'smooth' });
       if (reduce.matches) settle();
     };
     const step = (delta: number) => go((pending ?? index) + delta);
 
     track.addEventListener('scroll', () => {
+      // Nach einer Größenänderung rastet der Browser selbst nach, noch bevor der ResizeObserver läuft: nicht als Blättern werten.
+      if (performance.now() < hold || track.clientWidth !== width) return;
       if (pending === null) { index = nearest(); render(); }
       clearTimeout(settleTimer);
       settleTimer = window.setTimeout(settle, 160);
@@ -169,6 +200,8 @@ const cat = categoryLabel(p.category);
 
     prev.addEventListener('click', () => { if (prev.getAttribute('aria-disabled') !== 'true') step(-1); });
     next.addEventListener('click', () => { if (next.getAttribute('aria-disabled') !== 'true') step(1); });
+    // Punkte: nur für die Maus (aria-hidden); Tastatur und Screenreader nutzen die Buttons und Pfeiltasten.
+    dots.forEach((d, k) => d.addEventListener('click', () => go(k)));
     feature.addEventListener('keydown', (e) => {
       if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
       const t = e.target as HTMLElement;
@@ -181,7 +214,15 @@ const cat = categoryLabel(p.category);
       };
       if (map[e.key]) { e.preventDefault(); map[e.key](); }
     });
-    window.addEventListener('resize', () => { track.scrollLeft = slides[index].offsetLeft; });
+    // Ändert sich die Breite (Fenster, Spalte öffnet oder schließt), bleibt das aktuelle Bild stehen.
+    // Eine laufende Bewegung wird abgebrochen und das Ziel sofort gezeigt, sonst blieben zwei halbe Bilder stehen.
+    new ResizeObserver(() => {
+      if (pending !== null) { index = pending; pending = null; }
+      width = track.clientWidth;
+      hold = performance.now() + 250;
+      track.scrollTo({ left: slides[index].offsetLeft, behavior: 'instant' });
+      render();
+    }).observe(track);
 
     controls.hidden = false;
     feature.classList.add('is-enhanced');

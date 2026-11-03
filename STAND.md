@@ -1,6 +1,6 @@
 # danielsell.com v5 — Arbeitsstand und Übergabe
 
-Stand: 3. November 2026, Commit `fbe45b1` (gepusht auf `origin/master`).
+Stand: 3. November 2026, nach Feedbackrunde 6 (Projekte-Abschnitt), gepusht auf `origin/master`.
 Diese Datei ist die Übergabe für einen neuen Chat. Sie ergänzt `REDESIGN-PLAN.md` (Auftrag, Regeln, Phasen) um alles, was seitdem entschieden wurde.
 Live ist noch **v4**; der v5-Stand ist nur lokal und auf GitHub (siehe „Deploy“).
 
@@ -35,6 +35,7 @@ Arbeitsweise, die sich bewährt hat:
 - **taste-skill** (`C:\Users\daniel\.claude\plugins\cache\taste-skill\taste-skill\2.1.5\skills\taste-skill`):
   - `node <skill>/scripts/lint.mjs src` → zurzeit 0 FAIL, 0 WARN.
   - `node <skill>/scripts/inspect.mjs http://127.0.0.1:4321/ --allow palette-purple,palette-cream` → Screenshots in `.taste-skill/inspect/`. Bekannte, begründete Meldungen: `still-page` (Bewegung kommt in Phase 3), Kontrast des Namens (misst gegen Beige statt gegen die Flächen), Zitat als „Headline“, wenige Bilder (geschlossene Spalten zählen nicht), Video fehlt, Slideshow scrollt seitlich.
+- Eigene Prüfskripte per DevTools-Protokoll: vor dem Messen `document.documentElement.style.scrollBehavior = "auto"` setzen (`html` hat `scroll-behavior: smooth`, sonst misst man mitten im Scrollen).
 - Arbeitsnotizen des Skills (Inventar, Richtung, alle Feedbackrunden): `.taste-skill/notes.md` (nicht im Repo, nur lokal).
 
 ## Deploy (offen)
@@ -50,11 +51,14 @@ Nach dem Deploy: `bash .taste-skill/livecheck.sh` (erwartete Statuscodes, u. a. 
 3. **Flächenfarben pro Kategorie:** gefallen.
 4. **Bilder** nur subtil schief: ±0,4–0,7°, Hover dreht ca. 1° zurück und sättigt.
 5. **Reihenfolge der Startseite:** Hero → About („hi, i’m daniel.“ verlinkt auf `/about/`) → Currently working on → Projekte → in short → Kontakt/Footer.
-6. **Projekte** (`src/components/Areas.astro`), drei Zustände:
-   - *Ausgangszustand:* drei gleich breite Farbspalten, je ein Stapel aus Abzügen (ein Bild pro Projekt), darunter Wort + Projektzahl. Hover: Stapel fächert leicht auf, Wort unterstrichen.
-   - *Offen:* Klick macht eine Spalte breit: Streifen links, Bild randlos, darunter Textband (Titel/Art, Kurztext, „View project“, Live-Link, **„All <bereich> projects“** → `/projects/#<bereich>`, „Also in …“ klein, Slideshow-Steuerung).
-   - *Streifen:* die anderen beiden schmal, senkrechtes Wort mit Projektzahl direkt daneben. Hover **nur Unterstreichung, keine Verschiebung** (Verschiebungen ausdrücklich abgelehnt).
-   - Erneuter Klick auf den Streifen der offenen Spalte oder Escape → zurück zum Ausgangszustand. Links `#creative` usw. öffnen die Spalte.
+6. **Projekte** (`src/components/Areas.astro`, `Feature.astro` Variante `panel`), Stand Runde 6:
+   - *Ausgangszustand:* drei gleich breite Farbspalten. Oben links der Hinweis **„Featured project: <Titel>“** (kleines Etikett, Hintergrund in Schriftfarbe der Spalte). Darunter **ein** Bild (kein Stapel mehr, „messy“ abgelehnt) in festem 4:3-Rahmen, Bild unten bündig, direkt darunter **Pfeile und Punkte** (Punkte: Ring, aktueller gefüllt). Unten Wort + Projektzahl. Klick aufs Wort oder aufs Bild öffnet die Spalte; Hover aufs Bild unterstreicht das Wort.
+   - *Offen:* Streifen links (senkrechtes Wort), **Bild links, Text rechts**, Bild nicht mehr randlos (ca. 650 px breit bei 1440), Punkte/Pfeile direkt darunter. Oben links „Featured project“, oben rechts ein **Kreuz** zum Schließen. Rangfolge im Text: Titel (groß) → Art/Jahr → Beschreibung → **ein Hauptlink „View project →“** → leise daneben „Live ↗“ (falls vorhanden) → leise am Fuß „Also in <bereich>: …“ und „All <bereich> projects“ (nur wenn der Bereich mehr als ein Projekt hat). Tags sind ausgeblendet.
+   - Die Slideshow ist in beiden Zuständen **dieselbe** (gleiches Bild). Wechsel: erst ausblenden (180 ms), dann umbauen und Breite animieren, dann einblenden; nichts springt sichtbar.
+   - *Streifen:* die anderen beiden schmal, senkrechtes Wort mit Projektzahl. Hover **nur Unterstreichung, keine Verschiebung**.
+   - Schließen: Kreuz, Escape (überall), Klick auf den Streifen der offenen Spalte. Links `#creative` usw. öffnen die Spalte.
+   - Platzhalter-Bilder: adventure (Argentina) Bilder 2–7 von project500, dev (flowinsync) Bilder 2–7 von Stooney, vermerkt in `_beispiel` von `content/projects.json`.
+   - In der Spalte zeigen **Punkte statt Zähler** „3 / 9“ die Position (Daniels Wunsch); für Screenreader sagt `aria-live` weiter „image 3 of 9“. Die Punkte sind nur für die Maus (`aria-hidden`), Tastatur nutzt Pfeil-Buttons und Pfeiltasten.
 7. **in short:** Layout wie „how it started“ (kleines Label links, Absatz rechts), ca. 32 px. Begriffe in den Bereichsfarben markiert und verlinkt; in `site.json` per `{creative: brand identities}`.
 8. **Platzhalter nicht hervorheben.** Fehlende Inhalte sind erfundene Beispielwerte, aufgelistet unter `_beispiel` in `content/site.json` und `content/projects.json`. Rechtliches (Impressum-Adresse, Datenschutz) ist **nicht** erfunden und bleibt Platzhalter.
 9. **Favicon:** Ink-Quadrat, beiges Logo-Zeichen auf 65 % verkleinert und mittig (`public/favicon.svg`).
@@ -75,7 +79,7 @@ Ground `#F5F2EB`, Ink `#1E0B4A`, Ink-soft `#574A78`, Ink-deep `#12062E` (Text au
 
 ## Offen / nächste Schritte
 
-1. Daniels Feedback auf den letzten Stand (Projekte mit Stapel, Textband, Streifen; in short) abwarten und weiter am Desktop feilen.
+1. Daniels Feedback auf Runde 6 (Projekte: Etikett, ein Bild mit Punkten, offene Spalte mit Kreuz und klarer Rangfolge) abwarten und weiter am Desktop feilen. Offene Frage an Daniel: Bilder, die nicht 4:3 sind (z. B. flowinsync 16:10), stehen ganz und unten bündig im 4:3-Rahmen; darüber bleibt ein Streifen frei. Alternative wäre Zuschnitt auf 4:3.
 2. Deploy durch Daniel, dann Live-Prüfung (siehe oben).
 3. **Phase 2** laut Plan, erweitert um Daniels Wünsche:
    - `/projects/` (alle Projekte nach Bereich, Sprungmarken `#creative` usw.) und **eigene Seiten pro Projekt** `/projects/<slug>/` (sind auf der Startseite schon verlinkt).

@@ -169,10 +169,12 @@ a:hover { text-decoration-color: currentColor; }
    drei kleinen Bildern und am Fuß „All 5 projects →“. Feine senkrechte Linien setzen die Kanten der Tabs nach unten
    fort, so hängt jede Spalte sichtbar an ihrem Tab. Hover: Unterstreichung und leichte Drehung der Bilder. */
 .areas { margin-top: var(--section); }
-.area--creative { --area-bg: var(--field-creative); --area-fg: var(--ink); --area-hi: var(--accent); }
-.area--adventure { --area-bg: var(--field-adventure); --area-fg: var(--ground); --area-hi: var(--lime); }
+.area--creative { --area-bg: var(--field-creative); --area-fg: var(--ink); --area-soft: color-mix(in srgb, var(--ink) 65%, var(--field-creative)); }
+.area--adventure { --area-bg: var(--field-adventure); --area-fg: var(--ground); --area-soft: color-mix(in srgb, var(--ground) 65%, var(--field-adventure)); }
 /* Ink auf Violett hätte 4,4 : 1; das tiefere Ink erreicht 4,9 : 1 */
-.area--dev { --area-bg: var(--field-dev); --area-fg: var(--ink-deep); --area-hi: var(--ground); }
+/* Gedämpft wäre Ink auf Violett unter 4,5 : 1 (bei 65 % etwa 2,8 : 1), darum bleibt der Text dort voll; die Zahlen
+   unterscheiden sich in allen drei Spalten auch durch das Gewicht. */
+.area--dev { --area-bg: var(--field-dev); --area-fg: var(--ink-deep); --area-soft: var(--ink-deep); }
 .area { scroll-margin-top: 0; }
 .area a { color: inherit; text-decoration: none; }
 
@@ -193,10 +195,10 @@ a:hover { text-decoration-color: currentColor; }
   transition: text-decoration-color 0.25s var(--ease);
 }
 .area__link:hover .area__word { text-decoration-color: currentColor; }
-/* Kennzahlen als Satz; die Zahlen in einer zweiten Markenfarbe (creative Violett, adventure Limette, dev Beige).
-   Mindestens 24 px: ab da gilt der Kontrast für große Schrift (Violett auf Limette 3,1 : 1, Beige auf Violett 3,4 : 1). */
-.area__text { margin-top: clamp(1.5rem, 2.5vw, 2.25rem); max-width: 30ch; font-size: clamp(1.5rem, 1.1rem + 0.45vw, 1.75rem); line-height: 1.25; letter-spacing: -0.015em; text-wrap: pretty; }
-.area__hi { color: var(--area-hi); }
+/* Kennzahlen als Satz: der Text gedämpft (65 % der Schriftfarbe, creative 5,3 : 1, adventure über 6 : 1),
+   die Zahlen in der vollen Schriftfarbe und etwas kräftiger */
+.area__text { margin-top: clamp(1.25rem, 2vw, 1.75rem); max-width: 36ch; color: var(--area-soft); font-size: clamp(1.0625rem, 0.95rem + 0.25vw, 1.25rem); line-height: 1.4; text-wrap: pretty; }
+.area__hi { color: var(--area-fg); font-weight: 560; font-variant-numeric: tabular-nums; }
 
 /* Spalteninhalt: gleicher Einzug wie das Wort im Tab; die Linie zwischen den Spalten läuft durch alle Zeilen */
 .area > :not(.area__tab) { padding-inline: var(--margin); }
@@ -229,7 +231,7 @@ a:hover { text-decoration-color: currentColor; }
 .feat__thumb img { object-fit: cover; }
 
 /* Am Fuß: Link zu allen Projekten des Bereichs, immer in der letzten Zeile */
-.area__all { grid-row: 4; padding-block: clamp(2.5rem, 4.5vw, 3.75rem) clamp(2rem, 3.5vw, 3rem); }
+.area__all { grid-row: 4; padding-block: clamp(2.5rem, 4.5vw, 3.75rem) clamp(1.25rem, 2vw, 1.75rem); }
 .area__all a {
   display: inline-block; padding-block: 0.5rem;
   text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 0.2em; transition: text-decoration-color 0.25s var(--ease);

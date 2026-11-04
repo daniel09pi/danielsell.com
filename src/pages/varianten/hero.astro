@@ -1,113 +1,112 @@
 ---
-// Testseite für den Hero (Runde 25, zweiter Versuch): oben Beige wie die Navigation, unten die volle Farbe der Streifen,
-// ohne Farbverlauf. Erster Versuch (Pixel/Canvas) abgelehnt: "billig" und ruckelig, steht in Commit 8beada0.
-// Jetzt: wenige, große, am Raster ausgerichtete Formen, einmal gebaut (kein Zeichnen pro Bild);
-// Bewegung nur über CSS-Transforms und Deckkraft (läuft auf der Grafikkarte).
+// Testseite für den Hero (Runde 25, dritter Versuch): "Arbeit im Feld".
+// Jedes Farbfeld zeigt ein Projektbild seines Bereichs, in Graustufen und per Mischmodus in die Feldfarbe eingefärbt
+// (helle Felder: multiply, dunkles Ink-Feld: screen). Zeigt man auf einen Projekttitel unter dem Hero, blendet das Feld
+// auf dessen Bild über. Nur CSS-Deckkraft und -Transforms, kein Zeichnen pro Bild.
+// Frühere Versuche (Partikel-Verlauf) abgelehnt, stehen in den Commits 8beada0 und c38676b.
 // Nicht verlinkt, noindex, nicht in der Sitemap (Filter auf varianten/ in sitemap.xml.js).
 import Base from '../../layouts/Base.astro';
 import T from '../../components/T.astro';
+import Img from '../../components/Img.astro';
 import { site, has, CATEGORIES, byCategory, subtitleLinks } from '../../lib/content.js';
+import { projectImages } from '../../lib/images.js';
 
 const name = site.person?.name ?? '';
 const words = subtitleLinks();
-const areas = CATEGORIES.map((c) => ({
-  category: c,
-  word: words.find((w) => w.category === c)?.word ?? c,
-  projects: byCategory(c).filter((p) => has(p.title)),
-}));
-// Wörter pro Spalte für Richtung 3: das Wort des Bereichs und die Projekttitel
-const tokens = areas.map((a) => [String(a.word), ...a.projects.flatMap((p) => String(p.title).split(/\s+/))]);
-const GROUPS = [
-  { n: 1, name: 'Jalousie', v: [['1a', 'gleichmäßig'], ['1b', 'grob'], ['1c', 'Perspektive'], ['1d', 'aufgelöst']] },
-  { n: 2, name: 'Vorhang', v: [['2a', 'fein'], ['2b', 'Raster']] },
-  { n: 3, name: 'Wörter', v: [['3a', 'als Balken'], ['3b', 'als Schrift']] },
-  { n: 4, name: 'Farbkeil', v: [['4a', '6 Stufen'], ['4b', 'fließend']] },
-];
+const areas = CATEGORIES.map((c, i) => {
+  const projects = byCategory(c).filter((p) => has(p.title));
+  // pro Projekt das erste echte Bild; Projekte ohne Bild (nur Platzhalter) ändern beim Zeigen nichts
+  const imgs = projects.map((p) => ({ slug: p.slug, featured: !!p.featured, img: projectImages(p).find((x) => !x.placeholder) })).filter((x) => x.img);
+  const def = (imgs.find((x) => x.featured) ?? imgs[0])?.slug;
+  // Startbild zuerst (Reihenfolge für den automatischen Wechsel)
+  imgs.sort((a, b) => (a.slug === def ? -1 : b.slug === def ? 1 : 0));
+  return { i, category: c, word: words.find((w) => w.category === c)?.word ?? c, projects, imgs, def };
+});
 ---
 <Base title="Hero-Test" noindex nav={[{ label: 'work', href: '/#work' }, { label: 'about', href: '/#about' }, { label: 'contact', href: '/#contact' }]}>
-  <section class="hero" aria-labelledby="hero-title">
+  <section class="hero ht-s2 ht-intro-name ht-intro-img" aria-labelledby="hero-title">
     <div class="hero__stage">
-      {areas.map((a) => <div class:list={['hero__field', `hero__field--${a.category}`]} aria-hidden="true"></div>)}
-      <div class="hx" aria-hidden="true" data-tokens={JSON.stringify(tokens)}></div>
+      {areas.map((a) => (
+        <div class:list={['hero__field', `hero__field--${a.category}`]} data-cat={a.category} data-order={a.imgs.map((x) => x.slug).join(' ')} style={`--i:${a.i}`} aria-hidden="true">
+          <div class="hf">
+            {a.imgs.map((x) => (
+              <div class:list={['hf__img', { 'is-on': x.slug === a.def }]} data-slug={x.slug}>
+                <Img meta={x.img.meta} alt="" sizes="(min-width: 960px) 40vw, 100vw" eager={x.slug === a.def} />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
       <h1 class="hero__name" id="hero-title">{name.toLowerCase()}</h1>
     </div>
     <ul class="hero__index">
       {areas.map((a) => (
-        <li class:list={['hero__area', `hero__area--${a.category}`]}>
+        <li class:list={['hero__area', `hero__area--${a.category}`]} data-cat={a.category}>
           <a class="hero__word" href={`/#${a.category}`}><T v={a.word} /></a>
-          {a.projects.length > 0 && <ul class="hero__titles">{a.projects.map((p) => <li><a href={`/projects/${p.slug}/`}><T v={p.title} /></a></li>)}</ul>}
+          {a.projects.length > 0 && <ul class="hero__titles">{a.projects.map((p) => <li><a href={`/projects/${p.slug}/`} data-slug={p.slug}><T v={p.title} /></a></li>)}</ul>}
         </li>
       ))}
     </ul>
   </section>
-  <div class="ht-spacer" aria-hidden="true">Platz zum Scrollen (für „beim Scrollen“)</div>
 
-  <aside class="ht-panel" id="ht-panel" aria-label="Varianten">
-    <div class="ht-head"><strong>Hero-Test 2</strong><span class="ht-keys">1–4 Richtung (nochmal: nächste) · R nochmal · H aus</span></div>
-    {GROUPS.map((g) => (
-      <div class="ht-grp">
-        <span class="ht-lab">{g.n} {g.name}</span>
-        <div class="ht-btns">{g.v.map(([id, label]) => <button type="button" data-v={id} data-label={`${id} ${g.name}, ${label}`}>{label}</button>)}</div>
-      </div>
-    ))}
-    <div class="ht-grp">
-      <span class="ht-lab">Bewegung</span>
-      <div class="ht-btns">
-        <button type="button" data-m="static">keine</button>
-        <button type="button" data-m="load">beim Laden</button>
-        <button type="button" data-m="scroll">beim Scrollen</button>
-      </div>
-    </div>
-    <div class="ht-grp">
-      <span class="ht-lab">Maus</span>
-      <div class="ht-btns"><button type="button" id="ht-mouse">Vorhang weicht aus (nur 2)</button></div>
-    </div>
-    <div class="ht-actions">
-      <button type="button" id="ht-replay">Nochmal abspielen</button>
-      <button type="button" id="ht-hide">Ausblenden</button>
-    </div>
+  <aside class="ht-panel" id="ht-panel" aria-label="Einstellungen">
+    <div class="ht-head"><strong>Hero-Test 3: Arbeit im Feld</strong><span class="ht-keys">R nochmal · H aus</span></div>
+    <p class="ht-note">Zeig mit der Maus auf einen Projekttitel unter dem Hero.</p>
+    <div class="ht-grp"><span class="ht-lab">Bild</span><div class="ht-btns">
+      <button type="button" data-k="s" data-v="1">zart</button><button type="button" data-k="s" data-v="2">mittel</button><button type="button" data-k="s" data-v="3">kräftig</button>
+    </div></div>
+    <div class="ht-grp"><span class="ht-lab">Fläche</span><div class="ht-btns">
+      <button type="button" data-k="f" data-v="full">ganzes Feld</button><button type="button" data-k="f" data-v="frame">mit Rand</button>
+    </div></div>
+    <div class="ht-grp"><span class="ht-lab">Wechsel</span><div class="ht-btns">
+      <button type="button" data-k="a" data-v="0">nur beim Zeigen</button><button type="button" data-k="a" data-v="1">auch von selbst</button>
+    </div></div>
+    <div class="ht-grp"><span class="ht-lab">Laden</span><div class="ht-btns">
+      <button type="button" data-k="l" data-v="both">Name steigt auf + Bilder</button><button type="button" data-k="l" data-v="img">nur Bilder</button><button type="button" data-k="l" data-v="off">nichts</button>
+    </div></div>
+    <div class="ht-actions"><button type="button" id="ht-replay">Nochmal laden</button><button type="button" id="ht-hide">Ausblenden</button></div>
     <p class="ht-sum" id="ht-sum"></p>
   </aside>
-  <button class="ht-show" id="ht-show" type="button" hidden>Varianten (H)</button>
+  <button class="ht-show" id="ht-show" type="button" hidden>Einstellungen (H)</button>
 </Base>
 
 <style is:global>
-  .hero__stage { position: relative; }
-  .hx { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-  .hx > div, .hx-col > div { position: absolute; }
-  .hx-r { background: var(--ground); transform-origin: 50% 0; }
-  .hx-col { top: 0; overflow: hidden; }
-  .hx-line { left: 0; white-space: nowrap; font-size: 14px; }
-  .hx-w { display: inline-block; vertical-align: top; }
-  .hx-line--blocks .hx-w { color: transparent; background: var(--ground); overflow: hidden; transform-origin: 0 0; }
-  .hx-line--text .hx-w { color: var(--ground); }
-  .hx-step::after { content: ''; position: absolute; inset: 0; background: var(--ground); opacity: 0; }
-  .hx-bar { transition: transform 0.9s var(--ease); }
-  .hx-bar.hx-up { transform: scaleY(0.15); transition-duration: 0.25s; }
+  /* ---------- Bilder in den Feldern ---------- */
+  .hero__field { position: relative; isolation: isolate; overflow: hidden; }
+  .hf { position: absolute; inset: 0; mix-blend-mode: multiply; opacity: var(--o-light); }
+  .hero__field--adventure .hf { mix-blend-mode: screen; opacity: var(--o-dark); }
+  .hf__img { position: absolute; inset: 0; opacity: 0; transition: opacity 0.7s var(--ease); }
+  .hf__img.is-on { opacity: 1; }
+  .hf__img picture { display: block; width: 100%; height: 100%; }
+  .hf__img img { display: block; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.08); }
+  /* Stärke: Deckkraft der eingefärbten Bilder (hell: multiply, dunkel: screen) */
+  .ht-s1 { --o-light: 0.4; --o-dark: 0.2; }
+  .ht-s2 { --o-light: 0.65; --o-dark: 0.32; }
+  .ht-s3 { --o-light: 0.9; --o-dark: 0.48; }
+  /* mit Rand: das Bild sitzt wie eine Tafel im Feld, der Name überlappt es unten */
+  .ht-frame .hf { inset: calc(var(--margin) * 1.5) var(--margin) 0; }
 
-  /* Beim Laden: aus Beige heraus öffnen (Jalousie), herunterfallen (Vorhang), schreiben (Wörter), stufenweise (Farbkeil) */
-  .hx--load .hx-r { animation: hx-in 1.2s cubic-bezier(0.2, 0.7, 0.2, 1) backwards var(--d, 0s); }
-  @keyframes hx-in { from { transform: scaleY(var(--k, 1)); } }
-  .hx--load .hx-line--blocks .hx-w { animation: hx-type 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) backwards var(--d, 0s); }
-  @keyframes hx-type { from { transform: scaleX(0); } }
-  .hx--load .hx-line--text .hx-w { animation: hx-show 0.6s ease backwards var(--d, 0s); }
-  @keyframes hx-show { from { opacity: 0; } }
-  .hx--load .hx-step::after { animation: hx-hide 0.7s ease both var(--d, 0s); }
-  @keyframes hx-hide { from { opacity: 1; } to { opacity: 0; } }
-  /* Beim Scrollen: schließt sich zu Beige, der Hero geht in die Seite über */
-  .hx--scroll .hx-r { animation: hx-close linear both; animation-timeline: scroll(root); animation-range: 0px 520px; }
-  @keyframes hx-close { to { transform: scaleY(var(--k2, 1)); } }
-  .hx--scroll .hx-step::after { animation: hx-fill linear both; animation-timeline: scroll(root); animation-range: 0px 520px; }
-  @keyframes hx-fill { from { opacity: 0; } to { opacity: 1; } }
+  /* ---------- Laden ---------- */
+  .ht-intro-name .hero__name { animation: hn-rise 1.1s cubic-bezier(0.2, 0.75, 0.1, 1) 0.1s backwards; }
+  @keyframes hn-rise { from { transform: translateY(112%); } }
+  .ht-intro-img .hf { animation: hf-in 1.6s cubic-bezier(0.25, 0.6, 0.2, 1) backwards; animation-delay: calc(0.45s + var(--i) * 0.15s); }
+  @keyframes hf-in { from { opacity: 0; } }
+  .ht-intro-img .hf__img.is-on img { animation: hf-zoom 2.4s cubic-bezier(0.2, 0.6, 0.2, 1) backwards; animation-delay: calc(0.45s + var(--i) * 0.15s); }
+  @keyframes hf-zoom { from { transform: scale(1.08); } }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__name, .hf, .hf__img img { animation: none !important; }
+    .hf__img { transition-duration: 0.01s; }
+  }
 
-  .ht-spacer { height: 110vh; padding: 40vh var(--margin) 0; color: var(--ink-soft); font-size: var(--step-small); }
+  /* ---------- Panel ---------- */
   .ht-panel, .ht-show { position: fixed; right: 16px; bottom: 16px; z-index: 50; font-size: 13px; line-height: 1.35; }
   .ht-panel { width: 400px; background: var(--ink); color: var(--ground); padding: 14px 16px 16px; box-shadow: 0 10px 40px rgb(18 6 46 / 0.3); }
   .ht-panel[hidden], .ht-show[hidden] { display: none; }
   .ht-show { background: var(--ink); color: var(--ground); border: 0; padding: 8px 12px; font-family: inherit; cursor: pointer; }
-  .ht-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
-  .ht-keys { opacity: 0.6; font-size: 11px; }
-  .ht-grp { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 8px; align-items: start; margin-top: 8px; }
+  .ht-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .ht-keys, .ht-note { opacity: 0.6; font-size: 11px; }
+  .ht-note { margin-top: 4px; }
+  .ht-grp { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 8px; align-items: start; margin-top: 8px; }
   .ht-lab { padding-top: 5px; opacity: 0.7; }
   .ht-btns { display: flex; flex-wrap: wrap; gap: 4px; }
   .ht-panel button { font: inherit; color: inherit; background: transparent; border: 1px solid color-mix(in srgb, var(--ground) 28%, transparent); padding: 4px 8px; cursor: pointer; transition: border-color 0.15s, background-color 0.15s; }
@@ -119,212 +118,91 @@ const GROUPS = [
 </style>
 
 <script>
-  const stage = document.querySelector('.hero__stage');
-  const hx = document.querySelector('.hx');
-  const nameEl = document.querySelector('.hero__name');
+  const hero = document.querySelector('.hero');
   const panel = document.getElementById('ht-panel');
   const showBtn = document.getElementById('ht-show');
   const sumEl = document.getElementById('ht-sum');
-  const mouseBtn = document.getElementById('ht-mouse');
-  const TOKENS = JSON.parse(hx.dataset.tokens || '[[],[],[]]');
+  const fields = new Map([...document.querySelectorAll('.hero__field')].map((f) => [f.dataset.cat, f]));
 
-  const state = { v: '1a', m: 'load', mouse: 0 };
-  {
-    const q = new URLSearchParams(location.hash.slice(1));
-    if (q.get('v')) state.v = q.get('v');
-    if (q.get('m')) state.m = q.get('m');
-    if (q.get('mouse')) state.mouse = Number(q.get('mouse'));
+  // ---------- Bild wechseln ----------
+  const current = new Map(); // Bereich -> Projekt, das ohne Zeigen zu sehen ist
+  const hovering = new Set();
+  for (const [cat, f] of fields) current.set(cat, f.querySelector('.hf__img.is-on')?.dataset.slug);
+  function show(cat, slug) {
+    const f = fields.get(cat);
+    const target = f && f.querySelector(`.hf__img[data-slug="${CSS.escape(slug ?? '')}"]`);
+    if (!target) return;
+    f.querySelectorAll('.hf__img.is-on').forEach((el) => { if (el !== target) el.classList.remove('is-on'); });
+    target.classList.add('is-on');
   }
-
-  function hash(i, j, k) {
-    let h = (Math.imul(i, 374761393) + Math.imul(j, 668265263) + Math.imul(k, 2246822519)) | 0;
-    h = Math.imul(h ^ (h >>> 13), 1274126177);
-    h ^= h >>> 16;
-    return (h >>> 0) / 4294967296;
-  }
-
-  // Maße: Breite/Höhe der Fläche, "zone" = Bereich über der Oberkante der Buchstaben (dort entsteht der Übergang)
-  let W = 0, H = 0, zone = 0;
-  function measure() {
-    W = hx.clientWidth; H = hx.clientHeight;
-    const r = hx.getBoundingClientRect(), nr = nameEl.getBoundingClientRect();
-    const fs = parseFloat(getComputedStyle(nameEl).fontSize);
-    zone = Math.max(60, Math.round(nr.bottom - 0.734 * fs - r.top - 20));
-  }
-  const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
-  const box = (cls, x, y, w, h, extra = '') => `<div class="${cls}" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;${extra}"></div>`;
-
-  // 1 Jalousie: waagerechte Bänder über die ganze Breite, nach unten dünner. Oben so dick wie der Abstand, also geschlossen.
-  function jalousie({ pitch = 16, persp = false, split = 0 }) {
-    let out = '';
-    const N = persp ? 16 : Math.floor(zone / pitch);
-    for (let i = 0; i < N; i++) {
-      const y0 = persp ? Math.round(zone * Math.pow(i / N, 1.7)) : i * pitch;
-      const y1 = persp ? Math.round(zone * Math.pow((i + 1) / N, 1.7)) : (i + 1) * pitch;
-      const p = y1 - y0, u = i / N;
-      const t = Math.round(p * Math.pow(1 - u, 1.15));
-      if (t < 1) continue;
-      const vars = `--k:${(p / t).toFixed(3)};--k2:${(p / t).toFixed(3)};--d:${i * 28}ms`;
-      if (!split) { out += box('hx-r', 0, y0, W, t, vars); continue; }
-      // aufgelöst: die Bänder zerfallen nach unten in Stücke im Raster (W / split), Stücke fallen weg
-      const keep = 1 - Math.pow(u, 1.4);
-      for (let s = 0; s < split; s++) {
-        if (hash(s, i, 3) > keep) continue;
-        const x0 = Math.round((s * W) / split), x1 = Math.round(((s + 1) * W) / split);
-        out += box('hx-r', x0, y0, x1 - x0, t, vars);
-      }
+  for (const area of document.querySelectorAll('.hero__area')) {
+    const cat = area.dataset.cat;
+    for (const a of area.querySelectorAll('a[data-slug]')) {
+      const on = () => { hovering.add(cat); show(cat, a.dataset.slug); };
+      a.addEventListener('pointerenter', on);
+      a.addEventListener('focus', on);
     }
-    return out;
+    const off = () => { hovering.delete(cat); show(cat, current.get(cat)); };
+    area.addEventListener('pointerleave', off);
+    area.addEventListener('focusout', (e) => { if (!area.contains(e.relatedTarget)) off(); });
   }
 
-  // 2 Vorhang: senkrechte Balken hängen von oben, unterschiedlich lang. Oben geschlossen, nach unten reichen immer weniger.
-  let bars = [], barW = 4;
-  function curtain({ bw, quant = 0 }) {
-    let out = '';
-    barW = bw;
-    const n = Math.ceil(W / bw);
-    for (let j = 0; j < n; j++) {
-      let L = zone * (0.06 + 0.94 * hash(j, 0, 11));
-      L = quant ? Math.max(quant, Math.round(L / quant) * quant) : Math.round(L);
-      const x0 = Math.round(j * bw), x1 = Math.round((j + 1) * bw);
-      out += box('hx-r hx-bar', x0, 0, x1 - x0, L, `--k:0;--k2:${(H / L).toFixed(3)};--d:${Math.round(hash(j, 1, 5) * 500)}ms`);
-    }
-    return out;
+  // ---------- Einstellungen ----------
+  const state = { s: '2', f: 'full', a: '0', l: 'both' };
+  for (const [k, v] of new URLSearchParams(location.hash.slice(1))) if (k in state) state[k] = v;
+  let timers = [];
+  function auto(on) {
+    timers.forEach(clearInterval); timers.forEach(clearTimeout); timers = [];
+    if (!on) return;
+    [...fields.keys()].forEach((cat, i) => {
+      const order = fields.get(cat).dataset.order.split(' ').filter(Boolean);
+      if (order.length < 2) return;
+      const step = () => {
+        if (hovering.has(cat)) return;
+        const next = order[(order.indexOf(current.get(cat)) + 1) % order.length];
+        current.set(cat, next); show(cat, next);
+      };
+      timers.push(setTimeout(() => { step(); timers.push(setInterval(step, 6500)); }, 4000 + i * 2100));
+    });
   }
-
-  // 3 Wörter: die Projekttitel der Spalte als Zeilen. Oben dicht (als Balken: ohne Wortabstand, also geschlossen),
-  // nach unten fallen Wörter weg und die Zeilen werden dünner bzw. leichter.
-  function wordsBuild({ real }) {
-    let out = '';
-    const rowP = real ? 15 : 16;
-    const rows = Math.floor(zone / rowP);
-    for (let c = 0; c < 3; c++) {
-      const tk = TOKENS[c]?.length ? TOKENS[c] : ['work'];
-      const x0 = Math.round((c * W) / 3), x1 = Math.round(((c + 1) * W) / 3);
-      let col = '';
-      for (let r = 0; r < rows; r++) {
-        const u = r / rows;
-        let idx = Math.floor(hash(c, r, 1) * tk.length);
-        const keep = 1 - Math.pow(u, 1.1);
-        let line = '';
-        const count = Math.ceil((x1 - x0) / 40) + 4;
-        for (let i = 0; i < count; i++) {
-          const word = tk[idx++ % tk.length];
-          const vis = hash(c * 1000 + r, i, 9) < keep ? '' : 'visibility:hidden;';
-          const d = `--d:${r * 35 + i * 12}ms;`;
-          if (real) line += `<span class="hx-w" style="${vis}${d}">${esc(word)}</span> `;
-          else line += `<span class="hx-w" style="${vis}${d}height:${Math.round(rowP * (1 - 0.6 * u))}px;margin-right:${Math.round(9 * u)}px">${esc(word)}</span>`;
-        }
-        const style = real
-          ? `top:${r * rowP}px;line-height:${rowP}px;font-weight:${Math.round(900 - 620 * u)};font-stretch:${Math.round(125 - 25 * u)}%`
-          : `top:${r * rowP}px;line-height:${rowP}px;font-weight:500`;
-        col += `<div class="hx-line ${real ? 'hx-line--text' : 'hx-line--blocks'}" style="${style}">${line}</div>`;
-      }
-      out += `<div class="hx-col" style="left:${x0}px;width:${x1 - x0}px;height:${zone}px">${col}</div>`;
-    }
-    return out;
+  function intro() {
+    hero.classList.remove('ht-intro-name', 'ht-intro-img');
+    void hero.offsetWidth;
+    if (state.l === 'both') hero.classList.add('ht-intro-name', 'ht-intro-img');
+    if (state.l === 'img') hero.classList.add('ht-intro-img');
   }
-
-  // 4 Farbkeil: ein Lochraster wie im Druck. Oben geschlossen, die Löcher (Farbe) werden nach unten größer.
-  const grid = (w, p) => `background:linear-gradient(90deg,var(--ground) ${w}px,transparent 0) 0 0/${p}px ${p}px,linear-gradient(180deg,var(--ground) ${w}px,transparent 0) 0 0/${p}px ${p}px;`;
-  function wedge({ steps, pitch }) {
-    let out = '';
-    if (steps) {
-      const sh = Math.max(pitch, Math.round(zone / steps / pitch) * pitch);
-      for (let s = 0; s < steps; s++) {
-        const w = Math.round(pitch * (1 - s / steps));
-        out += box('hx-step', 0, s * sh, W, sh, `${grid(w, pitch)}--d:${(steps - s) * 110}ms`);
-      }
-    } else {
-      const rows = Math.floor(zone / pitch);
-      for (let r = 0; r < rows; r++) {
-        const w = Math.round(pitch * (1 - r / rows));
-        if (w < 1) continue;
-        out += box('hx-step', 0, r * pitch, W, pitch, `${grid(w, pitch)}--d:${(rows - r) * 30}ms`);
-      }
-    }
-    return out;
+  function apply() {
+    hero.classList.remove('ht-s1', 'ht-s2', 'ht-s3');
+    hero.classList.add(`ht-s${state.s}`);
+    hero.classList.toggle('ht-frame', state.f === 'frame');
+    panel.querySelectorAll('[data-k]').forEach((b) => b.setAttribute('aria-pressed', String(state[b.dataset.k] === b.dataset.v)));
+    const label = (k) => panel.querySelector(`[data-k="${k}"][data-v="${state[k]}"]`)?.textContent ?? state[k];
+    sumEl.textContent = `Bild: ${label('s')} · Fläche: ${label('f')} · Wechsel: ${label('a')} · Laden: ${label('l')}`;
+    history.replaceState(null, '', `#${new URLSearchParams(state)}`);
   }
-
-  const BUILD = {
-    '1a': () => jalousie({ pitch: 16 }),
-    '1b': () => jalousie({ pitch: 34 }),
-    '1c': () => jalousie({ persp: true }),
-    '1d': () => jalousie({ pitch: 16, split: 24 }),
-    '2a': () => curtain({ bw: 4 }),
-    '2b': () => curtain({ bw: W / 48, quant: 24 }),
-    '3a': () => wordsBuild({ real: false }),
-    '3b': () => wordsBuild({ real: true }),
-    '4a': () => wedge({ steps: 6, pitch: 12 }),
-    '4b': () => wedge({ steps: 0, pitch: 10 }),
-  };
-
-  function build(animate) {
-    measure();
-    hx.classList.toggle('hx--load', state.m === 'load' && animate);
-    hx.classList.toggle('hx--scroll', state.m === 'scroll');
-    hx.innerHTML = (BUILD[state.v] ?? BUILD['1a'])();
-    bars = state.v.startsWith('2') ? [...hx.children] : [];
-    sync();
-  }
-
-  // Maus (nur Vorhang): Balken unter dem Zeiger ziehen sich kurz hoch, wie wenn man durch einen Vorhang streicht
-  const timers = new Map();
-  stage.addEventListener('pointermove', (e) => {
-    if (!state.mouse || !bars.length || state.m === 'scroll') return;
-    const x = e.clientX - hx.getBoundingClientRect().left;
-    const j = Math.floor(x / barW), rad = Math.max(1, Math.round(50 / barW));
-    for (let k = j - rad; k <= j + rad; k++) {
-      const el = bars[k];
-      if (!el) continue;
-      el.classList.add('hx-up');
-      clearTimeout(timers.get(k));
-      timers.set(k, setTimeout(() => el.classList.remove('hx-up'), 380));
-    }
-  }, { passive: true });
-
-  // ---------- Panel ----------
-  const vBtns = [...panel.querySelectorAll('[data-v]')], mBtns = [...panel.querySelectorAll('[data-m]')];
-  function sync() {
-    vBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === state.v)));
-    mBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.m === state.m)));
-    mouseBtn.setAttribute('aria-pressed', String(!!state.mouse));
-    const label = vBtns.find((b) => b.dataset.v === state.v)?.dataset.label ?? state.v;
-    const mText = { static: 'keine', load: 'beim Laden', scroll: 'beim Scrollen' }[state.m];
-    sumEl.textContent = `${label} · Bewegung: ${mText} · Maus: ${state.mouse ? 'an' : 'aus'}`;
-    history.replaceState(null, '', `#v=${state.v}&m=${state.m}&mouse=${state.mouse}`);
-  }
-  const show = (v) => { state.v = v; build(true); };
-  vBtns.forEach((b) => b.addEventListener('click', () => show(b.dataset.v)));
-  mBtns.forEach((b) => b.addEventListener('click', () => { state.m = b.dataset.m; build(true); }));
-  mouseBtn.addEventListener('click', () => { state.mouse = state.mouse ? 0 : 1; sync(); });
-  document.getElementById('ht-replay').addEventListener('click', () => build(true));
+  panel.querySelectorAll('[data-k]').forEach((b) => b.addEventListener('click', () => {
+    state[b.dataset.k] = b.dataset.v;
+    apply();
+    if (b.dataset.k === 'a') auto(state.a === '1');
+    if (b.dataset.k === 'l') intro();
+  }));
   const togglePanel = (on = panel.hidden) => { panel.hidden = !on; showBtn.hidden = on; };
+  document.getElementById('ht-replay').addEventListener('click', intro);
   document.getElementById('ht-hide').addEventListener('click', () => togglePanel(false));
   showBtn.addEventListener('click', () => togglePanel(true));
   addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-    const n = Number(e.key);
-    if (n >= 1 && n <= 4) {
-      const ids = vBtns.map((b) => b.dataset.v).filter((id) => id.startsWith(String(n)));
-      const at = ids.indexOf(state.v);
-      show(ids[at >= 0 ? (at + 1) % ids.length : 0]);
-    } else if (e.key === 'r' || e.key === 'R') build(true);
+    if (e.key === 'r' || e.key === 'R') intro();
     else if (e.key === 'h' || e.key === 'H') togglePanel();
   });
-
-  // Neu bauen nur, wenn sich die Größe wirklich ändert (ohne Animation)
-  let lastSize = '';
-  new ResizeObserver(() => {
-    const s = `${hx.clientWidth}x${hx.clientHeight}`;
-    if (s !== lastSize && lastSize) build(false);
-    lastSize = s;
-  }).observe(hx);
-  (document.fonts?.ready ?? Promise.resolve()).then(() => { lastSize = `${hx.clientWidth}x${hx.clientHeight}`; build(true); });
+  apply();
+  if (state.l !== 'both') intro();
+  auto(state.a === '1');
 
   window.heroTest = {
-    show: (v) => show(v),
-    motion: (m) => { state.m = m; build(true); },
+    set: (o) => { Object.assign(state, o); apply(); auto(state.a === '1'); },
+    show,
     panel: (on) => togglePanel(on),
+    intro,
   };
 </script>

@@ -140,15 +140,15 @@
   "areas": {
     "_hinweis": "Farbfelder der Bereiche auf der Startseite. \"about\": ein Satz, was ein Projekt dieses Bereichs ist. Darunter zeigt die Seite selbst „5 projects, 2024–2026, 35 images“ (aus projects.json) und einen Link zur Seite des Bereichs (\"cta\", z. B. \"Explore creative\").",
     "creative": {
-      "about": "Brand identities, book covers and anything else that needs a clear look.",
+      "about": "Things I design: brand identities, book covers and other visual work.",
       "cta": "Explore creative"
     },
     "adventure": {
-      "about": "Trips that went further than planned, told in photos and a few words.",
+      "about": "Places I travel to, and the photos I bring back.",
       "cta": "Explore adventure"
     },
     "dev": {
-      "about": "Websites and web apps, designed and built by hand, from the first sketch to the server.",
+      "about": "Things I build: websites and web apps.",
       "cta": "Explore dev"
     }
   },

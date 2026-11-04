@@ -170,11 +170,12 @@ a:hover { text-decoration-color: currentColor; }
    Linien setzen die Kanten der Tabs nach unten fort, eine waagerechte schließt ab. Hover: Unterstreichung,
    Farbwechsel, leichte Drehung der Bilder; nichts verschiebt sich. */
 .areas { margin-top: var(--section); }
-.area--creative { --area-bg: var(--field-creative); --area-fg: var(--ink); --area-soft: color-mix(in srgb, var(--ink) 65%, var(--field-creative)); --cta-hover: var(--ground); }
-.area--adventure { --area-bg: var(--field-adventure); --area-fg: var(--ground); --area-soft: color-mix(in srgb, var(--ground) 65%, var(--field-adventure)); --cta-hover: var(--lime); }
-/* Ink auf Violett hätte 4,4 : 1, das tiefere Ink erreicht 4,9 : 1. Gedämpft fiele es unter 4,5 : 1 (bei 65 % etwa
-   2,8 : 1), darum bleibt Nebentext dort voll; die Zahlen unterscheiden sich überall auch durch das Gewicht. */
-.area--dev { --area-bg: var(--field-dev); --area-fg: var(--ink-deep); --area-soft: var(--ink-deep); --cta-hover: var(--ground); }
+.area--creative { --area-bg: var(--field-creative); --area-fg: var(--ink); --area-soft: color-mix(in srgb, var(--ink) 62%, var(--field-creative)); }
+.area--adventure { --area-bg: var(--field-adventure); --area-fg: var(--ground); --area-soft: color-mix(in srgb, var(--ground) 62%, var(--field-adventure)); }
+/* Leiser Text (--area-soft): so stark gedämpft, wie WCAG AA erlaubt (62 %: creative 4,9 : 1, adventure über 5 : 1).
+   Ink auf Violett hätte 4,4 : 1, das tiefere Ink erreicht 4,9 : 1; gedämpft fiele es unter 4,5 : 1 (bei 62 % etwa
+   2,7 : 1), darum bleibt leiser Text bei dev voll. */
+.area--dev { --area-bg: var(--field-dev); --area-fg: var(--ink-deep); --area-soft: var(--ink-deep); }
 .area { scroll-margin-top: 0; }
 .area a { color: inherit; text-decoration: none; }
 
@@ -182,7 +183,7 @@ a:hover { text-decoration-color: currentColor; }
 .areas__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(4, auto); border-bottom: 1px solid var(--line); }
 .area { grid-row: span 4; display: grid; grid-template-rows: subgrid; }
 
-/* Tab: Farbfeld mit viel Luft. Rangfolge: Wort, Satz, Zahlen (leise), Call to Action. */
+/* Tab: Farbfeld mit viel Luft. Rangfolge: Wort, Satz, Zahlen (leise), Textlink zur Seite des Bereichs. */
 .area__tab {
   display: flex; flex-direction: column; align-items: flex-start;
   background: var(--area-bg); color: var(--area-fg);
@@ -190,15 +191,15 @@ a:hover { text-decoration-color: currentColor; }
 }
 .area__word { font-size: var(--step-head); line-height: 0.95; letter-spacing: -0.035em; font-weight: 400; }
 .area__about { margin-top: clamp(1.25rem, 2vw, 1.75rem); max-width: 34ch; font-size: var(--step-body); line-height: 1.4; text-wrap: pretty; }
-.area__facts { margin-top: 0.5rem; color: var(--area-soft); font-size: var(--step-small); }
-.area__hi { color: var(--area-fg); font-weight: 560; font-variant-numeric: tabular-nums; }
-/* Call to Action: die Button-Form der Seite, klein, in den umgekehrten Farben des Felds */
-.area__cta {
-  display: inline-flex; align-items: center; min-height: 2.5rem; margin-top: clamp(1.5rem, 2.5vw, 2rem); padding: 0 1rem;
-  background: var(--area-fg); color: var(--area-bg) !important; font-size: var(--step-small); font-weight: 500;
-  transition: background-color 0.25s var(--ease), color 0.25s var(--ease);
+/* Zahlen und Link stehen unten im Feld, über alle drei Spalten auf einer Höhe, egal wie lang der Satz ist */
+.area__facts { margin-top: auto; padding-top: 1.25rem; color: var(--area-soft); font-size: var(--step-small); }
+/* Textlink zur Seite des Bereichs, leicht unterstrichen (der Pfeil nicht); Hover: Linie wird kräftig */
+.area .area__cta {
+  display: inline-block; margin-top: 0.75rem; padding-block: 0.5rem; font-size: var(--step-small);
+  text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  text-decoration-thickness: 1px; text-underline-offset: 0.25em; transition: text-decoration-color 0.25s var(--ease);
 }
-.area__cta:hover { background: var(--cta-hover); color: var(--ink) !important; }
+.area .area__cta:hover { text-decoration-color: currentColor; }
 .area__cta:focus-visible { outline-color: var(--area-fg); outline-offset: 3px; }
 .area__arrow { display: inline-block; margin-left: 0.4em; transition: transform 0.25s var(--ease); }
 

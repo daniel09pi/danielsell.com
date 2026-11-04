@@ -1,8 +1,8 @@
 ---
-// Die drei Bereiche der Startseite (Runde 16): drei gleich breite Spalten.
-// Oben die Tab-Leiste: drei Farbfelder mit dem Wort des Bereichs, einem Satz, was ein Projekt dieses Bereichs ist
-// (site.json → areas.<bereich>.about), den Zahlen „5 projects, 2024–2026, 35 images“ (aus projects.json; Text
-// gedämpft, Zahlen voll) und einem kleinen Call to Action zur Seite des Bereichs (/creative/ …).
+// Die drei Bereiche der Startseite (Runde 17): drei gleich breite Spalten.
+// Oben die Tab-Leiste: drei Farbfelder mit dem Wort des Bereichs, einem schlichten Satz, warum er so heißt
+// (site.json → areas.<bereich>.about), leise die Zahlen „5 projects, 2024–2026, 35 images“ (aus projects.json)
+// und einem Textlink zur Seite des Bereichs (/creative/ …).
 // Darunter auf dem beigen Grund die zwei angepinnten Projekte (featured), je mit eigenem Label über dem Titel
 // („The longest adventure yet“, projects.json → pin). Am Fuß „Show all 5 projects“ klappt die übrigen Projekte des
 // Bereichs im selben Format auf (nochmal: „Show less“). Ohne JavaScript bleibt der Knopf weg; dann führt der
@@ -20,14 +20,13 @@ const areas = CATEGORIES.map((c) => {
   const rest = list.filter((p) => !pinned.includes(p));
   const years = list.flatMap((p) => String(p.year ?? '').match(/\d{4}/g) ?? []).map(Number);
   const images = list.reduce((n, p) => n + projectImages(p).filter((im) => !im.placeholder).length, 0);
-  // Aufzählung aus Teilen; hi = Zahl (volle Schriftfarbe)
-  const facts: { t: string; hi?: boolean }[] = [
-    { t: number(list.length), hi: true }, { t: list.length === 1 ? ' project' : ' projects' },
-    ...(years.length
-      ? [{ t: ', ' }, { t: Math.min(...years) === Math.max(...years) ? String(years[0]) : `${Math.min(...years)}–${Math.max(...years)}`, hi: true }]
-      : []),
-    { t: ', ' }, { t: number(images), hi: true }, { t: images === 1 ? ' image' : ' images' },
-  ];
+  // Aufzählung, für alle Bereiche gleich: Projekte, Jahre, Bilder
+  const [from, to] = [Math.min(...years), Math.max(...years)];
+  const facts = [
+    `${number(list.length)} ${list.length === 1 ? 'project' : 'projects'}`,
+    ...(years.length ? [from === to ? String(from) : `${from}–${to}`] : []),
+    `${number(images)} ${images === 1 ? 'image' : 'images'}`,
+  ].join(', ');
   const own = site.areas?.[c] ?? {};
   const label = categoryLabel(c);
   return { c, label, about: own.about, cta: has(own.cta) ? own.cta : `Explore ${label}`, facts, pinned, rest, count: list.length };
@@ -41,7 +40,7 @@ const areas = CATEGORIES.map((c) => {
         <div class="area__tab">
           <h3 class="area__word" id={`${a.c}-word`}>{a.label}</h3>
           {has(a.about) && <p class="area__about">{a.about}</p>}
-          <p class="area__facts">{a.facts.map((f) => (f.hi ? <span class="area__hi">{f.t}</span> : f.t))}</p>
+          <p class="area__facts">{a.facts}</p>
           <a class="area__cta" href={categoryHref(a.c)}>{a.cta}<span class="area__arrow" aria-hidden="true">→</span></a>
         </div>
         {a.pinned.map((p, k) => <FeatProject project={p} pin={has(p.pin) ? p.pin : 'Pinned'} tilt={k} />)}

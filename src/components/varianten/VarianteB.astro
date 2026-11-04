@@ -1,0 +1,260 @@
+---
+// TESTSEITE /varianten/: Variante B "Ungeschnitten". Drei Farbspalten wie bisher, aber kein Bild wird beschnitten.
+// Ausgangszustand: pro Spalte drei Bilder im natürlichen Format (eins groß, darunter zwei nebeneinander). Die Bilder
+// stehen auf einer gemeinsamen Linie, direkt darunter Titel, "View project" und Art/Jahr, darunter Wort und Projektzahl
+// (Link auf alle Projekte des Bereichs). Weil die Formate verschieden sind, beginnen die Bilder oben verschieden hoch.
+// Offen: alle Bilder in Blocksatz-Reihen (jede Reihe eine Höhe, Bilder im eigenen Format, die Reihe füllt die Breite
+// genau), Text rechts daneben, Kreuz oben rechts.
+// Die Reihen werden beim Bauen aus Breite/Höhe der Bilder berechnet; im Browser teilt flex-grow = Seitenverhältnis die Breite auf.
+// Statisch: beide Zustände stehen untereinander. Klick auf ein Bild öffnet die gemeinsame Galerie bei diesem Bild.
+import VariantKopf from './VariantKopf.astro';
+import Img from '../Img.astro';
+import { CATEGORIES, featured, byCategory, categoryLabel, has } from '../../lib/content.js';
+import { projectImages } from '../../lib/images.js';
+
+type Bild = { i: number; r: number; meta: any; alt: string };
+type Reihe = Bild[];
+
+// Reihen mit Lücke g: Höhe einer Reihe = (B - (n-1)g) / S (S = Summe der Seitenverhältnisse).
+// Gesamthöhe H = B·F - g·A + (k-1)·g mit F = Σ 1/S, A = Σ (n-1)/S. Daraus die Breite, bei der der Block H hoch ist.
+const mass = (reihen: Reihe[]) => {
+  const F = reihen.reduce((s, r) => s + 1 / r.reduce((a, b) => a + b.r, 0), 0);
+  const A = reihen.reduce((s, r) => s + (r.length - 1) / r.reduce((a, b) => a + b.r, 0), 0);
+  return { F: +F.toFixed(4), K: +(A - (reihen.length - 1)).toFixed(4) };
+};
+// Breite für eine Zielhöhe (CSS): (H + K·g) / F
+const breite = (reihen: Reihe[], hoehe: string) => {
+  const { F, K } = mass(reihen);
+  return `calc((${hoehe} + ${K} * var(--vb-g)) / ${F})`;
+};
+
+// Bilder der Reihe nach auf k Reihen verteilen, so dass jede Reihe ungefähr dieselbe Summe der Seitenverhältnisse hat
+// (dann sind die Reihen ungefähr gleich hoch). Reihenfolge bleibt.
+const verteile = (bilder: Bild[], k: number): Reihe[] => {
+  const n = bilder.length;
+  k = Math.max(1, Math.min(k, n));
+  const ziel = bilder.reduce((s, b) => s + b.r, 0) / k;
+  const summe = (a: number, b: number) => bilder.slice(a, b).reduce((s, x) => s + x.r, 0);
+  const kosten: number[][] = Array.from({ length: n + 1 }, () => Array(k + 1).fill(Infinity));
+  const schnitt: number[][] = Array.from({ length: n + 1 }, () => Array(k + 1).fill(0));
+  kosten[0][0] = 0;
+  for (let i = 1; i <= n; i++)
+    for (let j = 1; j <= Math.min(k, i); j++)
+      for (let m = j - 1; m < i; m++) {
+        const c = kosten[m][j - 1] + (summe(m, i) - ziel) ** 2;
+        if (c < kosten[i][j]) { kosten[i][j] = c; schnitt[i][j] = m; }
+      }
+  const reihen: Reihe[] = [];
+  for (let j = k, i = n; j > 0; j--) { const m = schnitt[i][j]; reihen.unshift(bilder.slice(m, i)); i = m; }
+  return reihen;
+};
+
+const countLabel = (n: number) => `${n} ${n === 1 ? 'project' : 'projects'}`;
+const offen = 'creative';
+
+const spalten = CATEGORIES.map((c) => {
+  const p = featured(c);
+  if (!p) return null;
+  const bilder: Bild[] = projectImages(p)
+    .filter((im: any) => !im.placeholder)
+    .map((im: any, i: number) => ({ i, r: im.meta.width / im.meta.height, meta: im.meta, alt: im.alt }));
+  const summe = bilder.reduce((s, b) => s + b.r, 0);
+  // Ausgangszustand: drei Bilder, das erste groß, darunter zwei nebeneinander
+  const vorschau: Reihe[] = bilder.length >= 3 ? [[bilder[0]], [bilder[1], bilder[2]]] : bilder.map((b) => [b]);
+  // Offen: alle Bilder, Reihen mit etwa 4,4 Seitenverhältnis-Summe (bei 4:3 etwa drei pro Reihe)
+  const reihen = verteile(bilder, Math.max(1, Math.round(summe / 4.4)));
+  const count = byCategory(c).filter((x: any) => has(x.title)).length;
+  const links = (p.links ?? []).filter((l: any) => has(l?.label) && has(l?.url));
+  return {
+    c, p, count, links,
+    label: categoryLabel(c),
+    meta: [p.kind, p.year].filter(has).join(' · '),
+    href: `/projects/${p.slug}/`,
+    alle: `/projects/#${c}`,
+    total: bilder.length,
+    vorschau, vorschauBreite: breite(vorschau, 'var(--vb-eh)'),
+    reihen, reihenBreite: `min(100%, ${breite(reihen, 'var(--vb-oh)')})`,
+  };
+}).filter(Boolean) as any[];
+
+// Ausgangszustand: alle drei Bildblöcke gleich breit (so breit wie die Spalte, höchstens so breit,
+// dass der höchste Block nicht über --vb-eh wächst). So bleiben linke und rechte Kanten in allen Spalten gleich.
+const gleichBreite = `min(100%, ${spalten.map((s) => s.vorschauBreite).join(', ')})`;
+---
+<VariantKopf
+  buchstabe="B"
+  name="Ungeschnitten"
+  text="Kein Bild wird beschnitten: Jedes behält sein Format, die Reihen schließen trotzdem bündig ab. Die Bilder stehen auf einer gemeinsamen Linie direkt über Titel und Link, deshalb kein Featured-Etikett; geöffnet zeigt die Spalte alle Bilder."
+/>
+
+<p class="v-zustand">Ausgangszustand</p>
+<div class="vb-reihe" style={`--vb-bw:${gleichBreite}`}>
+  {spalten.map((s) => (
+    <section class:list={['vb-spalte', `vb-spalte--${s.c}`]} aria-labelledby={`vb-g-${s.c}`}>
+      <div class="vb-fuss">
+        <h3 class="vb-kopf">
+          <button type="button" class="vb-wort" id={`vb-g-${s.c}`} aria-expanded="false">{s.label}</button>
+        </h3>
+        {s.count > 1 ? <a class="vb-zahl" href={s.alle}>{countLabel(s.count)}</a> : <span class="vb-zahl">{countLabel(s.count)}</span>}
+      </div>
+      <div class="vb-projekt">
+        <div class="vb-bilder">
+          {s.vorschau.map((reihe: Reihe) => (
+            <div class="vb-zeile">
+              {reihe.map((b) => (
+                <button type="button" class="vb-bild" style={`flex-grow:${b.r.toFixed(4)};aspect-ratio:${b.meta.width}/${b.meta.height}`} data-galerie={s.p.slug} data-bild={b.i} aria-label={`${s.p.title}: view image ${b.i + 1} of ${s.total} full size`}>
+                  <Img meta={b.meta} alt="" sizes={reihe.length > 1 ? '(min-width: 960px) 16vw, 45vw' : '(min-width: 960px) 32vw, 90vw'} />
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div class="vb-unterzeile">
+          <h4 class="vb-titel">{s.p.title}</h4>
+          <a class="vb-link" href={s.href}>View project <span aria-hidden="true">→</span></a>
+          {s.meta && <p class="vb-meta">{s.meta}</p>}
+        </div>
+      </div>
+    </section>
+  ))}
+</div>
+
+<p class="v-zustand">Offen: creative</p>
+<div class="vb-reihe vb-reihe--offen">
+  {spalten.map((s) => s.c === offen ? (
+    <section class:list={['vb-spalte', `vb-spalte--${s.c}`, 'is-open']} aria-labelledby={`vb-o-${s.c}`}>
+      <div class="vb-fuss">
+        <h3 class="vb-kopf">
+          <button type="button" class="vb-wort" id={`vb-o-${s.c}`} aria-expanded="true">{s.label}</button>
+        </h3>
+        {s.count > 1 ? <a class="vb-zahl" href={s.alle}>{countLabel(s.count)}</a> : <span class="vb-zahl">{countLabel(s.count)}</span>}
+      </div>
+      <button type="button" class="vb-zu" aria-label={`Close ${s.label}`}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      </button>
+      <div class="vb-projekt vb-projekt--offen">
+        <div class="vb-bilder" style={`--vb-bw:${s.reihenBreite}`}>
+          {s.reihen.map((reihe: Reihe) => (
+            <div class="vb-zeile">
+              {reihe.map((b) => (
+                <button type="button" class="vb-bild" style={`flex-grow:${b.r.toFixed(4)};aspect-ratio:${b.meta.width}/${b.meta.height}`} data-galerie={s.p.slug} data-bild={b.i} aria-label={`${s.p.title}: view image ${b.i + 1} of ${s.total} full size`}>
+                  <Img meta={b.meta} alt="" sizes={`(min-width: 960px) ${Math.max(12, Math.round((60 * b.r) / reihe.reduce((a, x) => a + x.r, 0)))}vw, 90vw`} />
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div class="vb-text">
+          <h4 class="vb-titel">{s.p.title}</h4>
+          {s.meta && <p class="vb-meta">{s.meta}</p>}
+          {has(s.p.text) && <p class="vb-beschreibung">{s.p.text}</p>}
+          <p class="vb-aktionen">
+            <a class="vb-link" href={s.href}>View project <span aria-hidden="true">→</span></a>
+            {s.links.map((l: any) => <a class="vb-leise" href={l.url} rel="noopener">{l.label} <span aria-hidden="true">↗</span></a>)}
+          </p>
+        </div>
+      </div>
+    </section>
+  ) : (
+    <section class:list={['vb-spalte', `vb-spalte--${s.c}`, 'is-strip']} aria-labelledby={`vb-o-${s.c}`}>
+      <div class="vb-fuss">
+        <h3 class="vb-kopf">
+          <button type="button" class="vb-wort" id={`vb-o-${s.c}`} aria-expanded="false">{s.label}</button>
+        </h3>
+        <span class="vb-zahl">{countLabel(s.count)}</span>
+      </div>
+    </section>
+  ))}
+</div>
+
+<style>
+  /* Lücke zwischen Bildern; höchste Höhe des Bildblocks im Ausgangszustand (eh) und offen (oh). */
+  .vb-reihe {
+    --vb-g: 0.625rem;
+    --vb-h: clamp(36rem, 88svh, 56rem);
+    --vb-eh: clamp(22rem, 100svh - 17rem, 40rem);
+    --vb-oh: calc(var(--vb-h) - 12rem);
+    --vb-strip: clamp(4.5rem, 6.5vw, 6.5rem);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .vb-reihe--offen { grid-template-columns: minmax(0, 1fr) var(--vb-strip) var(--vb-strip); }
+
+  .vb-spalte {
+    position: relative; min-width: 0; min-height: var(--vb-h);
+    display: flex; flex-direction: column;
+    padding-top: var(--margin);
+    background: var(--vb-bg); color: var(--vb-fg);
+  }
+  .vb-spalte--creative { --vb-bg: var(--field-creative); --vb-fg: var(--ink); --vb-soft: var(--ink-soft); }
+  .vb-spalte--adventure { --vb-bg: var(--field-adventure); --vb-fg: var(--ground); --vb-soft: var(--line); }
+  .vb-spalte--dev { --vb-bg: var(--field-dev); --vb-fg: var(--ink-deep); --vb-soft: var(--ink-deep); }
+  .vb-spalte :focus-visible { outline-color: var(--vb-fg); }
+  .vb-spalte a { color: inherit; }
+
+  /* Projekt steht unten auf dem Wort: Bilder, direkt darunter Titel und Link. Der Platz darüber bleibt frei. */
+  .vb-projekt { order: 1; margin-top: auto; padding-inline: var(--margin); }
+  .vb-projekt:not(.vb-projekt--offen) > * { width: var(--vb-bw); }
+  .vb-bilder { display: grid; gap: var(--vb-g); }
+  .vb-zeile { display: flex; align-items: flex-start; gap: var(--vb-g); }
+  .vb-bild {
+    flex: 1 1 0; min-width: 0; display: block;
+    padding: 0; border: 0; background: none; cursor: zoom-in;
+  }
+  .vb-bild:focus-visible { outline-offset: 3px; }
+  .vb-bild :global(picture), .vb-bild :global(img) { display: block; width: 100%; height: 100%; }
+
+  .vb-titel { font-size: var(--step-lead); line-height: 1.15; font-weight: 450; letter-spacing: -0.015em; }
+  .vb-meta { color: var(--vb-soft); font-size: var(--step-small); }
+  .vb-link { font-weight: 500; white-space: nowrap; }
+
+  /* Unter den Bildern: Titel links, "View project" rechts auf derselben Grundlinie, darunter Art/Jahr */
+  .vb-unterzeile {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; column-gap: 1rem;
+    margin-top: 1rem;
+  }
+  .vb-unterzeile .vb-meta { grid-column: 1 / -1; margin-top: 0.125rem; }
+
+  /* Wort und Projektzahl unten */
+  .vb-fuss { order: 2; display: flex; align-items: baseline; gap: 0.75rem; padding: clamp(2rem, 4.5vh, 3rem) var(--margin) 1.75rem; }
+  .vb-kopf { font: inherit; }
+  .vb-wort {
+    padding: 0; border: 0; background: none; color: inherit; cursor: pointer;
+    font-size: var(--step-head); line-height: 0.95; letter-spacing: -0.035em;
+    text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 0.04em; text-underline-offset: 0.14em;
+    transition: text-decoration-color 0.25s var(--ease);
+  }
+  .vb-wort:hover { text-decoration-color: currentColor; }
+  .vb-zahl { color: var(--vb-soft); font-size: var(--step-small); }
+
+  /* Offen: Bilder links in Blocksatz-Reihen, Text rechts (oben bündig mit den Bildern), Kreuz oben rechts */
+  .vb-projekt--offen { margin-top: 0; margin-bottom: auto; display: flex; align-items: flex-start; gap: clamp(2rem, 4vw, 4rem); }
+  .vb-projekt--offen .vb-bilder { flex: 0 1 var(--vb-bw); min-width: 0; }
+  .vb-projekt--offen .vb-text { flex: 1 0 clamp(16rem, 22vw, 22rem); padding-right: 3rem; }
+  .vb-projekt--offen .vb-titel {
+    font-size: clamp(2rem, 1.2rem + 1.6vw, 2.75rem); line-height: 1.05; letter-spacing: -0.025em;
+    text-box: trim-start cap alphabetic;
+  }
+  .vb-projekt--offen .vb-meta { margin-top: 0.75rem; font-size: 1rem; }
+  .vb-beschreibung { margin-top: 1.5rem; max-width: 34ch; }
+  .vb-aktionen { margin-top: 1.5rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 1.5rem; }
+  .vb-leise { color: var(--vb-soft); font-size: var(--step-small); }
+
+  .vb-zu {
+    position: absolute; top: calc(var(--margin) - 0.5rem); right: calc(var(--margin) - 0.625rem);
+    width: 2.75rem; height: 2.75rem; display: grid; place-items: center;
+    padding: 0; border: 0; background: none; color: inherit; cursor: pointer;
+    transition: background-color 0.25s var(--ease), color 0.25s var(--ease);
+  }
+  .vb-zu svg { width: 1.5rem; height: 1.5rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: square; }
+  .vb-zu:hover { background: var(--vb-fg); color: var(--vb-bg); }
+
+  /* Streifen: senkrechtes Wort unten, Projektzahl dahinter */
+  .is-strip .vb-fuss {
+    margin-top: auto;
+    flex-direction: column-reverse; align-items: center; gap: 0.75rem;
+    padding: 0 0 1.75rem;
+  }
+  .is-strip .vb-wort, .is-strip .vb-zahl { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
+  .is-strip .vb-wort { font-size: calc(var(--vb-strip) * 0.56); }
+</style>

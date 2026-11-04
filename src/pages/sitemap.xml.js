@@ -1,7 +1,7 @@
-// sitemap.xml aus allen Seiten in src/pages (ohne 404).
+// sitemap.xml aus allen Seiten in src/pages (ohne 404 und ohne die Testseiten unter varianten/).
 const pages = Object.keys(import.meta.glob('./**/*.astro'))
   .map((p) => p.replace(/^\.\//, '').replace(/\.astro$/, '').replace(/(^|\/)index$/, ''))
-  .filter((p) => p !== '404')
+  .filter((p) => p !== '404' && !p.startsWith('varianten'))
   .map((p) => (p ? `/${p}/` : '/'));
 
 export function GET({ site }) {

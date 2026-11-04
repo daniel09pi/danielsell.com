@@ -49,7 +49,7 @@ Nach dem Deploy: `bash .taste-skill/livecheck.sh` (erwartete Statuscodes, u. a. 
 1. **Logo im Hero abgelehnt** („design muss sinn machen“). Das Logo steht nur in der Navigation (lose, Ink), im Favicon und im Teilen-Bild.
 2. **Hero:** drei Farbspalten creative (Limette) / adventure (Ink) / dev (Violett). Der Name `daniel sell` läuft riesig darüber, **ganz in Beige** (ausgespart wie das Logo-Negativ; Farbsplit im Namen abgelehnt). Grundlinie des Namens = Unterkante der Flächen (`text-box: trim-end cap alphabetic`), darunter eine **feine Linie** `#A98DFF`. Unter der Kante pro Spalte das Wort (Link zur Projektspalte) und die Projekttitel (Links auf `/projects/<slug>/`). Kein Erklärsatz, kein Button (abgelehnt als generisch).
 3. **Flächenfarben pro Kategorie:** gefallen.
-4. **Bilder** nur subtil schief: ±0,4–0,7°, Hover dreht ca. 1° zurück und sättigt.
+4. **Bilder** nur subtil schief: ±0,4–0,7°, Hover dreht ca. 1° zurück und sättigt. **Seit Runde 7 nur noch beim About-Selfie;** Projektbilder stehen gerade.
 5. **Reihenfolge der Startseite:** Hero → About („hi, i’m daniel.“ verlinkt auf `/about/`) → Currently working on → Projekte → in short → Kontakt/Footer.
 6. **Projekte** (`src/components/Areas.astro`, `Feature.astro` Variante `panel`), Stand Runde 6:
    - *Ausgangszustand:* drei gleich breite Farbspalten. Oben links der Hinweis **„Featured project: <Titel>“** (kleines Etikett, Hintergrund in Schriftfarbe der Spalte). Darunter **ein** Bild (kein Stapel mehr, „messy“ abgelehnt) in festem 4:3-Rahmen, Bild unten bündig, direkt darunter **Pfeile und Punkte** (Punkte: Ring, aktueller gefüllt). Unten Wort + Projektzahl. Klick aufs Wort oder aufs Bild öffnet die Spalte; Hover aufs Bild unterstreicht das Wort.
@@ -60,6 +60,8 @@ Nach dem Deploy: `bash .taste-skill/livecheck.sh` (erwartete Statuscodes, u. a. 
    - Bilder werden in der Spalte auf **4:3 zugeschnitten** (`object-fit: cover`, Daniels Wahl), damit die Kanten beim Blättern ruhig bleiben; ungeschnitten zeigt sie später die Projektseite.
    - Platzhalter-Bilder: adventure (Argentina) Bilder 2–7 von project500, dev (flowinsync) Bilder 2–7 von Stooney, vermerkt in `_beispiel` von `content/projects.json`.
    - In der Spalte zeigen **Punkte statt Zähler** „3 / 9“ die Position (Daniels Wunsch); für Screenreader sagt `aria-live` weiter „image 3 of 9“. Die Punkte sind nur für die Maus (`aria-hidden`), Tastatur nutzt Pfeil-Buttons und Pfeiltasten.
+   - **Runde 7 (Daniels Feedback auf Runde 6, gilt ab jetzt, noch nicht in Areas/Feature umgesetzt):** keine Slideshow mehr; Projektbilder **gerade**, kein Dreh- und kein Hover-Dreh-Effekt (der passt nur beim About-Selfie). Zuschnitt mag er nicht, ist aber nötig, wo Bilder in feste Rahmen müssen. Der Hinweis „Featured project“ muss **direkt am Projekt** stehen (Titel/Bilder), nicht als Etikett oben in der Ecke. **Mehr Bilder auf einmal** zeigen, dazu eine **Vollbild-Ansicht wie v4** (Overlay, alle Bilder groß untereinander, × und Escape). „View project“ war zu groß → normale Textgröße. Die „Also in …“-Liste fällt weg; der Link zu allen Projekten eines Bereichs bleibt, aber nicht am Fuß des Textes.
+   - Dafür gibt es die **Testseite `/varianten/`** (noindex, nicht verlinkt, nicht in der Sitemap) mit fünf statischen Layouts: A Kontaktbogen (4:3-Raster), B Ungeschnitten (Blocksatz-Reihen), C Bänder (drei Bänder untereinander, nichts klappt auf), D Leitbild mit Index (großes Bild + kleine Quadrate), E Magazin (großes + kleines Bild, offen als Doppelseite). Einzeln unter `/varianten/a/` … `/e/`. Dateien: `src/pages/varianten/`, `src/components/varianten/` (Galerie.astro = Vollbild-Ansicht). **Nach Daniels Wahl** die Gewinner-Variante in `Areas.astro` umsetzen, Slideshow/Tilt aus der Startseite entfernen, dann `src/pages/varianten/`, `src/components/varianten/` und den Filter in `sitemap.xml.js` wieder löschen.
 7. **in short:** Layout wie „how it started“ (kleines Label links, Absatz rechts), ca. 32 px. Begriffe in den Bereichsfarben markiert und verlinkt; in `site.json` per `{creative: brand identities}`.
 8. **Platzhalter nicht hervorheben.** Fehlende Inhalte sind erfundene Beispielwerte, aufgelistet unter `_beispiel` in `content/site.json` und `content/projects.json`. Rechtliches (Impressum-Adresse, Datenschutz) ist **nicht** erfunden und bleibt Platzhalter.
 9. **Favicon:** Ink-Quadrat, beiges Logo-Zeichen auf 65 % verkleinert und mittig (`public/favicon.svg`).
@@ -80,7 +82,7 @@ Ground `#F5F2EB`, Ink `#1E0B4A`, Ink-soft `#574A78`, Ink-deep `#12062E` (Text au
 
 ## Offen / nächste Schritte
 
-1. Daniels Feedback auf Runde 6 (Projekte: Etikett, ein Bild mit Punkten, offene Spalte mit Kreuz und klarer Rangfolge) abwarten und weiter am Desktop feilen.
+1. Daniel wählt auf `/varianten/` eine Variante (oder mischt), dann Umsetzung in `Areas.astro` (siehe Entscheidung 6, Runde 7) und Testseite löschen.
 2. Deploy durch Daniel, dann Live-Prüfung (siehe oben).
 3. **Phase 2** laut Plan, erweitert um Daniels Wünsche:
    - `/projects/` (alle Projekte nach Bereich, Sprungmarken `#creative` usw.) und **eigene Seiten pro Projekt** `/projects/<slug>/` (sind auf der Startseite schon verlinkt).

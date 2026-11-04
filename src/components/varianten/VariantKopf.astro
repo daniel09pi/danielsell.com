@@ -1,0 +1,10 @@
+---
+// TESTSEITE /varianten/: Kopf über jeder Variante (Buchstabe, Name, ein bis zwei Sätze, was sie ausmacht).
+interface Props { buchstabe: string; name: string; text: string }
+const { buchstabe, name, text } = Astro.props;
+---
+<header class="v-kopf">
+  <p class="v-kopf__nr">Variante {buchstabe}</p>
+  <h2 class="v-kopf__name">{name}</h2>
+  <p class="v-kopf__text">{text}</p>
+</header>

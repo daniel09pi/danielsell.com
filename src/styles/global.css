@@ -165,10 +165,10 @@ a:hover { text-decoration-color: currentColor; }
 .mark--dev { background: var(--field-dev); color: var(--ink-deep); }
 
 /* ---------- Bereiche: drei Farbspalten (Startseite) ---------- */
-/* Ausgangszustand: drei gleich breite Spalten. Oben der Hinweis aufs gezeigte Projekt, darunter ein Bild
-   mit Punkten und Pfeilen, unten Wort und Projektzahl.
-   Offen: eine Spalte breit (Streifen mit senkrechtem Wort, Bild links, Text rechts, Kreuz oben rechts),
-   die anderen sind Streifen. Nichts verschiebt sich beim Hover. */
+/* State 1: drei gleich breite Spalten. Oben links das Featured Project (Etikett, Titel, Art und Jahr), darunter
+   drei gleich große, leicht gedrehte Bilder, unten Wort und Projektzahl (Link zur Seite des Bereichs).
+   State 2: eine Spalte breit, links die Bilderbox mit allen Bildern, rechts der Text, Kreuz oben rechts.
+   State 3: die anderen sind Streifen mit senkrechtem Wort. Nichts verschiebt sich beim Hover. */
 /* overflow-anchor: Beim Umbau der Spalten soll der Browser nicht nachscrollen (die Höhe bleibt gleich). */
 .areas { margin-top: var(--section); overflow-anchor: none; }
 .area { position: relative; scroll-margin-top: 0; background: var(--area-bg); color: var(--area-fg); }
@@ -179,65 +179,79 @@ a:hover { text-decoration-color: currentColor; }
 .area :focus-visible { outline-color: var(--area-fg); }
 .area a { color: inherit; }
 .area__head { font: inherit; }
-.area__toggle {
-  position: relative; display: flex; flex-direction: column; width: 100%;
-  padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
-}
-/* Ohne JavaScript ist der Button deaktiviert (er hätte nichts zu tun) */
-.area__toggle:disabled { cursor: default; }
-.area__toggle:focus-visible { outline-offset: -6px; }
-.area__word { font-size: var(--step-head); line-height: 0.95; letter-spacing: -0.035em; }
-.area__count { color: var(--area-soft); font-size: var(--step-small); }
+
+/* Wort und Projektzahl: Link zur Seite des Bereichs. Die Zahl steht auf der Grundlinie des Worts,
+   waagerecht wie senkrecht im Streifen. Hover: nur Unterstreichung. */
+.area__cat { display: block; padding: 1.25rem var(--margin) 1.75rem; text-decoration: none; }
+.area__cat:focus-visible { outline-offset: -6px; }
 .area__label { display: flex; align-items: baseline; gap: 0.75rem; }
-.area__label--v { display: none; }
-.area__label--h { padding: 1.25rem var(--margin) 1.75rem; }
-
-/* Unterstreichen beim Hover (Wort), ohne dass sich etwas bewegt */
+.area__word { font-size: var(--step-head); line-height: 0.95; letter-spacing: -0.035em; }
+.area__count { color: var(--area-soft); font-size: var(--step-small); white-space: nowrap; }
 .area__word { text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 0.04em; text-underline-offset: 0.14em; transition: text-decoration-color 0.25s var(--ease); }
-.area__toggle:not(:disabled):hover .area__word { text-decoration-color: currentColor; }
+.area__cat:hover .area__word { text-decoration-color: currentColor; }
 
-/* Kopfzeile der Spalte: Hinweis aufs gezeigte Projekt links, Kreuz rechts (nur in der offenen Spalte) */
-.area__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--gutter); min-height: 2.75rem; padding: var(--margin) var(--margin) 0; }
-.area__note { padding: 0.2rem 0.5rem; background: var(--area-fg); color: var(--area-bg); font-size: var(--step-small); line-height: 1.4; font-weight: 500; }
-.area__close {
-  flex: none; width: 2.75rem; height: 2.75rem; margin-right: -0.625rem;
-  display: grid; place-items: center; border: 0; background: none; color: inherit; cursor: pointer;
+/* Featured Project */
+.spot { position: relative; padding: var(--margin) var(--margin) 0; }
+.spot__tag { display: block; width: fit-content; padding: 0.2rem 0.5rem; background: var(--area-fg); color: var(--area-bg); font-size: var(--step-small); line-height: 1.4; font-weight: 500; }
+.spot__title {
+  margin-top: 1rem; font-size: clamp(2rem, 1.2rem + 1.6vw, 2.75rem); line-height: 1.05; font-weight: 450; letter-spacing: -0.025em;
+  text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 0.05em; text-underline-offset: 0.14em;
+  transition: text-decoration-color 0.25s var(--ease);
+}
+.spot__title:focus { outline: none; }
+.spot__meta { margin-top: 0.5rem; color: var(--area-soft); font-size: 1rem; }
+.spot__more { display: none; }
+.spot__body { margin-top: 1.5rem; max-width: 36ch; }
+.spot__links { margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: 0 1.25rem; }
+.spot__links a { display: inline-block; padding-block: 0.6rem; min-width: 44px; }
+.spot__ext { margin-left: 0.25em; display: inline-block; text-decoration: none; }
+
+/* State 1: drei gleich große Bilder untereinander, leicht gedreht wie die Vorschau in v4 */
+.spot__peek { display: grid; justify-items: start; gap: 1rem; margin-top: 1.75rem; }
+.spot__thumb {
+  aspect-ratio: 3 / 2; max-width: 100%; min-height: 0; overflow: hidden; background: color-mix(in srgb, var(--area-fg) 12%, transparent);
+  transform: rotate(var(--tilt)); filter: saturate(0.75);
+  transition: transform var(--tilt-time) var(--ease), filter var(--tilt-time) var(--ease);
+}
+.spot__thumb picture, .spot__thumb img { display: block; width: 100%; height: 100%; }
+.spot__thumb img { object-fit: cover; }
+
+/* Die ganze Fläche des Featured Project öffnet die Spalte (ein Button, über Etikett, Titel und Bilder gelegt) */
+.spot__open { position: absolute; inset: 0; z-index: 1; padding: 0; border: 0; background: none; cursor: pointer; }
+.spot__open[hidden] { display: none; }
+.spot__open:focus-visible { outline-offset: -6px; }
+.spot:has(.spot__open:hover) .spot__title { text-decoration-color: currentColor; }
+.spot:has(.spot__open:is(:hover, :focus-visible)) .spot__thumb { transform: rotate(var(--tilt-to)); filter: saturate(1); }
+
+.spot__close {
+  position: absolute; z-index: 2; top: calc(var(--pad, var(--margin)) - 0.5rem); right: calc(var(--pad, var(--margin)) - 0.625rem);
+  width: 2.75rem; height: 2.75rem; display: grid; place-items: center; border: 0; background: none; color: inherit; cursor: pointer;
   transition: background-color 0.25s var(--ease), color 0.25s var(--ease);
 }
-.area__close[hidden] { display: none; }
-.area__close svg { width: 1.5rem; height: 1.5rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: square; }
-.area__close:hover { background: var(--area-fg); color: var(--area-bg); }
+.spot__close[hidden] { display: none; }
+.spot__close svg { width: 1.5rem; height: 1.5rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: square; }
+.spot__close:hover { background: var(--area-fg); color: var(--area-bg); }
 
-/* Feature in der Spalte: Bild in festem 4:3-Rahmen (Unterkante steht auf den Punkten), Steuerung direkt darunter */
-.area .feature--panel { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto; align-content: center; padding: 0 var(--margin); }
-/* Die Bilder haben 0,5 rem Luft für die Drehung; der Rahmen ragt um genau so viel heraus, damit die Bildkante auf der Satzkante steht. */
-.area .feature--panel .feature__stage { grid-column: 1; grid-row: 1; height: auto; aspect-ratio: 4 / 3; margin: 0 -0.5rem; background: none; }
-.area .feature--panel .slideshow__track { position: absolute; inset: 0; height: auto; }
-.area .feature--panel .slide,
-.area .feature--panel .slide:first-child,
-.area .feature--panel .slide:last-child { flex-basis: 100%; padding: 0.5rem; }
-.area .feature--panel .slide picture { align-items: flex-end; }
-/* Jedes Bild füllt den 4:3-Rahmen (Daniel, Runde 6: zuschneiden statt freier Streifen); ungeschnitten später auf der Projektseite */
-.area .feature--panel .slide .slide__img { width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; }
-.area .feature--panel .slide__placeholder { width: 100%; aspect-ratio: 4 / 3; }
-.area .feature--panel .slideshow__controls { grid-column: 1; grid-row: 2; align-self: start; justify-content: center; gap: 0.25rem; padding: 0.5rem 0 0; }
-.area .feature--panel .feature__text { grid-column: 1; grid-row: 3; margin: 0; }
-.area .feature__meta { color: var(--area-soft); }
-.area .feature__more { color: var(--area-soft); }
-.area .slideshow__btn { width: 2.75rem; height: 2.75rem; background: none; color: var(--area-fg); }
-.area .slideshow__btn svg { width: 1.25rem; height: 1.25rem; }
-.area .slideshow__btn:hover:not([aria-disabled="true"]) { background: var(--area-fg); color: var(--area-bg); }
-/* Deaktiviert: nur das Zeichen blass, der Fokusrahmen bleibt kräftig */
-.area .slideshow__btn[aria-disabled="true"] { opacity: 1; }
-.area .slideshow__btn[aria-disabled="true"] svg { opacity: 0.3; }
-.area .slideshow__track:focus-visible { outline-color: var(--area-fg); }
+/* State 2: Bilderbox. Die Bilder stehen gerade; Lage und Größe rechnet das Skript aus (column-gap = Abstand). */
+.spot__box { display: none; position: relative; column-gap: clamp(0.5rem, 0.8cqi, 0.875rem); }
+.spot__img {
+  position: absolute; padding: 0; border: 0; background: color-mix(in srgb, var(--area-fg) 12%, transparent); cursor: zoom-in;
+  transform: rotate(0deg); transition: transform var(--tilt-time) var(--ease);
+}
+.spot__img.is-focus { cursor: zoom-out; }
+.spot__box:not(.is-ready) .spot__img { visibility: hidden; }
+.spot__box.is-animating .spot__img {
+  transition: transform var(--tilt-time) var(--ease),
+    left 0.55s var(--ease), top 0.55s var(--ease), width 0.55s var(--ease), height 0.55s var(--ease);
+}
+.spot__img:hover, .spot__img:focus-visible { transform: rotate(var(--tilt)); z-index: 1; }
+.spot__img:focus-visible { outline-offset: 3px; }
+.spot__img picture, .spot__img img { display: block; width: 100%; height: 100%; }
+.spot__img img { object-fit: cover; }
 
-/* Text in der offenen Spalte. Rangfolge: Titel, Beschreibung, ein Hauptlink; der Rest leise am Fuß. */
-.area .feature--panel .feature__title { font-size: clamp(2rem, 1.2rem + 1.6vw, 2.75rem); line-height: 1.05; font-weight: 450; letter-spacing: -0.025em; }
-.area .feature--panel .feature__meta { margin-top: 0.5rem; font-size: 1rem; }
-.area .feature--panel .feature__body { margin-top: 1.5rem; max-width: 36ch; }
-.area .feature--panel .feature__tags { display: none; }
-.area .feature--panel .feature__actions { margin-top: 1.75rem; }
+.area.is-open .spot__more { display: block; }
+.area.is-open .spot__peek { display: none; }
+.area.is-open .spot__box { display: block; }
 
 @media (min-width: 60rem) {
   .areas__row { --strip: clamp(4.5rem, 6.5vw, 6.5rem); container-type: inline-size; }
@@ -246,35 +260,12 @@ a:hover { text-decoration-color: currentColor; }
     grid-template-columns: var(--strip) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr);
   }
   .area__head { grid-column: 1; grid-row: 1; display: flex; min-width: 0; }
-  .area__toggle { height: 100%; }
-  .area__panel { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
-  .area .feature--panel { flex: 1 1 auto; min-height: 0; }
+  .spot { grid-column: 2; grid-row: 1; min-width: 0; min-height: 0; }
 
-  /* Senkrechtes Wort im Streifen: von unten nach oben, die Projektzahl direkt dahinter */
-  .area__label--v {
-    position: absolute; left: 0; bottom: 1.75rem; width: var(--strip);
-    flex-direction: column-reverse; align-items: center; gap: 0.75rem;
-  }
-  .area__label--v > span:first-child { writing-mode: vertical-rl; transform: rotate(180deg); }
-  .area__label--v .area__word { font-size: calc(var(--strip) * 0.56); }
-  .area__label--v .area__count { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
-
-  /* Ohne JavaScript: alle offen untereinander, Streifen links */
-  .areas__row:not(.is-enhanced) .area__label--h { display: none; }
-  .areas__row:not(.is-enhanced) .area__label--v { display: flex; }
-
-  /* Offene Spalte (und ohne JavaScript): Bild links, Text rechts, beide oben bündig */
-  :is(.areas__row:not(.is-enhanced) .area, .area.is-open) .area__note-name { display: none; }
-  :is(.areas__row:not(.is-enhanced) .area, .area.is-open) .feature--panel {
-    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
-    grid-template-rows: auto auto;
-    column-gap: clamp(2rem, 4.5vw, 5rem);
-    padding-bottom: var(--margin);
-  }
-  :is(.areas__row:not(.is-enhanced) .area, .area.is-open) .feature--panel .feature__text {
-    grid-column: 2; grid-row: 1 / 3; display: flex; flex-direction: column; min-width: 0;
-  }
-  :is(.areas__row:not(.is-enhanced) .area, .area.is-open) .feature--panel .feature__more { margin-top: auto; padding-top: 2rem; }
+  /* State 1: Featured Project oben, Bilder füllen den Platz bis zum Wort (drei gleich hohe Zeilen) */
+  .spot { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+  .spot__peek { min-height: 0; grid-template-rows: repeat(3, minmax(0, 1fr)); }
+  .spot__thumb { height: 100%; }
 
   /* Mit JavaScript: feste Spurbreiten je Zustand, die Spalte selbst wird breiter oder schmaler und schneidet ab.
      So wird der Inhalt nicht bei jedem Bild der Bewegung neu umbrochen. */
@@ -286,36 +277,49 @@ a:hover { text-decoration-color: currentColor; }
   }
   .is-enhanced.has-open .area { width: var(--strip); }
   .is-enhanced.has-open .area.is-open { width: calc(100cqi - 2 * var(--strip)); }
-  .is-enhanced.has-open .area__label--h { display: none; }
-  .is-enhanced.has-open .area__label--v { display: flex; }
-  .is-enhanced.has-open .area:not(.is-open) .area__panel { visibility: hidden; }
+  .is-enhanced.has-open .area:not(.is-open) .spot { visibility: hidden; }
 
-  /* Ausgangszustand: kein Streifen; Hinweis, Bild und Steuerung oben, Wort und Projektzahl unten */
-  .is-enhanced:not(.has-open) .area { grid-template-columns: calc(100cqi / 3); grid-template-rows: minmax(0, 1fr) auto; }
-  .is-enhanced:not(.has-open) .area__head { grid-column: 1; grid-row: 2; }
-  .is-enhanced:not(.has-open) .area__panel { grid-column: 1; grid-row: 1; }
-  .is-enhanced:not(.has-open) .area__label--h { display: flex; }
-  .is-enhanced:not(.has-open) .feature--panel .feature__text { display: none; }
-  .is-enhanced:not(.has-open) .feature--panel { padding-top: 1.5rem; }
-  /* Das Bild öffnet die Spalte; das Wort zeigt beim Hover mit an, wohin es geht */
-  .is-enhanced:not(.has-open) .area .feature__stage { cursor: pointer; }
-  .is-enhanced:not(.has-open) .area:has(.feature__stage:hover) .area__word { text-decoration-color: currentColor; }
+  /* State 1 (auch ohne JavaScript): eine Spalte; Featured Project oben, Wort und Projektzahl unten */
+  .areas__row:not(.has-open) { display: flex; }
+  .areas__row:not(.is-enhanced) .area { flex: 1 1 0; }
+  .areas__row:not(.has-open) .area { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+  .is-enhanced:not(.has-open) .area { grid-template-columns: calc(100cqi / 3); }
+  .areas__row:not(.has-open) .area__head { grid-column: 1; grid-row: 2; }
+  .areas__row:not(.has-open) .spot { grid-column: 1; grid-row: 1; }
+
+  /* State 2 und 3: Streifen mit senkrechtem Wort (von unten nach oben), die Zahl auf seiner Grundlinie */
+  .has-open .area__cat {
+    writing-mode: sideways-lr; display: flex; align-items: center; width: 100%; height: 100%;
+    padding: 1.75rem 0;
+  }
+  .has-open .area__word { font-size: calc(var(--strip) * 0.56); }
+
+  /* State 2: Bilderbox links, Text rechts; gleicher Abstand nach allen Seiten, Box und Text oben bündig */
+  .area.is-open .spot {
+    --pad: clamp(1.75rem, 3cqi, 3rem);
+    grid-template-columns: minmax(0, 1fr) clamp(16rem, 25cqi, 23rem); grid-template-rows: minmax(0, 1fr);
+    column-gap: var(--pad); padding: var(--pad);
+  }
+  .area.is-open .spot__box { grid-column: 1; grid-row: 1; }
+  .area.is-open .spot__text { grid-column: 2; grid-row: 1; align-self: start; min-width: 0; }
 
   /* Wechsel: erst ausblenden (is-leaving), dann umbauen, dann einblenden, wenn die Breite fast steht */
-  .is-enhanced :is(.area__head, .area__panel) { transition: opacity 0.4s var(--ease) 0.3s; }
-  .is-enhanced.is-leaving :is(.area__head, .area__panel) { opacity: 0; transition: opacity 0.18s var(--ease); }
+  .is-enhanced :is(.area__head, .spot) { transition: opacity 0.4s var(--ease) 0.3s; }
+  .is-enhanced.is-leaving :is(.area__head, .spot) { opacity: 0; transition: opacity 0.18s var(--ease); }
 }
 
 @media (max-width: 59.99rem) {
-  .area__label--h { justify-content: space-between; padding-bottom: 0.5rem; }
-  .area .feature--panel { padding-bottom: 1.75rem; }
-  .area .feature--panel .feature__text { margin-top: 1.5rem; }
-  .is-enhanced .area:not(.is-open) .feature--panel .feature__text { display: none; }
-  .area.is-open .area__note-name { display: none; }
+  .area__cat { padding-bottom: 0.5rem; }
+  .area__label { justify-content: space-between; }
+  .spot { padding-bottom: 1.75rem; }
+  .spot__thumb { width: min(100%, 18rem); }
+  .area.is-open .spot__box { margin-top: 1.75rem; aspect-ratio: 4 / 5; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .is-enhanced :is(.area, .area__head, .area__panel) { transition: none !important; }
+  .is-enhanced :is(.area, .area__head, .spot) { transition: none !important; }
+  .spot:has(.spot__open:is(:hover, :focus-visible)) .spot__thumb { transform: rotate(var(--tilt)); }
+  .spot__img:hover, .spot__img:focus-visible { transform: none; }
 }
 
 /* ---------- Kapitel und Feature ---------- */

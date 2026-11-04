@@ -9,7 +9,7 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const DIST = path.join(ROOT, 'dist');
 const problems = [];
 // Seiten, die erst in Phase 2 entstehen: Links darauf sind erlaubt, werden aber gemeldet.
-const PENDING = [/^\/projects\//, /^\/about\/$/];
+const PENDING = [/^\/projects\//, /^\/about\/$/, /^\/(creative|adventure|dev)\/$/];
 const pending = new Set();
 
 async function walk(dir) {

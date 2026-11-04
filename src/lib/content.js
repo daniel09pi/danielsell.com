@@ -22,6 +22,9 @@ export const isExternal = (v) => typeof v === 'string' && /^https?:\/\//.test(v.
 
 export const byCategory = (cat) => projects.filter((p) => p.category === cat);
 
+/** Eigene Seite pro Bereich (Phase 2): /creative/, /adventure/, /dev/ */
+export const categoryHref = (cat) => `/${cat}/`;
+
 /** Feature pro Kategorie: das Projekt mit featured: true, sonst das erste der Liste. */
 export const featured = (cat) => {
   const list = byCategory(cat);

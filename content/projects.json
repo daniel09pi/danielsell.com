@@ -193,6 +193,18 @@
         {
           "src": "portfolio_files/project500/6.avif",
           "alt": "The 500 mark of project500 in dark navy on mint green"
+        },
+        {
+          "src": "portfolio_files/landeshut/2.avif",
+          "alt": "Landeshut logo mark in two shades of blue on white"
+        },
+        {
+          "src": "portfolio_files/landeshut/4.avif",
+          "alt": "A man speaks to a seated audience on a covered terrace, the Landeshut mark laid over the photo"
+        },
+        {
+          "src": "portfolio_files/landeshut/6.avif",
+          "alt": "Landeshut pattern of interlocking quarter circles in blue and dark navy"
         }
       ]
     },
@@ -242,6 +254,18 @@
         {
           "src": "portfolio_files/stooney/6.avif",
           "alt": "Stooney poster: a hand holding stones by the sea, with the line designer lampen"
+        },
+        {
+          "src": "portfolio_files/bookcover/2.avif",
+          "alt": "A stack of copies of the novel Flussrauschen by Sonja Silberhorn on a grey background"
+        },
+        {
+          "src": "portfolio_files/landeshut/3.avif",
+          "alt": "The Landeshut wordmark repeated five times, fading from light to dark violet"
+        },
+        {
+          "src": "portfolio_files/landeshut/5.avif",
+          "alt": "Landeshut logo mark above the wordmark, in blue and dark navy"
         }
       ]
     },
@@ -309,5 +333,5 @@
       ]
     }
   ],
-  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): argentinien (Titel, Art, Jahr, Tags, Text; Bild 1 vorerst das About-Foto aus Argentinien, Bilder 2–7 vorläufig von project500), flowinsync (Bilder 2–7 vorläufig von Stooney, bis es eigene Screenshots gibt), Jahre und Stack bei flowinsync, mixer-dashboard, werner-gehner. flowinsync: Source-Link entfernt."
+  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): argentinien (Titel, Art, Jahr, Tags, Text; Bild 1 vorerst das About-Foto aus Argentinien, Bilder 2–7 vorläufig von project500, 8–10 von Landeshut), flowinsync (Bilder 2–7 vorläufig von Stooney, 8–10 von Bookcovers und Landeshut, bis es eigene Screenshots gibt), Jahre und Stack bei flowinsync, mixer-dashboard, werner-gehner. flowinsync: Source-Link entfernt."
 }

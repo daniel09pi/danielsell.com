@@ -1,9 +1,11 @@
 ---
-// Die drei Bereiche der Startseite (Runde 11): drei gleich breite Farbspalten.
-// Oben die Tab-Leiste: pro Spalte Wort + Projektzahl, beides ein Link zur Seite des Bereichs (/creative/ …).
-// Darunter bis zu zwei Featured Projects: Titel, Art und Jahr, drei kleine, leicht gedrehte Bilder nebeneinander
-// (Hover je Bild). Ein Klick aufs Projekt führt zur Projektseite (/projects/<slug>/). Kein Aufklappen, kein Skript.
-// Die Zeilen (Tab, Etikett, Projekt 1, Projekt 2) stehen über alle drei Spalten auf gleicher Höhe (Subgrid).
+// Die drei Bereiche der Startseite (Runde 12): drei gleich breite Spalten.
+// Oben die Tab-Leiste: drei Farbfelder mit dem Wort des Bereichs (Link zur Seite des Bereichs, /creative/ …).
+// Darunter auf dem beigen Grund bis zu zwei Featured Projects: Titel, Art und Jahr, drei kleine, leicht gedrehte
+// Bilder nebeneinander (Hover je Bild); ein Klick aufs Projekt führt zur Projektseite (/projects/<slug>/).
+// Am Fuß jeder Spalte „All 5 projects →“ (Link zur Seite des Bereichs): zwei gezeigt, dahinter alle.
+// Zugehörigkeit: feine senkrechte Linien setzen die Kanten der Tabs nach unten fort; jede Spalte hängt an ihrem Tab.
+// Die Zeilen (Tab, Projekt 1, Projekt 2, Link) stehen über alle drei Spalten auf gleicher Höhe (Subgrid). Kein Skript.
 import Img from './Img.astro';
 import T from './T.astro';
 import { CATEGORIES, featuredProjects, byCategory, categoryLabel, categoryHref, projectHref, has } from '../lib/content.js';
@@ -19,7 +21,7 @@ const areas = CATEGORIES.map((c) => ({
     images: projectImages(p).filter((im) => !im.placeholder).slice(0, 3),
   })),
 }));
-const countLabel = (n: number) => `${n} ${n === 1 ? 'project' : 'projects'}`;
+const allLabel = (n: number) => (n === 1 ? '1 project' : `All ${n} projects`);
 // Leicht gedreht wie die Vorschau in v4 beim Hover über ein Projekt; beim Hover dreht jedes Bild in die Gegenrichtung.
 // Zweites Projekt mit anderen Winkeln, damit die beiden Reihen nicht gleich aussehen.
 const tilts = [
@@ -33,12 +35,8 @@ const tilts = [
     {areas.map((a) => (
       <section class:list={['area', `area--${a.c}`]} id={a.c} aria-labelledby={`${a.c}-word`}>
         <h3 class="area__tab">
-          <a class="area__link" href={categoryHref(a.c)}>
-            <span class="area__word" id={`${a.c}-word`}>{a.label}</span>
-            <span class="area__count">{countLabel(a.count)}<span class="area__arrow" aria-hidden="true">→</span></span>
-          </a>
+          <a class="area__link" href={categoryHref(a.c)}><span class="area__word" id={`${a.c}-word`}>{a.label}</span></a>
         </h3>
-        {a.projects.length > 0 && <p class="area__tag">{a.projects.length > 1 ? 'Featured projects' : 'Featured project'}</p>}
         {a.projects.map(({ p, meta, images }, k) => (
           <article class="feat" aria-labelledby={`${p.slug}-feat`}>
             <a class="feat__link" href={projectHref(p)}>
@@ -56,6 +54,9 @@ const tilts = [
             </a>
           </article>
         ))}
+        <p class="area__all">
+          <a href={categoryHref(a.c)}>{allLabel(a.count)}<span class="sr-only"> in {a.label}</span><span class="area__arrow" aria-hidden="true">→</span></a>
+        </p>
       </section>
     ))}
   </div>

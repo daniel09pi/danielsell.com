@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Alle Projekte. category: creative | adventure | dev. Pro Kategorie zeigt die Startseite bis zu zwei Projekte mit \"featured\": true (ohne Markierung die ersten beiden) oben angepinnt (mit „Pinned“); die übrigen klappt \"Show all\" auf. Die Projektseite zeigt alle. Reihenfolge in der Liste = Reihenfolge auf der Seite. Werte in [eckigen Klammern] sind Platzhalter, \"\" blendet ein Feld aus. Bilder: Pfade relativ zum Repo. Neu in v5: Ein Bild darf statt eines Pfads auch ein Objekt { \"src\": \"portfolio_files/…\", \"alt\": \"Beschreibung des Bildes\" } sein; ohne alt erzeugt die Seite einen Alt-Text aus Titel und Nummer. Das erste Bild ist das Titelbild des Features.",
+  "_hinweis": "Alle Projekte. category: creative | adventure | dev. Pro Kategorie zeigt die Startseite zwei Projekte: zuerst die mit \"featured\": true (angepinnt, „Pinned“), den Rest füllt das neueste („Newest“, nach updated bzw. posted); die übrigen klappt \"Show all\" auf, neueste zuerst. \"posted\": Datum, an dem das Projekt erstmals gezeigt wurde, \"updated\": zuletzt ergänzt (optional), beide als JJJJ-MM-TT; angezeigt wird „updated …“ bzw. „posted …“. \"year\" bleibt der Zeitraum des Projekts. Die Projektseite zeigt alle. Reihenfolge in der Liste = Reihenfolge auf der Seite. Werte in [eckigen Klammern] sind Platzhalter, \"\" blendet ein Feld aus. Bilder: Pfade relativ zum Repo. Neu in v5: Ein Bild darf statt eines Pfads auch ein Objekt { \"src\": \"portfolio_files/…\", \"alt\": \"Beschreibung des Bildes\" } sein; ohne alt erzeugt die Seite einen Alt-Text aus Titel und Nummer. Das erste Bild ist das Titelbild des Features.",
   "projects": [
     {
       "slug": "alukeku",
@@ -8,6 +8,8 @@
       "title": "ALUKEKU",
       "kind": "Brand Identity",
       "year": "2026",
+      "posted": "2026-05-12",
+      "updated": "2026-09-03",
       "tags": [
         "Brand Identity",
         "Visual Guidelines"
@@ -56,10 +58,12 @@
     {
       "slug": "bookcovers",
       "category": "creative",
-      "featured": true,
+      "featured": false,
       "title": "Bookcovers",
       "kind": "Book Design",
       "year": "2024–2026",
+      "posted": "2024-11-08",
+      "updated": "2026-10-21",
       "tags": [
         "Book Design",
         "Editorial"
@@ -93,6 +97,7 @@
       "title": "Stooney",
       "kind": "Brand Identity",
       "year": "2024",
+      "posted": "2024-07-15",
       "tags": [
         "Brand Identity",
         "Product Design"
@@ -115,6 +120,7 @@
       "title": "project500",
       "kind": "Visual Identity",
       "year": "2024",
+      "posted": "2024-03-02",
       "tags": [
         "Visual Identity",
         "Personal Project"
@@ -137,6 +143,8 @@
       "title": "Landeshut",
       "kind": "Brand Identity",
       "year": "2025",
+      "posted": "2025-04-27",
+      "updated": "2025-06-10",
       "tags": [
         "Brand Identity",
         "Nonprofit"
@@ -159,6 +167,7 @@
       "title": "Argentina",
       "kind": "Travel",
       "year": "2025",
+      "posted": "2026-01-19",
       "tags": [
         "Salta",
         "Andes"
@@ -191,10 +200,11 @@
     {
       "slug": "iguazu",
       "category": "adventure",
-      "featured": true,
+      "featured": false,
       "title": "Iguazú",
       "kind": "Travel",
       "year": "2025",
+      "posted": "2026-02-05",
       "tags": [
         "Misiones",
         "Waterfalls"
@@ -223,6 +233,8 @@
       "title": "flowinsync",
       "kind": "Web App",
       "year": "2025",
+      "posted": "2025-08-30",
+      "updated": "2026-03-14",
       "tags": [
         "Realtime",
         "Vue"
@@ -284,6 +296,7 @@
       "title": "Mixer dashboard",
       "kind": "Web App + Hardware",
       "year": "2024",
+      "posted": "2024-10-05",
       "tags": [
         "Realtime",
         "Hardware",
@@ -302,6 +315,7 @@
       "title": "Werner Gehner",
       "kind": "Website",
       "year": "2024",
+      "posted": "2024-05-21",
       "tags": [
         "Client",
         "Website",
@@ -321,10 +335,12 @@
     {
       "slug": "danielsell-com",
       "category": "dev",
-      "featured": true,
+      "featured": false,
       "title": "danielsell.com",
       "kind": "Website",
       "year": "2026",
+      "posted": "2025-02-14",
+      "updated": "2026-11-04",
       "tags": [
         "Design",
         "Development"
@@ -352,5 +368,5 @@
       ]
     }
   ],
-  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): argentinien (Titel, Art, Jahr, Tags, Text; die Fotos stammen aus assets-raw, Zuordnung zu Argentina/Iguazú geraten), iguazu (ganzes Projekt erfunden, Fotos aus assets-raw), flowinsync (Bilder 2–7 vorläufig von Stooney, 8–10 von Bookcovers und Landeshut, bis es eigene Screenshots gibt), danielsell-com (Bilder sind Screenshots dieser Seite vom 4. November 2026), Jahre und Stack bei flowinsync, mixer-dashboard, werner-gehner. Featured (je zwei pro Bereich, Runde 11): alukeku + bookcovers, argentinien + iguazu, flowinsync + danielsell-com. flowinsync: Source-Link entfernt."
+  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): argentinien (Titel, Art, Jahr, Tags, Text; die Fotos stammen aus assets-raw, Zuordnung zu Argentina/Iguazú geraten), iguazu (ganzes Projekt erfunden, Fotos aus assets-raw), flowinsync (Bilder 2–7 vorläufig von Stooney, 8–10 von Bookcovers und Landeshut, bis es eigene Screenshots gibt), danielsell-com (Bilder sind Screenshots dieser Seite vom 4. November 2026), Jahre und Stack bei flowinsync, mixer-dashboard, werner-gehner. Daten posted/updated (Runde 20, alle erfunden außer updated bei danielsell-com). Angepinnt (Runde 20, je eins): alukeku, argentinien, flowinsync. flowinsync: Source-Link entfernt."
 }

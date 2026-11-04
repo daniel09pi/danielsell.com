@@ -1,15 +1,17 @@
 ---
-// Ein Projekt in einer Spalte des Bereiche-Abschnitts der Startseite: (Label mit Nadel,) Titel, Art und Jahr,
-// drei kleine, leicht gedrehte Bilder (Hover je Bild). Titel, Art/Jahr und Bilder sind ein Link zur Projektseite.
-// pin: Label mit Nadel über angepinnten Projekten (die Startseite gibt „Pinned“; ohne pin kein Label).
+// Ein Projekt in einer Spalte des Bereiche-Abschnitts der Startseite: (Label,) Titel, Art und Datum, drei kleine,
+// leicht gedrehte Bilder (Hover je Bild). Titel, Art/Datum und Bilder sind ein Link zur Projektseite.
+// label + mark: Zeile über dem Titel, z. B. „Pinned“ mit Nadel (mark: 'pin') oder „Newest“ mit Punkt wie bei
+// ungelesenen Chats (mark: 'new'); ohne label keine Zeile.
+// Datum: „updated 21 October 2026“ (updated), sonst „posted …“ (posted), sonst das Jahr (year).
 import Img from './Img.astro';
 import T from './T.astro';
-import { has, projectHref } from '../lib/content.js';
+import { has, projectHref, formatDate } from '../lib/content.js';
 import { projectImages } from '../lib/images.js';
 
-interface Props { project: any; pin?: string; tilt?: number }
-const { project: p, pin, tilt = 0 } = Astro.props;
-const meta = [p.kind, p.year].filter(has);
+interface Props { project: any; label?: string; mark?: 'pin' | 'new'; tilt?: number }
+const { project: p, label, mark = 'pin', tilt = 0 } = Astro.props;
+const date = has(p.updated) ? { word: 'updated', iso: p.updated } : has(p.posted) ? { word: 'posted', iso: p.posted } : null;
 const images = projectImages(p).filter((im) => !im.placeholder).slice(0, 3);
 // Leicht gedreht wie die Vorschau in v4 beim Hover über ein Projekt; beim Hover dreht jedes Bild in die Gegenrichtung.
 // Zwei Sätze Winkel im Wechsel, damit Reihen untereinander nicht gleich aussehen.
@@ -19,15 +21,17 @@ const tilts = [
 ][tilt % 2];
 ---
 <article class="feat" aria-labelledby={`${p.slug}-feat`}>
-  {pin && (
-    <p class="feat__pin">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3.5h6M10 3.5v5.5l-3 3.5h10l-3-3.5V3.5M12 12.5V21" /></svg>
-      <T v={pin} />
+  {label && (
+    <p class:list={['feat__label', `feat__label--${mark}`]}>
+      {mark === 'pin'
+        ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3.5h6M10 3.5v5.5l-3 3.5h10l-3-3.5V3.5M12 12.5V21" /></svg>
+        : <span class="feat__dot" aria-hidden="true"></span>}
+      <T v={label} />
     </p>
   )}
   <a class="feat__link" href={projectHref(p)}>
     <h4 class="feat__title" id={`${p.slug}-feat`}><T v={p.title} /></h4>
-    {meta.length > 0 && <p class="feat__meta">{meta.map((m, i) => (<>{i > 0 && ', '}<T v={m} /></>))}</p>}
+    <p class="feat__meta">{has(p.kind) && <T v={p.kind} />}{has(p.kind) && (date || has(p.year)) && ', '}{date ? <>{date.word} <time datetime={date.iso}>{formatDate(date.iso)}</time></> : has(p.year) && <T v={p.year} />}</p>
     {images.length > 0 && (
       <span class="feat__thumbs" aria-hidden="true">
         {images.map((im, i) => (

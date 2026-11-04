@@ -25,11 +25,18 @@ export const byCategory = (cat) => projects.filter((p) => p.category === cat);
 /** Eigene Seite pro Bereich (Phase 2): /creative/, /adventure/, /dev/ */
 export const categoryHref = (cat) => `/${cat}/`;
 
-/** Featured Projects pro Kategorie (Startseite): bis zu n Projekte mit featured: true, ohne Markierung die ersten n. */
-export const featuredProjects = (cat, n = 2) => {
+/** Zuletzt gezeigt oder ergänzt (JJJJ-MM-TT): updated, sonst posted, sonst leer. */
+export const lastDate = (p) => (has(p.updated) ? p.updated : has(p.posted) ? p.posted : '');
+/** Neueste zuerst (nach lastDate). */
+export const byNewest = (a, b) => lastDate(b).localeCompare(lastDate(a));
+
+/** Startseite: pro Bereich bis zu n Projekte; zuerst die angepinnten (featured: true), den Rest füllen die neuesten.
+ *  Ergebnis: [{ p, why: 'pinned' | 'newest' }] */
+export const spotlight = (cat, n = 2) => {
   const list = byCategory(cat).filter((p) => has(p.title));
-  const marked = list.filter((p) => p.featured === true);
-  return (marked.length ? marked : list).slice(0, n);
+  const pinned = list.filter((p) => p.featured === true).slice(0, n).map((p) => ({ p, why: 'pinned' }));
+  const newest = list.filter((p) => p.featured !== true).sort(byNewest).slice(0, n - pinned.length).map((p) => ({ p, why: 'newest' }));
+  return [...pinned, ...newest];
 };
 
 /** Projektseite (Phase 2) */

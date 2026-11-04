@@ -1,7 +1,9 @@
 ---
-// Die drei Bereiche der Startseite (Runde 13): drei gleich breite Spalten.
+// Die drei Bereiche der Startseite (Runde 14): drei gleich breite Spalten.
 // Oben die Tab-Leiste: drei Farbfelder mit dem Wort des Bereichs (Link zur Seite des Bereichs, /creative/ …) und
-// darunter Kennzahlen: Projekte, Jahre, Bilder, Wörter (aus projects.json berechnet) und eigene aus site.json (areas).
+// darunter ein Satz mit den Kennzahlen, die Zahlen farbig hervorgehoben: „5 projects, ranging from 2024 to 2026,
+// told in 35 images and 104 words, with 2 publishers among the clients.“ Anfang aus projects.json berechnet,
+// Satzende aus site.json (areas.<bereich>.ending, {…} = hervorgehoben).
 // Darunter auf dem beigen Grund bis zu zwei Featured Projects, je mit einer Zeile „Pinned“ (Nadel wie bei
 // angepinnten Chats), Titel, Art und Jahr und drei kleinen, leicht gedrehten Bildern (Hover je Bild); ein Klick
 // aufs Projekt führt zur Projektseite (/projects/<slug>/). Am Fuß „All 5 projects →“ (Seite des Bereichs).
@@ -14,25 +16,40 @@ import { projectImages } from '../lib/images.js';
 
 const words = (text: unknown) => String(text ?? '').trim().split(/\s+/).filter(Boolean).length;
 const number = (n: number) => n.toLocaleString('en-US');
-const stats = (c: string) => {
+const plural = (n: number, one: string, many: string) => `${n === 1 ? one : many}`;
+// Satz aus Teilen; hi = hervorgehoben (Zahlen und {…} aus dem eigenen Satzende)
+const sentence = (c: string) => {
   const list = byCategory(c).filter((p) => has(p.title));
   const years = list.flatMap((p) => String(p.year ?? '').match(/\d{4}/g) ?? []).map(Number);
-  const [from, to] = [Math.min(...years), Math.max(...years)];
   const images = list.reduce((n, p) => n + projectImages(p).filter((im) => !im.placeholder).length, 0);
-  const own = (site.areas?.[c]?.stats ?? []).filter((s: any) => has(s?.value) && has(s?.label));
-  return [
-    { value: number(list.length), label: list.length === 1 ? 'project' : 'projects' },
-    ...(years.length ? [{ value: from === to ? String(from) : `${from}–${to}`, label: from === to ? 'year' : 'years' }] : []),
-    { value: number(images), label: images === 1 ? 'image' : 'images' },
-    { value: number(list.reduce((n, p) => n + words(p.text), 0)), label: 'words' },
-    ...own,
+  const wordCount = list.reduce((n, p) => n + words(p.text), 0);
+  const parts: { t: string; hi?: boolean }[] = [];
+  const add = (t: string, hi = false) => parts.push({ t, hi });
+  add(number(list.length), true);
+  add(` ${plural(list.length, 'project', 'projects')}`);
+  if (years.length) {
+    const [from, to] = [Math.min(...years), Math.max(...years)];
+    if (from === to) { add(' in '); add(String(from), true); }
+    else { add(', ranging from '); add(String(from), true); add(' to '); add(String(to), true); }
+  }
+  const told = [
+    ...(images ? [[number(images), ` ${plural(images, 'image', 'images')}`]] : []),
+    ...(wordCount ? [[number(wordCount), ` ${plural(wordCount, 'word', 'words')}`]] : []),
   ];
+  told.forEach(([n, label], i) => { add(i === 0 ? ', told in ' : ' and '); add(n, true); add(label); });
+  const ending = String(site.areas?.[c]?.ending ?? '').trim();
+  if (ending) {
+    add(', ');
+    ending.split(/(\{[^}]+\})/).filter(Boolean).forEach((seg) => (seg.startsWith('{') ? add(seg.slice(1, -1), true) : add(seg)));
+  }
+  add('.');
+  return parts;
 };
 const areas = CATEGORIES.map((c) => ({
   c,
   label: categoryLabel(c),
   count: byCategory(c).filter((x) => has(x.title)).length,
-  stats: stats(c),
+  sentence: sentence(c),
   projects: featuredProjects(c).map((p) => ({
     p,
     meta: [p.kind, p.year].filter(has),
@@ -56,11 +73,7 @@ const tilts = [
           <h3 class="area__head">
             <a class="area__link" href={categoryHref(a.c)}><span class="area__word" id={`${a.c}-word`}>{a.label}</span></a>
           </h3>
-          <dl class="area__stats">
-            {a.stats.map((s) => (
-              <div class="area__stat"><dt><T v={s.label} /></dt><dd><T v={s.value} /></dd></div>
-            ))}
-          </dl>
+          <p class="area__text">{a.sentence.map((s) => (s.hi ? <span class="area__hi">{s.t}</span> : s.t))}</p>
         </div>
         {a.projects.map(({ p, meta, images }, k) => (
           <article class="feat" aria-labelledby={`${p.slug}-feat`}>

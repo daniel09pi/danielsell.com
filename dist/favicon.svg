@@ -5,7 +5,7 @@
     <clipPath id="c"><rect width="550" height="550"/></clipPath>
   </defs>
   <rect width="550" height="550" fill="#1E0B4A"/>
-  <g transform="translate(96 96) scale(0.65)" clip-path="url(#c)">
+  <g transform="translate(82.5 82.5) scale(0.7)" clip-path="url(#c)">
     <g fill="none" stroke="#F5F2EB" stroke-width="43">
       <path d="M-60 22H260V286M260 286H524V610M260 286L-60 606"/>
       <circle cx="444.8" cy="101.2" r="79.2"/>

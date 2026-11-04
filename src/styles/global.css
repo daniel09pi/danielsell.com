@@ -159,12 +159,10 @@ a:hover { text-decoration-color: currentColor; }
 .quote__label { grid-column: 1 / 4; color: var(--ink-soft); }
 .quote__text { margin: 0; grid-column: 4 / 12; font-size: clamp(1.5rem, 1rem + 1.1vw, 2.125rem); line-height: 1.3; letter-spacing: -0.015em; text-wrap: pretty; }
 /* Begriffe in den Farben der drei Bereiche, jeder führt zu seiner Spalte */
-.mark { text-decoration: none; padding: 0.02em 0.2em; margin-inline: -0.05em; -webkit-box-decoration-break: clone; box-decoration-break: clone; transition: background-color 0.25s var(--ease), color 0.25s var(--ease); }
+.mark { text-decoration: none; padding: 0.02em 0.2em; margin-inline: -0.05em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .mark--creative { background: var(--field-creative); color: var(--ink); }
 .mark--adventure { background: var(--field-adventure); color: var(--ground); }
 .mark--dev { background: var(--field-dev); color: var(--ink-deep); }
-.mark:hover { background: var(--ink); color: var(--lime); }
-.mark--adventure:hover { background: var(--lime); color: var(--ink); }
 
 /* ---------- Bereiche: drei Farbspalten (Startseite) ---------- */
 /* Ausgangszustand: drei gleich breite Spalten. Oben der Hinweis aufs gezeigte Projekt, darunter ein Bild

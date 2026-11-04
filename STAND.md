@@ -1,6 +1,6 @@
 # danielsell.com v5 — Arbeitsstand und Übergabe
 
-Stand: 4. November 2026, nach Runde 24 (Currently: ein geteiltes Farbquadrat vor der Rolle, ohne Rand), gepusht auf `origin/master`.
+Stand: 4. November 2026, Runde 25 (Hero-Testseite: beige Partikel als Verlauf über den Farbflächen), gepusht auf `origin/master`.
 Diese Datei ist die Übergabe für einen neuen Chat. Sie ergänzt `REDESIGN-PLAN.md` (Auftrag, Regeln, Phasen) um alles, was seitdem entschieden wurde.
 Live ist noch **v4**; der v5-Stand ist nur lokal und auf GitHub (siehe „Deploy“).
 
@@ -79,7 +79,7 @@ Ground `#F5F2EB`, Ink `#1E0B4A`, Ink-soft `#574A78`, Ink-deep `#12062E` (Text au
 
 ## Offen / nächste Schritte
 
-1. Daniels Rückmeldung zu Runde 24 (Projekte, Entscheidung 6; Currently, Entscheidung 11). Ideen von ihm: später Texte zu den Projekten (blogartig).
+1. **Hero aufpeppen (Runde 25, offen):** Daniels Idee: oben „transparent“ (Beige wie die Navigation), unten die Streifen in voller Farbe, aber **kein normaler Farbverlauf**, sondern rechteckige Partikel in Beige, oben viele, nach unten weniger. Testseite **`/varianten/hero/`** (`src/pages/varianten/hero.astro`, noindex, nicht verlinkt, nicht in der Sitemap): Canvas zwischen Farbflächen und Name, Regler-Panel (Muster Raster/Rauschen/Zufall/Mosaik/Halbton, Größe, Form, Lücke, Dichte oben, Verlauf bis, Kurve, Animation keine/flimmern/rieseln, Intro, Maus freilegen/Beige mitziehen/wegschieben/Spur, unter die Navigation), acht Varianten auf den Tasten 1–8, „Werte kopieren“, Einstellungen stehen auch in der Adresse (#…). Warten auf Daniels Wahl, dann in `index.astro` übernehmen (dann `prefers-reduced-motion` beachten: ohne Bewegung und Intro). Daniels Rückmeldung zu Runde 24 (Projekte, Entscheidung 6; Currently, Entscheidung 11) steht auch noch aus. Ideen von ihm: später Texte zu den Projekten (blogartig).
 2. Deploy durch Daniel, dann Live-Prüfung (siehe oben).
 3. **Phase 2** laut Plan, erweitert um Daniels Wünsche:
    - **Eigene Seite pro Bereich** `/creative/`, `/adventure/`, `/dev/` (von der Startseite schon verlinkt, Runde 8) und **eigene Seiten pro Projekt** `/projects/<slug>/` (im Hero verlinkt). Ob es zusätzlich `/projects/` als Übersicht gibt, ist offen. `scripts/check-dist.mjs` führt die fehlenden Seiten nur als Hinweis.

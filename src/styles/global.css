@@ -164,50 +164,51 @@ a:hover { text-decoration-color: currentColor; }
 .mark--adventure { background: var(--field-adventure); color: var(--ground); }
 .mark--dev { background: var(--field-dev); color: var(--ink-deep); }
 
-/* ---------- Bereiche: farbige Tab-Leiste, darunter die Featured Projects auf Beige (Startseite) ---------- */
-/* Oben drei Farbfelder mit dem Wort (Link zur Seite des Bereichs). Darunter je Spalte bis zu zwei Projekte mit
-   drei kleinen Bildern und am Fuß „All 5 projects →“. Feine senkrechte Linien setzen die Kanten der Tabs nach unten
-   fort, so hängt jede Spalte sichtbar an ihrem Tab. Hover: Unterstreichung und leichte Drehung der Bilder. */
+/* ---------- Bereiche: farbige Tab-Leiste, darunter die Projekte auf Beige (Startseite) ---------- */
+/* Oben drei Farbfelder: Wort, ein Satz zum Bereich, Zahlen, kleiner Call to Action zur Seite des Bereichs.
+   Darunter je Spalte zwei angepinnte Projekte mit Label, am Fuß „Show all“ für die übrigen. Feine senkrechte
+   Linien setzen die Kanten der Tabs nach unten fort, eine waagerechte schließt ab. Hover: Unterstreichung,
+   Farbwechsel, leichte Drehung der Bilder; nichts verschiebt sich. */
 .areas { margin-top: var(--section); }
-.area--creative { --area-bg: var(--field-creative); --area-fg: var(--ink); --area-soft: color-mix(in srgb, var(--ink) 65%, var(--field-creative)); }
-.area--adventure { --area-bg: var(--field-adventure); --area-fg: var(--ground); --area-soft: color-mix(in srgb, var(--ground) 65%, var(--field-adventure)); }
-/* Ink auf Violett hätte 4,4 : 1; das tiefere Ink erreicht 4,9 : 1 */
-/* Gedämpft wäre Ink auf Violett unter 4,5 : 1 (bei 65 % etwa 2,8 : 1), darum bleibt der Text dort voll; die Zahlen
-   unterscheiden sich in allen drei Spalten auch durch das Gewicht. */
-.area--dev { --area-bg: var(--field-dev); --area-fg: var(--ink-deep); --area-soft: var(--ink-deep); }
+.area--creative { --area-bg: var(--field-creative); --area-fg: var(--ink); --area-soft: color-mix(in srgb, var(--ink) 65%, var(--field-creative)); --cta-hover: var(--ground); }
+.area--adventure { --area-bg: var(--field-adventure); --area-fg: var(--ground); --area-soft: color-mix(in srgb, var(--ground) 65%, var(--field-adventure)); --cta-hover: var(--lime); }
+/* Ink auf Violett hätte 4,4 : 1, das tiefere Ink erreicht 4,9 : 1. Gedämpft fiele es unter 4,5 : 1 (bei 65 % etwa
+   2,8 : 1), darum bleibt Nebentext dort voll; die Zahlen unterscheiden sich überall auch durch das Gewicht. */
+.area--dev { --area-bg: var(--field-dev); --area-fg: var(--ink-deep); --area-soft: var(--ink-deep); --cta-hover: var(--ground); }
 .area { scroll-margin-top: 0; }
 .area a { color: inherit; text-decoration: none; }
 
-/* Zeilen über alle drei Spalten gleich hoch: Tab, Projekt 1, Projekt 2, Link zu allen.
-   Unten schließt eine feine Linie den Abschnitt ab (zusammen mit den senkrechten ein geschlossenes Raster). */
+/* Zeilen über alle drei Spalten gleich hoch: Tab, Projekt 1, Projekt 2, Rest. Unten eine feine Linie als Abschluss. */
 .areas__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(4, auto); border-bottom: 1px solid var(--line); }
 .area { grid-row: span 4; display: grid; grid-template-rows: subgrid; }
 
-/* Tab: Farbfeld mit viel Luft, Wort und darunter Kennzahlen. Das ganze Feld ist der Link (über das Wort gespannt). */
-.area__tab { position: relative; background: var(--area-bg); color: var(--area-fg); padding: clamp(2.25rem, 4.5vw, 3.75rem) var(--margin) clamp(2rem, 4vw, 3.25rem); }
-.area__head { font: inherit; }
-.area__link::after { content: ""; position: absolute; inset: 0; }
-.area__link:focus-visible { outline: none; }
-.area__tab:has(.area__link:focus-visible) { outline: 2px solid var(--area-fg); outline-offset: -6px; }
-.area__word {
-  font-size: var(--step-head); line-height: 0.95; letter-spacing: -0.035em;
-  text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 0.04em; text-underline-offset: 0.14em;
-  transition: text-decoration-color 0.25s var(--ease);
+/* Tab: Farbfeld mit viel Luft. Rangfolge: Wort, Satz, Zahlen (leise), Call to Action. */
+.area__tab {
+  display: flex; flex-direction: column; align-items: flex-start;
+  background: var(--area-bg); color: var(--area-fg);
+  padding: clamp(2.25rem, 4.5vw, 3.75rem) var(--margin) clamp(2rem, 4vw, 3.25rem);
 }
-.area__link:hover .area__word { text-decoration-color: currentColor; }
-/* Kennzahlen als Satz: der Text gedämpft (65 % der Schriftfarbe, creative 5,3 : 1, adventure über 6 : 1),
-   die Zahlen in der vollen Schriftfarbe und etwas kräftiger */
-.area__text { margin-top: clamp(1.25rem, 2vw, 1.75rem); max-width: 36ch; color: var(--area-soft); font-size: clamp(1.0625rem, 0.95rem + 0.25vw, 1.25rem); line-height: 1.4; text-wrap: pretty; }
+.area__word { font-size: var(--step-head); line-height: 0.95; letter-spacing: -0.035em; font-weight: 400; }
+.area__about { margin-top: clamp(1.25rem, 2vw, 1.75rem); max-width: 34ch; font-size: var(--step-body); line-height: 1.4; text-wrap: pretty; }
+.area__facts { margin-top: 0.5rem; color: var(--area-soft); font-size: var(--step-small); }
 .area__hi { color: var(--area-fg); font-weight: 560; font-variant-numeric: tabular-nums; }
+/* Call to Action: die Button-Form der Seite, klein, in den umgekehrten Farben des Felds */
+.area__cta {
+  display: inline-flex; align-items: center; min-height: 2.5rem; margin-top: clamp(1.5rem, 2.5vw, 2rem); padding: 0 1rem;
+  background: var(--area-fg); color: var(--area-bg) !important; font-size: var(--step-small); font-weight: 500;
+  transition: background-color 0.25s var(--ease), color 0.25s var(--ease);
+}
+.area__cta:hover { background: var(--cta-hover); color: var(--ink) !important; }
+.area__cta:focus-visible { outline-color: var(--area-fg); outline-offset: 3px; }
+.area__arrow { display: inline-block; margin-left: 0.4em; transition: transform 0.25s var(--ease); }
 
 /* Spalteninhalt: gleicher Einzug wie das Wort im Tab; die Linie zwischen den Spalten läuft durch alle Zeilen */
 .area > :not(.area__tab) { padding-inline: var(--margin); }
 .area + .area > :not(.area__tab) { border-left: 1px solid var(--line); padding-left: calc(var(--margin) - 1px); }
 
-/* Featured Project: Titel, Art und Jahr, drei Bilder nebeneinander; das ganze Projekt ist ein Link */
+/* Projekt: Label mit Nadel (nur angepinnte), Titel, Art und Jahr, drei Bilder nebeneinander; das Projekt ist ein Link */
 .feat { padding-top: clamp(2.5rem, 4vw, 3.5rem); }
 .feat + .feat { padding-top: clamp(3rem, 5.5vw, 4.75rem); }
-/* „Pinned“ mit Nadel über dem Titel, wie die Kopfzeile über angepinnten Chats */
 .feat__pin { display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0.55rem; color: var(--ink-soft); font-size: 0.8125rem; line-height: 1.3; }
 .feat__pin svg { flex: none; width: 0.95rem; height: 0.95rem; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: square; stroke-linejoin: miter; transform: rotate(40deg); }
 .feat__link { display: block; width: fit-content; max-width: 100%; }
@@ -230,14 +231,17 @@ a:hover { text-decoration-color: currentColor; }
 .feat__thumb picture, .feat__thumb img { display: block; width: 100%; height: 100%; }
 .feat__thumb img { object-fit: cover; }
 
-/* Am Fuß: Link zu allen Projekten des Bereichs, immer in der letzten Zeile */
-.area__all { grid-row: 4; padding-block: clamp(2.5rem, 4.5vw, 3.75rem) clamp(1.25rem, 2vw, 1.75rem); }
-.area__all a {
-  display: inline-block; padding-block: 0.5rem;
+/* Am Fuß: die übrigen Projekte (aufgeklappt) und „Show all“, immer in der letzten Zeile */
+.area__more { grid-row: 4; padding-block: clamp(3rem, 5.5vw, 4.75rem) clamp(1.25rem, 2vw, 1.75rem); }
+.area__extra { margin-bottom: clamp(3rem, 5.5vw, 4.75rem); }
+.area__extra .feat:first-child { padding-top: 0; }
+.area__toggle {
+  display: inline-flex; align-items: center; padding: 0.5rem 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer;
   text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 0.2em; transition: text-decoration-color 0.25s var(--ease);
 }
-.area__all a:hover { text-decoration-color: currentColor; }
-.area__arrow { display: inline-block; margin-left: 0.35em; }
+.area__toggle[hidden] { display: none; }
+.area__toggle:hover { text-decoration-color: currentColor; }
+.area__toggle[aria-expanded="true"] .area__arrow { transform: rotate(180deg); }
 
 @media (max-width: 59.99rem) {
   .areas__grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
@@ -246,7 +250,7 @@ a:hover { text-decoration-color: currentColor; }
   .area + .area > :not(.area__tab) { border-left: 0; }
   .area__tab { padding-block: 2rem 1.75rem; }
   .feat { padding-top: 2rem; }
-  .area__all { padding-top: 2rem; }
+  .area__more { padding-top: 2.5rem; }
 }
 
 @media (hover: none) { .feat__thumb { filter: saturate(1); } }

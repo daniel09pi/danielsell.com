@@ -1,68 +1,37 @@
 ---
-// Die drei Bereiche der Startseite (Runde 14): drei gleich breite Spalten.
-// Oben die Tab-Leiste: drei Farbfelder mit dem Wort des Bereichs (Link zur Seite des Bereichs, /creative/ …) und
-// darunter ein Satz mit den Kennzahlen (Text gedämpft, Zahlen in voller Schriftfarbe): „5 projects, ranging from 2024 to 2026,
-// told in 35 images and 104 words, with 2 publishers among the clients.“ Anfang aus projects.json berechnet,
-// Satzende aus site.json (areas.<bereich>.ending, {…} = hervorgehoben).
-// Darunter auf dem beigen Grund bis zu zwei Featured Projects, je mit einer Zeile „Pinned“ (Nadel wie bei
-// angepinnten Chats), Titel, Art und Jahr und drei kleinen, leicht gedrehten Bildern (Hover je Bild); ein Klick
-// aufs Projekt führt zur Projektseite (/projects/<slug>/). Am Fuß „All 5 projects →“ (Seite des Bereichs).
+// Die drei Bereiche der Startseite (Runde 16): drei gleich breite Spalten.
+// Oben die Tab-Leiste: drei Farbfelder mit dem Wort des Bereichs, einem Satz, was ein Projekt dieses Bereichs ist
+// (site.json → areas.<bereich>.about), den Zahlen „5 projects, 2024–2026, 35 images“ (aus projects.json; Text
+// gedämpft, Zahlen voll) und einem kleinen Call to Action zur Seite des Bereichs (/creative/ …).
+// Darunter auf dem beigen Grund die zwei angepinnten Projekte (featured), je mit eigenem Label über dem Titel
+// („The longest adventure yet“, projects.json → pin). Am Fuß „Show all 5 projects“ klappt die übrigen Projekte des
+// Bereichs im selben Format auf (nochmal: „Show less“). Ohne JavaScript bleibt der Knopf weg; dann führt der
+// Call to Action zu allen Projekten.
 // Zugehörigkeit: feine senkrechte Linien setzen die Kanten der Tabs nach unten fort, eine waagerechte schließt ab.
-// Die Zeilen (Tab, Projekt 1, Projekt 2, Link) stehen über alle drei Spalten auf gleicher Höhe (Subgrid). Kein Skript.
-import Img from './Img.astro';
-import T from './T.astro';
-import { site, CATEGORIES, featuredProjects, byCategory, categoryLabel, categoryHref, projectHref, has } from '../lib/content.js';
+// Die Zeilen (Tab, Projekt 1, Projekt 2, Rest) stehen über alle drei Spalten auf gleicher Höhe (Subgrid).
+import FeatProject from './FeatProject.astro';
+import { site, CATEGORIES, featuredProjects, byCategory, categoryLabel, categoryHref, has } from '../lib/content.js';
 import { projectImages } from '../lib/images.js';
 
-const words = (text: unknown) => String(text ?? '').trim().split(/\s+/).filter(Boolean).length;
 const number = (n: number) => n.toLocaleString('en-US');
-const plural = (n: number, one: string, many: string) => `${n === 1 ? one : many}`;
-// Satz aus Teilen; hi = hervorgehoben (Zahlen und {…} aus dem eigenen Satzende)
-const sentence = (c: string) => {
+const areas = CATEGORIES.map((c) => {
   const list = byCategory(c).filter((p) => has(p.title));
+  const pinned = featuredProjects(c);
+  const rest = list.filter((p) => !pinned.includes(p));
   const years = list.flatMap((p) => String(p.year ?? '').match(/\d{4}/g) ?? []).map(Number);
   const images = list.reduce((n, p) => n + projectImages(p).filter((im) => !im.placeholder).length, 0);
-  const wordCount = list.reduce((n, p) => n + words(p.text), 0);
-  const parts: { t: string; hi?: boolean }[] = [];
-  const add = (t: string, hi = false) => parts.push({ t, hi });
-  add(number(list.length), true);
-  add(` ${plural(list.length, 'project', 'projects')}`);
-  if (years.length) {
-    const [from, to] = [Math.min(...years), Math.max(...years)];
-    if (from === to) { add(' in '); add(String(from), true); }
-    else { add(', ranging from '); add(String(from), true); add(' to '); add(String(to), true); }
-  }
-  const told = [
-    ...(images ? [[number(images), ` ${plural(images, 'image', 'images')}`]] : []),
-    ...(wordCount ? [[number(wordCount), ` ${plural(wordCount, 'word', 'words')}`]] : []),
+  // Aufzählung aus Teilen; hi = Zahl (volle Schriftfarbe)
+  const facts: { t: string; hi?: boolean }[] = [
+    { t: number(list.length), hi: true }, { t: list.length === 1 ? ' project' : ' projects' },
+    ...(years.length
+      ? [{ t: ', ' }, { t: Math.min(...years) === Math.max(...years) ? String(years[0]) : `${Math.min(...years)}–${Math.max(...years)}`, hi: true }]
+      : []),
+    { t: ', ' }, { t: number(images), hi: true }, { t: images === 1 ? ' image' : ' images' },
   ];
-  told.forEach(([n, label], i) => { add(i === 0 ? ', told in ' : ' and '); add(n, true); add(label); });
-  const ending = String(site.areas?.[c]?.ending ?? '').trim();
-  if (ending) {
-    add(', ');
-    ending.split(/(\{[^}]+\})/).filter(Boolean).forEach((seg) => (seg.startsWith('{') ? add(seg.slice(1, -1), true) : add(seg)));
-  }
-  add('.');
-  return parts;
-};
-const areas = CATEGORIES.map((c) => ({
-  c,
-  label: categoryLabel(c),
-  count: byCategory(c).filter((x) => has(x.title)).length,
-  sentence: sentence(c),
-  projects: featuredProjects(c).map((p) => ({
-    p,
-    meta: [p.kind, p.year].filter(has),
-    images: projectImages(p).filter((im) => !im.placeholder).slice(0, 3),
-  })),
-}));
-const allLabel = (n: number) => (n === 1 ? '1 project' : `All ${n} projects`);
-// Leicht gedreht wie die Vorschau in v4 beim Hover über ein Projekt; beim Hover dreht jedes Bild in die Gegenrichtung.
-// Zweites Projekt mit anderen Winkeln, damit die beiden Reihen nicht gleich aussehen.
-const tilts = [
-  [[-1.5, 1], [2, -0.5], [-1, 1.5]],
-  [[1.2, -1], [-1.8, 0.6], [1, -1.4]],
-];
+  const own = site.areas?.[c] ?? {};
+  const label = categoryLabel(c);
+  return { c, label, about: own.about, cta: has(own.cta) ? own.cta : `Explore ${label}`, facts, pinned, rest, count: list.length };
+});
 ---
 <section class="areas" id="work" aria-labelledby="work-title">
   <h2 class="sr-only" id="work-title">Work</h2>
@@ -70,36 +39,41 @@ const tilts = [
     {areas.map((a) => (
       <section class:list={['area', `area--${a.c}`]} id={a.c} aria-labelledby={`${a.c}-word`}>
         <div class="area__tab">
-          <h3 class="area__head">
-            <a class="area__link" href={categoryHref(a.c)}><span class="area__word" id={`${a.c}-word`}>{a.label}</span></a>
-          </h3>
-          <p class="area__text">{a.sentence.map((s) => (s.hi ? <span class="area__hi">{s.t}</span> : s.t))}</p>
+          <h3 class="area__word" id={`${a.c}-word`}>{a.label}</h3>
+          {has(a.about) && <p class="area__about">{a.about}</p>}
+          <p class="area__facts">{a.facts.map((f) => (f.hi ? <span class="area__hi">{f.t}</span> : f.t))}</p>
+          <a class="area__cta" href={categoryHref(a.c)}>{a.cta}<span class="area__arrow" aria-hidden="true">→</span></a>
         </div>
-        {a.projects.map(({ p, meta, images }, k) => (
-          <article class="feat" aria-labelledby={`${p.slug}-feat`}>
-            <p class="feat__pin">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3.5h6M10 3.5v5.5l-3 3.5h10l-3-3.5V3.5M12 12.5V21" /></svg>
-              Pinned
-            </p>
-            <a class="feat__link" href={projectHref(p)}>
-              <h4 class="feat__title" id={`${p.slug}-feat`}><T v={p.title} /></h4>
-              {meta.length > 0 && <p class="feat__meta">{meta.map((m, i) => (<>{i > 0 && ', '}<T v={m} /></>))}</p>}
-              {images.length > 0 && (
-                <span class="feat__thumbs" aria-hidden="true">
-                  {images.map((im, i) => (
-                    <span class="feat__thumb" style={`--tilt:${tilts[k % 2][i][0]}deg;--tilt-to:${tilts[k % 2][i][1]}deg`}>
-                      <Img meta={im.meta} alt="" sizes="(min-width: 960px) 10vw, 30vw" />
-                    </span>
-                  ))}
-                </span>
-              )}
-            </a>
-          </article>
-        ))}
-        <p class="area__all">
-          <a href={categoryHref(a.c)}>{allLabel(a.count)}<span class="sr-only"> in {a.label}</span><span class="area__arrow" aria-hidden="true">→</span></a>
-        </p>
+        {a.pinned.map((p, k) => <FeatProject project={p} pin={has(p.pin) ? p.pin : 'Pinned'} tilt={k} />)}
+        <div class="area__more">
+          {a.rest.length > 0 && (
+            <>
+              <div class="area__extra" id={`${a.c}-more`} hidden>
+                {a.rest.map((p, k) => <FeatProject project={p} tilt={k} />)}
+              </div>
+              <button type="button" class="area__toggle" aria-expanded="false" aria-controls={`${a.c}-more`} data-more={`Show all ${a.count} projects`} hidden>
+                <span data-label>Show all {a.count} projects</span><span class="area__arrow" aria-hidden="true">↓</span>
+              </button>
+            </>
+          )}
+        </div>
       </section>
     ))}
   </div>
 </section>
+
+<script>
+  // „Show all“: klappt die übrigen Projekte eines Bereichs auf und wieder zu. Ohne JavaScript bleibt der Knopf versteckt.
+  document.querySelectorAll<HTMLButtonElement>('[data-more]').forEach((btn) => {
+    const box = document.getElementById(btn.getAttribute('aria-controls') ?? '');
+    const label = btn.querySelector<HTMLElement>('[data-label]');
+    if (!box || !label) return;
+    btn.hidden = false;
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') !== 'true';
+      btn.setAttribute('aria-expanded', String(open));
+      box.hidden = !open;
+      label.textContent = open ? 'Show less' : btn.dataset.more ?? '';
+    });
+  });
+</script>

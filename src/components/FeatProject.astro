@@ -1,0 +1,41 @@
+---
+// Ein Projekt in einer Spalte des Bereiche-Abschnitts der Startseite: (Label mit Nadel,) Titel, Art und Jahr,
+// drei kleine, leicht gedrehte Bilder (Hover je Bild). Titel, Art/Jahr und Bilder sind ein Link zur Projektseite.
+// pin: Label über angepinnten Projekten, z. B. „The longest adventure yet“ (ohne pin kein Label).
+import Img from './Img.astro';
+import T from './T.astro';
+import { has, projectHref } from '../lib/content.js';
+import { projectImages } from '../lib/images.js';
+
+interface Props { project: any; pin?: string; tilt?: number }
+const { project: p, pin, tilt = 0 } = Astro.props;
+const meta = [p.kind, p.year].filter(has);
+const images = projectImages(p).filter((im) => !im.placeholder).slice(0, 3);
+// Leicht gedreht wie die Vorschau in v4 beim Hover über ein Projekt; beim Hover dreht jedes Bild in die Gegenrichtung.
+// Zwei Sätze Winkel im Wechsel, damit Reihen untereinander nicht gleich aussehen.
+const tilts = [
+  [[-1.5, 1], [2, -0.5], [-1, 1.5]],
+  [[1.2, -1], [-1.8, 0.6], [1, -1.4]],
+][tilt % 2];
+---
+<article class="feat" aria-labelledby={`${p.slug}-feat`}>
+  {pin && (
+    <p class="feat__pin">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3.5h6M10 3.5v5.5l-3 3.5h10l-3-3.5V3.5M12 12.5V21" /></svg>
+      <T v={pin} />
+    </p>
+  )}
+  <a class="feat__link" href={projectHref(p)}>
+    <h4 class="feat__title" id={`${p.slug}-feat`}><T v={p.title} /></h4>
+    {meta.length > 0 && <p class="feat__meta">{meta.map((m, i) => (<>{i > 0 && ', '}<T v={m} /></>))}</p>}
+    {images.length > 0 && (
+      <span class="feat__thumbs" aria-hidden="true">
+        {images.map((im, i) => (
+          <span class="feat__thumb" style={`--tilt:${tilts[i][0]}deg;--tilt-to:${tilts[i][1]}deg`}>
+            <Img meta={im.meta} alt="" sizes="(min-width: 960px) 10vw, 30vw" />
+          </span>
+        ))}
+      </span>
+    )}
+  </a>
+</article>

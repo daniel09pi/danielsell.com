@@ -164,34 +164,43 @@ a:hover { text-decoration-color: currentColor; }
 .mark--adventure { background: var(--field-adventure); color: var(--ground); }
 .mark--dev { background: var(--field-dev); color: var(--ink-deep); }
 
-/* ---------- Bereiche: drei Farbspalten (Startseite) ---------- */
-/* State 1: drei gleich breite Spalten. Oben links das Featured Project (Etikett, Titel, Art und Jahr), darunter
-   drei gleich große, leicht gedrehte Bilder, unten Wort und Projektzahl (Link zur Seite des Bereichs).
-   State 2: eine Spalte breit, links die Bilderbox mit allen Bildern, rechts der Text, Kreuz oben rechts.
-   State 3: die anderen sind Streifen mit senkrechtem Wort. Nichts verschiebt sich beim Hover. */
-/* overflow-anchor: Beim Umbau der Spalten soll der Browser nicht nachscrollen (die Höhe bleibt gleich). */
+/* ---------- Bereiche: Tabs oben, darunter Split oder ein Bereich in voller Breite (Startseite) ---------- */
+/* Oben immer drei gleich breite Tabs in den Farben der Bereiche. Split: unter jedem Tab sein Featured Project.
+   Offen: der Inhalt eines Bereichs füllt die ganze Breite unter den Tabs; sein Tab geht nahtlos in den Inhalt
+   über (gleiche Farbe), die anderen beiden stehen darüber wie Browser-Tabs. Nichts verschiebt sich beim Hover. */
+/* overflow-anchor: Beim Umbau soll der Browser nicht nachscrollen (die Höhe bleibt gleich). */
 .areas { margin-top: var(--section); overflow-anchor: none; }
-.area { position: relative; scroll-margin-top: 0; background: var(--area-bg); color: var(--area-fg); }
 .area--creative { --area-bg: var(--field-creative); --area-fg: var(--ink); --area-soft: var(--ink-soft); }
 .area--adventure { --area-bg: var(--field-adventure); --area-fg: var(--ground); --area-soft: var(--line); }
 /* Ink auf Violett hätte 4,4 : 1; das tiefere Ink erreicht 4,9 : 1 */
 .area--dev { --area-bg: var(--field-dev); --area-fg: var(--ink-deep); --area-soft: var(--ink-deep); }
-.area :focus-visible { outline-color: var(--area-fg); }
-.area a { color: inherit; }
-.area__head { font: inherit; }
+.tab, .spot { background: var(--area-bg); color: var(--area-fg); }
+:is(.tab, .spot) :focus-visible { outline-color: var(--area-fg); }
+:is(.tab, .spot) a { color: inherit; }
 
-/* Wort und Projektzahl: Link zur Seite des Bereichs. Die Zahl steht auf der Grundlinie des Worts,
-   waagerecht wie senkrecht im Streifen. Hover: nur Unterstreichung. */
-.area__cat { display: block; padding: 1.25rem var(--margin) 1.75rem; text-decoration: none; }
-.area__cat:focus-visible { outline-offset: -6px; }
-.area__label { display: flex; align-items: baseline; gap: 0.75rem; }
-.area__word { font-size: var(--step-head); line-height: 0.95; letter-spacing: -0.035em; }
-.area__count { color: var(--area-soft); font-size: var(--step-small); white-space: nowrap; }
-.area__word { text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 0.04em; text-underline-offset: 0.14em; transition: text-decoration-color 0.25s var(--ease); }
-.area__cat:hover .area__word { text-decoration-color: currentColor; }
+/* Tab: Wort (Button, öffnet den Bereich) und Projektzahl (Link zur Seite des Bereichs) auf einer Grundlinie.
+   Das Wort des offenen Bereichs bleibt unterstrichen. */
+.areas__tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.tab { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.75rem; padding: 1.25rem var(--margin) 0; scroll-margin-top: 0; }
+.tab__btn { padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.tab__btn:disabled { cursor: default; }
+.tab__btn:focus-visible { outline-offset: 4px; }
+.tab__word {
+  font-size: var(--step-head); line-height: 0.95; letter-spacing: -0.035em;
+  text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 0.04em; text-underline-offset: 0.14em;
+  transition: text-decoration-color 0.25s var(--ease);
+}
+.tab__btn:not(:disabled):hover .tab__word, .tab__btn[aria-expanded="true"] .tab__word { text-decoration-color: currentColor; }
+.tab a.tab__count {
+  display: inline-block; padding-block: 0.75rem; color: var(--area-soft); font-size: var(--step-small); white-space: nowrap;
+  text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 0.2em; transition: text-decoration-color 0.25s var(--ease);
+}
+.tab__count:hover { text-decoration-color: currentColor; }
+.tab__arrow { display: inline-block; margin-left: 0.3em; }
 
 /* Featured Project */
-.spot { position: relative; padding: var(--margin) var(--margin) 0; }
+.spot { position: relative; }
+.spot__in { position: relative; padding: 2.25rem var(--margin) var(--margin); }
 .spot__tag { display: block; width: fit-content; padding: 0.2rem 0.5rem; background: var(--area-fg); color: var(--area-bg); font-size: var(--step-small); line-height: 1.4; font-weight: 500; }
 .spot__title {
   margin-top: 1rem; font-size: clamp(2rem, 1.2rem + 1.6vw, 2.75rem); line-height: 1.05; font-weight: 450; letter-spacing: -0.025em;
@@ -206,9 +215,8 @@ a:hover { text-decoration-color: currentColor; }
 .spot__links a { display: inline-block; padding-block: 0.6rem; min-width: 44px; }
 .spot__ext { margin-left: 0.25em; display: inline-block; text-decoration: none; }
 
-/* State 1: drei kleine, gleich große Bilder untereinander, leicht gedreht wie die Vorschau in v4. Klein, damit
-   zwischen Featured Project (oben) und Bereich (Wort unten) Luft bleibt. Sie liegen über dem Button der Fläche
-   und haben je einen eigenen Hover (drehen in die Gegenrichtung, sättigen); ein Klick öffnet die Spalte. */
+/* Split: drei kleine, gleich große Bilder untereinander, leicht gedreht wie die Vorschau in v4. Sie liegen über
+   dem Button der Fläche und haben je einen eigenen Hover (drehen in die Gegenrichtung, sättigen). */
 .spot__peek { display: grid; justify-items: start; align-content: start; gap: 0.875rem; margin-top: 1.75rem; pointer-events: none; }
 .spot__thumb {
   position: relative; z-index: 2; pointer-events: auto; cursor: pointer;
@@ -220,14 +228,14 @@ a:hover { text-decoration-color: currentColor; }
 .spot__thumb picture, .spot__thumb img { display: block; width: 100%; height: 100%; }
 .spot__thumb img { object-fit: cover; }
 
-/* Die ganze Fläche des Featured Project öffnet die Spalte (ein Button, über Etikett, Titel und Bilder gelegt) */
+/* Die ganze Fläche des Featured Project öffnet den Bereich (ein Button, über Etikett und Titel gelegt) */
 .spot__open { position: absolute; inset: 0; z-index: 1; padding: 0; border: 0; background: none; cursor: pointer; }
 .spot__open[hidden] { display: none; }
 .spot__open:focus-visible { outline-offset: -6px; }
 .spot:has(.spot__open:hover, .spot__thumb:hover) .spot__title { text-decoration-color: currentColor; }
 
 .spot__close {
-  position: absolute; z-index: 2; top: calc(var(--pad, var(--margin)) - 0.5rem); right: calc(var(--pad, var(--margin)) - 0.625rem);
+  position: absolute; z-index: 2; top: calc(var(--margin) - 0.5rem); right: calc(var(--margin) - 0.625rem);
   width: 2.75rem; height: 2.75rem; display: grid; place-items: center; border: 0; background: none; color: inherit; cursor: pointer;
   transition: background-color 0.25s var(--ease), color 0.25s var(--ease);
 }
@@ -235,7 +243,7 @@ a:hover { text-decoration-color: currentColor; }
 .spot__close svg { width: 1.5rem; height: 1.5rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: square; }
 .spot__close:hover { background: var(--area-fg); color: var(--area-bg); }
 
-/* State 2: Bilderbox. Die Bilder stehen gerade, im eigenen Format; Lage und Größe rechnet src/lib/collage.js aus
+/* Bilderbox (offen). Die Bilder stehen gerade, im eigenen Format; Lage und Größe rechnet src/lib/collage.js aus
    (column-gap = Abstand). Allgemein alle gleich groß, im Fokus eins sehr groß und die anderen sehr klein. */
 .spot__box { display: none; position: relative; column-gap: clamp(0.5rem, 0.8cqi, 0.875rem); }
 .spot__img {
@@ -253,74 +261,50 @@ a:hover { text-decoration-color: currentColor; }
 .spot__img picture, .spot__img img { display: block; width: 100%; height: 100%; }
 .spot__img img { object-fit: cover; }
 
-.area.is-open .spot__more { display: block; }
-.area.is-open .spot__peek { display: none; }
-.area.is-open .spot__box { display: block; }
+.spot.is-open .spot__more { display: block; }
+.spot.is-open .spot__peek { display: none; }
+.spot.is-open .spot__box { display: block; }
 
 @media (min-width: 60rem) {
-  .areas__row { --strip: clamp(4.5rem, 6.5vw, 6.5rem); container-type: inline-size; }
-  .area {
-    display: grid; height: clamp(36rem, 88svh, 56rem); overflow: hidden;
-    grid-template-columns: var(--strip) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr);
+  .areas__row {
+    container-type: inline-size;
+    display: grid; grid-template-rows: auto minmax(0, 1fr); height: clamp(36rem, 88svh, 56rem);
   }
-  .area__head { grid-column: 1; grid-row: 1; display: flex; min-width: 0; }
-  .spot { grid-column: 2; grid-row: 1; min-width: 0; min-height: 0; }
+  /* Inhalt: drei Spalten nebeneinander. Offen wird eine 100 % breit, die anderen 0; der Inhalt hat je Zustand
+     eine feste Breite und wird nur abgeschnitten, damit er während der Bewegung nicht neu umbricht. */
+  .areas__body { display: flex; min-height: 0; }
+  .spot { flex: 0 0 auto; width: calc(100cqi / 3); min-width: 0; overflow: hidden; }
+  .spot__in { width: calc(100cqi / 3); height: 100%; }
+  .is-enhanced .spot { transition: width 0.6s var(--ease); }
+  .has-open .spot { width: 0; }
+  .has-open .spot.is-open { width: 100cqi; }
 
-  /* State 1: Featured Project oben, darunter die kleinen Bilder; der Rest bis zum Wort bleibt frei */
-  .spot { display: grid; grid-template-rows: auto minmax(0, 1fr); }
-  .spot__peek { min-height: 0; }
-
-  /* Mit JavaScript: feste Spurbreiten je Zustand, die Spalte selbst wird breiter oder schmaler und schneidet ab.
-     So wird der Inhalt nicht bei jedem Bild der Bewegung neu umbrochen. */
-  .areas__row.is-enhanced { display: flex; }
-  .is-enhanced .area {
-    flex: 0 0 auto; width: calc(100cqi / 3);
-    grid-template-columns: var(--strip) calc(100cqi - 3 * var(--strip));
-    transition: width 0.6s var(--ease);
+  /* Offen: Box unter den ersten beiden Tabs, Text unter dem dritten; außen überall der gleiche Rand */
+  .spot.is-open .spot__in {
+    width: 100cqi; display: grid;
+    grid-template-columns: calc(100cqi * 2 / 3 - 2 * var(--margin)) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr);
+    column-gap: calc(2 * var(--margin)); padding: var(--margin);
   }
-  .is-enhanced.has-open .area { width: var(--strip); }
-  .is-enhanced.has-open .area.is-open { width: calc(100cqi - 2 * var(--strip)); }
-  .is-enhanced.has-open .area:not(.is-open) .spot { visibility: hidden; }
+  .spot.is-open .spot__box { grid-column: 1; grid-row: 1; }
+  .spot.is-open .spot__text { grid-column: 2; grid-row: 1; align-self: start; min-width: 0; }
 
-  /* State 1 (auch ohne JavaScript): eine Spalte; Featured Project oben, Wort und Projektzahl unten */
-  .areas__row:not(.has-open) { display: flex; }
-  .areas__row:not(.is-enhanced) .area { flex: 1 1 0; }
-  .areas__row:not(.has-open) .area { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
-  .is-enhanced:not(.has-open) .area { grid-template-columns: calc(100cqi / 3); }
-  .areas__row:not(.has-open) .area__head { grid-column: 1; grid-row: 2; }
-  .areas__row:not(.has-open) .spot { grid-column: 1; grid-row: 1; }
-
-  /* State 2 und 3: Streifen mit senkrechtem Wort (von unten nach oben), die Zahl auf seiner Grundlinie */
-  .has-open .area__cat {
-    writing-mode: sideways-lr; display: flex; align-items: center; width: 100%; height: 100%;
-    padding: 1.75rem 0;
-  }
-  .has-open .area__word { font-size: calc(var(--strip) * 0.56); }
-
-  /* State 2: Bilderbox links, Text rechts; gleicher Abstand nach allen Seiten, Box und Text oben bündig */
-  .area.is-open .spot {
-    --pad: clamp(1.75rem, 3cqi, 3rem);
-    grid-template-columns: minmax(0, 1fr) clamp(16rem, 25cqi, 23rem); grid-template-rows: minmax(0, 1fr);
-    column-gap: var(--pad); padding: var(--pad);
-  }
-  .area.is-open .spot__box { grid-column: 1; grid-row: 1; }
-  .area.is-open .spot__text { grid-column: 2; grid-row: 1; align-self: start; min-width: 0; }
-
-  /* Wechsel: erst ausblenden (is-leaving), dann umbauen, dann einblenden, wenn die Breite fast steht */
-  .is-enhanced :is(.area__head, .spot) { transition: opacity 0.4s var(--ease) 0.3s; }
-  .is-enhanced.is-leaving :is(.area__head, .spot) { opacity: 0; transition: opacity 0.18s var(--ease); }
+  /* Wechsel: Tabs bleiben stehen; der Inhalt blendet aus (is-leaving), wird umgebaut und blendet wieder ein */
+  .is-enhanced .spot__in { transition: opacity 0.4s var(--ease) 0.3s; }
+  .is-enhanced.is-leaving .spot__in { opacity: 0; transition: opacity 0.18s var(--ease); }
 }
 
 @media (max-width: 59.99rem) {
-  .area__cat { padding-bottom: 0.5rem; }
-  .area__label { justify-content: space-between; }
-  .spot { padding-bottom: 1.75rem; }
+  .tab { flex-direction: column; padding: 1rem var(--margin) 0.25rem; }
+  .tab__word { font-size: var(--step-lead); }
+  .tab__count { padding-block: 0.5rem; }
+  .has-open .spot:not(.is-open) { display: none; }
+  .spot__in { padding-top: 1.75rem; }
   .spot__thumb { width: 9rem; }
-  .area.is-open .spot__box { margin-top: 1.75rem; aspect-ratio: 4 / 5; }
+  .spot.is-open .spot__box { margin-top: 1.75rem; aspect-ratio: 4 / 5; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .is-enhanced :is(.area, .area__head, .spot) { transition: none !important; }
+  .is-enhanced :is(.spot, .spot__in) { transition: none !important; }
   .spot__thumb:hover { transform: rotate(var(--tilt)); }
   .spot__img:hover, .spot__img:focus-visible { transform: none; }
 }

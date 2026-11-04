@@ -112,7 +112,7 @@ a:hover { text-decoration-color: currentColor; }
   container-type: inline-size;
   overflow: hidden;
   /* Die feine Linie aus der Karte: liegt direkt unter der Grundlinie des Namens (Unterkante der Flächen) */
-  border-bottom: 1px solid var(--line); /* taste-skill-ignore: Grundlinie des Namens, Markenlinie nach REDESIGN-PLAN 3.4 */
+  border-bottom: 1px solid var(--line); /* Grundlinie des Namens, Markenlinie nach REDESIGN-PLAN 3.4 */
   /* Erster Bildschirm: Flächen bis zur Grundlinie, darunter das Register. Nie niedriger als der Name plus Luft. */
   height: max(calc(var(--name-ascent) * var(--name-size) + (var(--name-lines) - 1) * 0.84 * var(--name-size) + clamp(3rem, 12vh, 9rem)),
               calc(100svh - 5.25rem - var(--index-h, 15rem)));
@@ -473,7 +473,7 @@ a:hover { text-decoration-color: currentColor; }
 .closing__email a { color: var(--lime); text-decoration: none; display: inline-block; margin-left: -0.05em; transition: color 0.25s var(--ease); }
 .closing__email a:hover { color: var(--ground); }
 .closing__email a:focus-visible { outline-color: var(--lime); }
-.closing__email::after { content: ''; position: absolute; left: 0; right: 0; bottom: var(--email-baseline, 0.16em); height: 1px; /* taste-skill-ignore: Grundlinie der E-Mail, Markenlinie nach REDESIGN-PLAN 3.4 */ background: var(--line); }
+.closing__email::after { content: ''; position: absolute; left: 0; right: 0; bottom: var(--email-baseline, 0.16em); height: 1px; /* Grundlinie der E-Mail, Markenlinie nach REDESIGN-PLAN 3.4 */ background: var(--line); }
 .closing__socials { margin-top: clamp(2.5rem, 6vh, 4rem); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--gutter); row-gap: 1rem; }
 .closing__socials a, .closing__nolink { display: grid; gap: 0.1rem; text-decoration: none; padding-block: 0.25rem; }
 .closing__net { color: var(--line); font-size: var(--step-small); }

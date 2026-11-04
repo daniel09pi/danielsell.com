@@ -1,6 +1,7 @@
 node_modules/
 .astro/
-.taste-skill/
+.shots/
+scripts/notes.md
 .DS_Store
 # dist/ wird bewusst mitcommittet: der Server liefert es direkt aus.
 public/media/

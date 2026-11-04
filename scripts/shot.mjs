@@ -1,7 +1,7 @@
 // Screenshots der lokalen Vorschau mit echten Klicks und Hover (Chrome über das DevTools-Protokoll).
 // node scripts/shot.mjs <ordner> <breite> <höhe> name=<js> [name=<js> …]   (Vorschau muss laufen: npx astro preview --port 4321 --host 127.0.0.1)
 // Im JS stehen d (document), w (window), y(selektor) und hover(selektor) bereit; "return hover(…)" bewegt die Maus dorthin.
-// Beispiel: node scripts/shot.mjs .taste-skill/shots 1440 900 equal='w.scrollTo(0,y(".areas"))' open='w.scrollTo(0,y(".areas"));d.getElementById("dev-toggle").click()'
+// Beispiel: node scripts/shot.mjs .shots 1440 900 equal='w.scrollTo(0,y(".areas"))' open='w.scrollTo(0,y(".areas"));d.getElementById("dev-toggle").click()'
 import { spawn } from 'node:child_process';
 import { writeFileSync, mkdtempSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';

@@ -1,6 +1,6 @@
 # danielsell.com v5 — Redesign-Plan
 
-Arbeitsauftrag für den Agenten, der das Redesign umsetzt. Lies dieses Dokument **ganz**, bevor du irgendetwas änderst. Es enthält feste Vorgaben (Abschnitt 3), Freiheiten (Abschnitt 4), die Seitenstruktur (Abschnitt 5) und einen Ablauf mit Stopps, an denen du auf Daniels Feedback wartest (Abschnitt 8).
+Arbeitsauftrag für den Agenten, der das Redesign umsetzt. Lies dieses Dokument **ganz**, bevor du irgendetwas änderst. Es enthält feste Vorgaben (Abschnitt 3), Freiheiten (Abschnitt 4), die Seitenstruktur (Abschnitt 5) und einen Ablauf mit Stopps, an denen du auf Daniels Feedback wartest (Abschnitt 7).
 
 Stand: 02.11.2026. Abgestimmt mit Daniel (Besitzer der Seite, Designer und Entwickler).
 
@@ -16,17 +16,17 @@ Die persönliche Portfolio-Seite von Daniel Sell bekommt die neue Identität sei
 - Eigene Seiten: **Projekte** (alle Features), **About**, **Impressum**, **Datenschutz**.
 - Alle Texte, Links und Projekte kommen aus **JSON-Dateien**, die Daniel selbst pflegt.
 
-Gestaltung: **luftig, clean, ruhig**, mit wenigen genauen Details. Design und Komposition entwirft das Skill **taste-skill** (siehe Abschnitt 6) innerhalb der Vorgaben unten.
+Gestaltung: **luftig, clean, ruhig**, mit wenigen genauen Details. Design und Komposition entwirft der Agent innerhalb der Vorgaben unten.
 
 ---
 
 ## 2. Ausgangslage (schon erledigt)
 
 - Repo: `C:\everything\portfolio\danielsell.com` (GitHub `daniel09pi/danielsell.com`, **öffentlich**, Branch `master`; Daniel nennt ihn „main“).
-- **So läuft der Server** (geprüft am 02.11.2026): Ein Apache-Webspace (PHP vorhanden, `.htaccess` wird ausgewertet) liefert **das Arbeitsverzeichnis eines Git-Klons direkt aus**, Branch `master`. Was in `master` auf GitHub liegt, ist nach dem Deploy (Abschnitt 10) sofort live; die live `index.html` ist identisch mit der im Repo.
+- **So läuft der Server** (geprüft am 02.11.2026): Ein Apache-Webspace (PHP vorhanden, `.htaccess` wird ausgewertet) liefert **das Arbeitsverzeichnis eines Git-Klons direkt aus**, Branch `master`. Was in `master` auf GitHub liegt, ist nach dem Deploy (Abschnitt 9) sofort live; die live `index.html` ist identisch mit der im Repo.
   - Folge 1: Jede Datei im Repo ist öffentlich abrufbar, auch `REDESIGN-PLAN.md` und `content/*.json`. **Nie etwas Geheimes ins Repo.**
   - Folge 2: **`/.git/` ist zurzeit öffentlich abrufbar** (z. B. `https://danielsell.com/.git/config`). Zugangsdaten stehen dort keine, das Repo ist ohnehin öffentlich. Trotzdem muss das gesperrt werden (siehe 3.7).
-  - Folge 3: Auf dem Server läuft kein Build. Was ausgeliefert wird, muss fertig im Repo liegen (siehe 9).
+  - Folge 3: Auf dem Server läuft kein Build. Was ausgeliefert wird, muss fertig im Repo liegen (siehe 8).
 - Tag `v4-final` markiert die letzte Version vor dem Redesign (lokal; in Phase 0 pushen).
 - **Backup** von v4: `C:\everything\portfolio\backups\2026-11-02_v4-final\` (komplettes Git-Bundle und ZIP der Live-Dateien, mit Anleitung zur Wiederherstellung). Nicht verändern.
 - Bereits **gestaged, nicht committed**: `other-design-XD/`, `archive/` und `logs/` sind aus dem Repo entfernt. Kopien liegen in `C:\everything\portfolio\archive\`. **Diesen Ordner nicht anfassen und seine Inhalte nicht verwenden** (ausdrücklicher Wunsch: nichts aus V1 / `other-design-XD` übernehmen).
@@ -39,13 +39,13 @@ Gestaltung: **luftig, clean, ruhig**, mit wenigen genauen Details. Design und Ko
 - Rohbilder für das Adventure-Projekt Argentinien legt Daniel in `C:\everything\portfolio\assets-raw\adventure\argentinien\` ab (außerhalb des Repos). Du übernimmst sie optimiert ins Repo und trägst die Pfade in `content/projects.json` ein.
 - Referenzen:
   - Visitenkarte: `C:\everything\visitenkarte\visitenkarte-final.svg` und `visitenkarte-druck.svg`
-  - Mockups: https://claude.ai/artifact/TyiB3iUs8Toyq1qkzfVh7w (privat; Daniel kann Screenshots geben). Was davon gilt, steht in Abschnitt 7.
+  - Mockups: https://claude.ai/artifact/TyiB3iUs8Toyq1qkzfVh7w (privat; Daniel kann Screenshots geben). Was davon gilt, steht in Abschnitt 6.
 
 ---
 
 ## 3. Feste Vorgaben
 
-### 3.1 Farben (Marke, mit `--keep palette` an taste-skill)
+### 3.1 Farben (Marke)
 
 | Rolle | Hex | Hinweise |
 |---|---|---|
@@ -57,11 +57,11 @@ Gestaltung: **luftig, clean, ruhig**, mit wenigen genauen Details. Design und Ko
 
 Ein dunkler Bereich (Ink als Fläche, Limette oder Beige als Schrift) ist erlaubt, wenn er der Komposition dient. Kontraste immer nachrechnen (WCAG AA: 4,5 : 1 für Text, 3 : 1 ab 24 px).
 
-### 3.2 Schrift (mit `--keep type`)
+### 3.2 Schrift
 
 - **Archivo** (Google Font, SIL OFL, variable Achsen für Stärke und Breite). Die Schrift der Visitenkarte, Daniel mag sie. Eine Familie reicht; die Breitenachse darf für Display-Größen genutzt werden.
 - **Selbst hosten** (z. B. `@fontsource-variable/archivo` oder woff2 aus dem offiziellen Repo). **Keine** Einbindung über `fonts.googleapis.com`, da das in Deutschland abmahnbar ist.
-- Ob es eine zweite Schrift (z. B. Mono für Code-Details) braucht, entscheidet taste-skill. Standard ist nur Archivo.
+- Ob es eine zweite Schrift (z. B. Mono für Code-Details) braucht, entscheidet der Agent. Standard ist nur Archivo.
 
 ### 3.3 Logo
 
@@ -76,7 +76,6 @@ Die Karte hat ein feines Raster aus Linien entlang der Grundlinien und Satzkante
 
 - **Sparsam und mit Absicht** einsetzen: wenige Linien, die etwas zeigen, nie ein dekoratives Gitter über allem.
 - Negativbeispiel: Der Karten-Hero im Mockup hat die Linien zu wörtlich und zu dicht übernommen. So nicht.
-- Für taste-skill ist das eine bewusste Ausnahme von der Hausregel „No thin rules“. Siehe 6.2.
 
 ### 3.5 Das Detail mit den schiefen Bildern
 
@@ -100,7 +99,7 @@ Ein Markenzeichen der bisherigen Seite, das bleiben soll:
 
 ### 3.7 Technik und Datenschutz
 
-- Statische Ausgabe, die Apache **direkt aus dem Repo** ausliefert (siehe 9). Saubere URLs (`/projects/`, `/about/`) und eine 404-Seite.
+- Statische Ausgabe, die Apache **direkt aus dem Repo** ausliefert (siehe 8). Saubere URLs (`/projects/`, `/about/`) und eine 404-Seite.
 - **`.htaccess` im Repo-Root ist Pflicht** und sperrt alles, was nicht zur ausgelieferten Seite gehört, mit 403/404:
   - `/.git/` und Dotfiles
   - Quellordner (z. B. `src/`, `content/`, `brand/`, `scripts/`) und `node_modules/`
@@ -130,13 +129,13 @@ Ein Markenzeichen der bisherigen Seite, das bleiben soll:
 
 ---
 
-## 4. Freiheiten (entscheidet der Agent mit taste-skill)
+## 4. Freiheiten (entscheidet der Agent)
 
-- **Hero:** Daniel hat zwei Mockup-Heros abgelehnt. Vorgabe ist nur: **schlicht**, der **Name groß**, darunter der Untertitel **„creative — adventure — dev“** (aus `site.json`, die drei Wörter verlinken auf die drei Kategorien), **optional das Logo** (lose oder negativ). Alles Weitere (Komposition, Größen, Position, Mobile-Version) entwirft taste-skill. Mobile ist eine eigene Komposition, keine verkleinerte Desktop-Version.
-- Komposition und Reihenfolge der Sektionen, Ausführung der Features, Gestaltung der Projekt- und About-Seite (innerhalb Abschnitt 5 und 7).
-- **Motion:** Auswahl durch taste-skill, aber **wenig**, und alles muss **immer und sehr sauber** funktionieren. Lieber zwei perfekte Bewegungen als zehn mittelmäßige. Das Mindestmaß an bewegten Elementen aus dem Skill (`inspect.mjs`) darf mit `--allow` begründet unterschritten werden, wenn sonst überladen.
-- Ob Monospace, Nummerierungen oder kleine Labels vorkommen, entscheiden die Hausregeln von taste-skill (Daniel hat dazu keine Vorgabe).
-- **Stack** (siehe 9).
+- **Hero:** Daniel hat zwei Mockup-Heros abgelehnt. Vorgabe ist nur: **schlicht**, der **Name groß**, darunter der Untertitel **„creative — adventure — dev“** (aus `site.json`, die drei Wörter verlinken auf die drei Kategorien), **optional das Logo** (lose oder negativ). Alles Weitere (Komposition, Größen, Position, Mobile-Version) entwirft der Agent. Mobile ist eine eigene Komposition, keine verkleinerte Desktop-Version.
+- Komposition und Reihenfolge der Sektionen, Ausführung der Features, Gestaltung der Projekt- und About-Seite (innerhalb Abschnitt 5 und 6).
+- **Motion:** **wenig**, und alles muss **immer und sehr sauber** funktionieren. Lieber zwei perfekte Bewegungen als zehn mittelmäßige.
+- Ob Monospace, Nummerierungen oder kleine Labels vorkommen, entscheidet der Agent (Daniel hat dazu keine Vorgabe).
+- **Stack** (siehe 8).
 
 ---
 
@@ -168,31 +167,7 @@ Kurz, in Markenfarben, mit Link zurück.
 
 ---
 
-## 6. taste-skill
-
-Repo: https://github.com/Leonxlnx/taste-skill (Skill `design-taste-frontend`, v2.1.x). Lies `SKILL.md` ganz und die Referenzen, die es nennt.
-
-### 6.1 Einrichtung (vor dem Start, erledigt Daniel)
-- Installieren, in Claude Code: `/plugin marketplace add Leonxlnx/taste-skill` und `/plugin install taste-skill@taste-skill`.
-- Die Skripte (`node …/scripts/draw.mjs`, `lint.mjs`, `inspect.mjs`, `scenes.mjs`) brauchen Node 22 (vorhanden: v22.14.0) und Chrome (vorhanden). Die automatische Rechteprüfung von Claude Code hat das Ausführen dieser Skripte schon einmal blockiert. Daniel gibt sie vorher in den Einstellungen frei. Wird die Ausführung trotzdem abgelehnt: nicht umgehen, sondern melden.
-- `assets.mjs` (Bildsuche in offenen Archiven) **nicht verwenden**. Daniel hat eigene Bilder für alles; fehlende Bilder bleiben Platzhalter.
-
-### 6.2 Aufruf und Ausnahmen
-- Art der Seite: **Page**, Sektor `personal-portfolio`.
-- `--keep palette,type` (Farben aus 3.1, Archivo aus 3.2). Die Rollen zuordnen: Ground Beige, Ink Dunkelviolett, Accent Violett, Fields Limette und Ink.
-- `--have photography,product-ui` (eigene Projektbilder, eigene Interfaces der Dev-Projekte).
-- Passende Richtungen, als Anregung (das Skill entscheidet): *name-as-monument* (schlichter Name-Hero), *split-stage* (Slideshow fest, Text scrollt: passt zum Feature), *colour-chapters* (eine Flächenfarbe pro Kategorie).
-- Bewusste Ausnahmen von den Hausregeln, beim Inspector per `--allow` freigeben und im Bericht begründen:
-  - **Violett als Markenfarbe** (Regel „no assistant palette: no violet or indigo“), siehe 3.1.
-  - **Beige als Grund** (gleiche Regel, „yellow-cream ground“): ist Marke, aber **ohne** Terrakotta oder Rost.
-  - **Dünne Linien**, sparsam, nach 3.4 (Regel „no thin rules“).
-  - Wenn nötig: weniger bewegte Elemente, als der Inspector verlangt (siehe 4).
-- Alle anderen Hausregeln gelten.
-- Die Gate-Schritte (`lint.mjs`, `inspect.mjs` bei 1440, 768 und 390 px, Screenshot-Kritik nach `references/critique.md`, bis zu drei Runden) sind **Pflicht**.
-
----
-
-## 7. Was aus den Mockups gilt
+## 6. Was aus den Mockups gilt
 
 | Mockup | Status | Was daraus folgt |
 |---|---|---|
@@ -201,7 +176,7 @@ Repo: https://github.com/Leonxlnx/taste-skill (Skill `design-taste-frontend`, v2
 | About-Seite: „how it started“ | **Layout gefällt, Text nicht** | Layout übernehmen, Text aus JSON |
 | Startseite: Hero hell (Karten-Kopie) | abgelehnt | nicht verwenden |
 | Hero dunkel | abgelehnt | nicht verwenden |
-| Hero schlicht (Name über volle Breite, Logo im Limetten-Kärtchen) | abgelehnt | Hero neu durch taste-skill |
+| Hero schlicht (Name über volle Breite, Logo im Limetten-Kärtchen) | abgelehnt | Hero neu entwerfen |
 | Startseite Mobil | abgelehnt (vor allem der Hero) | Mobile als eigene Komposition |
 | Projektseite ALUKEKU, Code-Bereich, Footer | kein Feedback | frei; Struktur jetzt nach Abschnitt 5 |
 
@@ -209,29 +184,29 @@ Allgemein: Daniel mag es **luftig und clean**, so wie der About-Hero und „how 
 
 ---
 
-## 8. Ablauf und Stopps
+## 7. Ablauf und Stopps
 
-Arbeite **direkt auf `master`**. Committen, pushen und deployen (Abschnitt 10) ist ausdrücklich erlaubt, auch für Zwischenstände. Die Seite hat keinen Traffic, und Daniel schaut sich die Zwischenstände live an. Die Stopps unten gelten trotzdem: Nach einem Stopp wird erst weitergebaut, wenn Daniel Feedback gegeben hat.
+Arbeite **direkt auf `master`**. Committen, pushen und deployen (Abschnitt 9) ist ausdrücklich erlaubt, auch für Zwischenstände. Die Seite hat keinen Traffic, und Daniel schaut sich die Zwischenstände live an. Die Stopps unten gelten trotzdem: Nach einem Stopp wird erst weitergebaut, wenn Daniel Feedback gegeben hat.
 
 ### Phase 0: Vorbereitung
 1. `git push origin v4-final` (das Backup auf GitHub). Der erste Commit auf `master` enthält die schon gestagten Löschungen sowie `brand/`, `content/` und diesen Plan. Noch **nicht** deployen, solange `.htaccess` (3.7) fehlt: Erst mit der Sperre live gehen, damit Plan und Quellen nicht ausgeliefert werden.
-2. Aktuelle Seite (`v4-final`) mit `inspect.mjs --out .taste-skill/before` aufnehmen.
-3. Stack entscheiden (Abschnitt 9) und das Projekt aufsetzen. Fonts lokal einbinden, JSON einlesen, eine leere Seite baut fehlerfrei.
+2. Screenshots der aktuellen Seite (`v4-final`) aufnehmen.
+3. Stack entscheiden (Abschnitt 8) und das Projekt aufsetzen. Fonts lokal einbinden, JSON einlesen, eine leere Seite baut fehlerfrei.
 
 ### Phase 1: Richtung, Tokens, Startseite → **STOPP**
-1. taste-skill Schritte 1 bis 5: Inventar, Argument, Richtung ziehen (drei Optionen, eine wählen und begründen), die Kernidee, Texte.
+1. Konzept: Inventar, Argument, Richtung (eine wählen und begründen), die Kernidee, Texte.
 2. Tokens (Farben, Typo-Skala, Abstände) als CSS-Variablen.
 3. Hero (Desktop und Mobile) und die Startseite komplett mit der Feature-Komponente.
-4. Gate laufen lassen (lint und inspect), eine Kritik-Runde.
-5. Committen, pushen, deployen (Abschnitt 10) und live prüfen: `inspect.mjs https://danielsell.com/` und die `.htaccess`-Sperren.
-6. **STOPP:** Daniel den Live-Link und die Screenshots bei 1440, 768 und 390 px zeigen, dazu die gezogene Richtung, die Kernidee und die Logo-Variante. **Auf Feedback warten**, bevor es weitergeht.
+4. Screenshots bei 1440, 768 und 390 px ansehen, eine Kritik-Runde.
+5. Committen, pushen, deployen (Abschnitt 9) und live prüfen: Screenshots der Live-Seite und die `.htaccess`-Sperren (`scripts/livecheck.sh`).
+6. **STOPP:** Daniel den Live-Link und die Screenshots bei 1440, 768 und 390 px zeigen, dazu die gewählte Richtung, die Kernidee und die Logo-Variante. **Auf Feedback warten**, bevor es weitergeht.
 
 ### Phase 2: Restliche Seiten
 Projektseite, About, Impressum, Datenschutz, 404. Argentinien-Bilder aus `assets-raw` übernehmen, falls vorhanden (sonst Platzhalter). Screenshots der Dev-Projekte: die öffentlichen Live-Seiten (flowinsync, Werner Gehner) dürfen per Browser fotografiert werden; für das Mixer-Dashboard bleibt ein Platzhalter.
 
 ### Phase 3: Motion und Abnahme
-1. Motion nach taste-skill Schritt 9, mit den Grenzen aus Abschnitt 4.
-2. Vollständiges Gate: `inspect.mjs` ohne FAIL bei allen drei Breiten (außer den begründeten `--allow`), ggf. `scenes.mjs`, bis zu drei Kritik-Runden.
+1. Motion, mit den Grenzen aus Abschnitt 4.
+2. Screenshot-Kritik bei 1440, 768 und 390 px, bis zu drei Runden.
 3. Zusätzlich prüfen:
    - alle Links (intern und extern)
    - Tastatur-Durchgang auf jeder Seite
@@ -243,23 +218,22 @@ Projektseite, About, Impressum, Datenschutz, 404. Argentinien-Bilder aus `assets
 4. **Hier lohnt sich Parallelisierung (ultracode):** getrennte Prüfer für Optik bei drei Breiten, Barrierefreiheit, Inhalte und Links sowie Performance. Jeder liefert Befunde, ein Agent behebt sie.
 
 ### Phase 4: Aufräumen und Bericht
-1. Alte Dateien entfernen, die der neue Build ersetzt (`index.html`, `script.js` und `styles.css` von v4, `send.php`, `.DS_Store`), `.gitignore` anlegen (`node_modules`, `.taste-skill`, `.DS_Store`; den ausgelieferten Build-Ordner **nicht** ignorieren, siehe 9). `portfolio_files` nur verschieben, wenn alle Pfade in der JSON angepasst werden. Was im Repo gelöscht wird, verschwindet beim Pull auch vom Server. Prüfe live, dass `/send.php`, `/other-design-XD/` und `/archive/` danach 404 liefern.
+1. Alte Dateien entfernen, die der neue Build ersetzt (`index.html`, `script.js` und `styles.css` von v4, `send.php`, `.DS_Store`), `.gitignore` anlegen (`node_modules`, `.shots`, `.DS_Store`; den ausgelieferten Build-Ordner **nicht** ignorieren, siehe 8). `portfolio_files` nur verschieben, wenn alle Pfade in der JSON angepasst werden. Was im Repo gelöscht wird, verschwindet beim Pull auch vom Server. Prüfe live, dass `/send.php`, `/other-design-XD/` und `/archive/` danach 404 liefern.
 2. `README.md` für Daniel, auf Deutsch (wird durch `.htaccess` nicht ausgeliefert):
    - wie man Inhalte in der JSON ändert
    - wie man lokal startet und baut
    - wie man deployt (Build, Commit, Push, Deploy-Skript)
    - wie man auf v4 zurückgeht (Verweis auf die Backup-Anleitung)
 3. **Bericht:**
-   - gezogene Richtung und Seed, Neuziehungen mit Grund
+   - gewählte Richtung und Abweichungen mit Grund
    - die Kernidee
    - die Werte der letzten Kritik-Runde und was noch fehlt
-   - alle `--allow`-Ausnahmen mit Begründung
    - Liste aller Platzhalter, die Daniel füllen muss
    - was nicht geprüft werden konnte
 
 ---
 
-## 9. Stack-Entscheidung
+## 8. Stack-Entscheidung
 
 Entscheide nach diesen Kriterien und begründe kurz:
 
@@ -278,7 +252,7 @@ Empfehlung aus der Planung: **Astro** (statisch, liest JSON nativ, Bild-Pipeline
 
 ---
 
-## 10. Deploy, Live-Test und Rollback
+## 9. Deploy, Live-Test und Rollback
 
 1. Bauen (falls Build-Schritt), committen und pushen auf `master`.
 2. Deploy auslösen: `bash C:/everything/portfolio/tools/deploy.sh`
@@ -286,17 +260,17 @@ Empfehlung aus der Planung: **Astro** (statisch, liest JSON nativ, Bild-Pipeline
    - **Das Token ist geheim:** nie anzeigen, nie in eine Datei im Repo schreiben, nie in Commit-Nachrichten oder Berichte übernehmen. Die Datei `deploy.env` nicht verändern und nicht ins Repo kopieren.
    - Das Skript zeigt das Feld `output` der API und beendet sich bei einem Fehler mit einem Code ungleich 0. Am 02.11.2026 erfolgreich getestet („Already up to date.“).
 3. Danach ist der Stand sofort live. Prüfen:
-   - `inspect.mjs https://danielsell.com/` (und die Unterseiten)
-   - mit `curl` die Statuscodes der Seiten, der gesperrten Pfade (3.7) und der gelöschten alten Dateien
+   - Screenshots der Live-Seite (und der Unterseiten)
+   - `bash scripts/livecheck.sh`: Statuscodes der Seiten, der gesperrten Pfade (3.7) und der gelöschten alten Dateien
    - Daniel den Link geben
 4. **Rollback**, falls ein Deploy die Seite kaputt macht: den letzten funktionierenden Commit wiederherstellen (`git revert <commit>`, push, deploy). Zurück auf v4: Anleitung in `C:\everything\portfolio\backups\2026-11-02_v4-final\README.md`. Kein Force-Push auf `master`.
 
-## 11. Was Daniel noch liefert (nicht blockierend)
+## 10. Was Daniel noch liefert (nicht blockierend)
 
 - [ ] Argentinien-Bilder nach `C:\everything\portfolio\assets-raw\adventure\argentinien\`
 - [ ] Platzhalter in `content/site.json` und `content/projects.json` (LinkedIn, Texte, Jahre, Stack, Impressum-Adresse)
 
-## 12. Ideen für später (jetzt nicht umsetzen)
+## 11. Ideen für später (jetzt nicht umsetzen)
 
 - Hero mit drei Welten (creative, adventure, dev als Flächen zum Einsteigen)
 - Hero als große Slideshow aus Arbeit und Reisen

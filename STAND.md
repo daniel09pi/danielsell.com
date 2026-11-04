@@ -31,18 +31,15 @@ Arbeitsweise, die sich bewährt hat:
 
 ## Prüfen
 
-- **Screenshots mit Klicks/Hover:** `node scripts/shot.mjs .taste-skill/shots 1440 900 name='<js>' …` (Vorschau muss laufen; Hilfe im Kopf der Datei). Normale Headless-Screenshots mit `--virtual-time-budget` zeigen nach einem Klick nachgeladene Bilder nicht; deshalb dieses Skript.
-- **taste-skill** (`C:\Users\daniel\.claude\plugins\cache\taste-skill\taste-skill\2.1.5\skills\taste-skill`):
-  - `node <skill>/scripts/lint.mjs src` → zurzeit 0 FAIL, 0 WARN.
-  - `node <skill>/scripts/inspect.mjs http://127.0.0.1:4321/ --allow palette-purple,palette-cream` → Screenshots in `.taste-skill/inspect/`. Bekannte, begründete Meldungen: `still-page` (Bewegung kommt in Phase 3), Kontrast des Namens (misst gegen Beige statt gegen die Flächen), Zitat als „Headline“, wenige Bilder (geschlossene Spalten zählen nicht), Video fehlt, Slideshow scrollt seitlich.
+- **Screenshots mit Klicks/Hover:** `node scripts/shot.mjs .shots 1440 900 name='<js>' …` (Vorschau muss laufen; Hilfe im Kopf der Datei; `.shots/` ist nicht im Repo). Normale Headless-Screenshots mit `--virtual-time-budget` zeigen nach einem Klick nachgeladene Bilder nicht; deshalb dieses Skript.
 - Eigene Prüfskripte per DevTools-Protokoll: vor dem Messen `document.documentElement.style.scrollBehavior = "auto"` setzen (`html` hat `scroll-behavior: smooth`, sonst misst man mitten im Scrollen).
-- Arbeitsnotizen des Skills (Inventar, Richtung, alle Feedbackrunden): `.taste-skill/notes.md` (nicht im Repo, nur lokal).
+- Arbeitsnotizen (Inventar, Richtung, alle Feedbackrunden): `scripts/notes.md` (per `.gitignore` nicht im Repo, nur lokal).
 
 ## Deploy (offen)
 
 Der Aufruf `bash C:/everything/portfolio/tools/deploy.sh` wurde von der automatischen Rechteprüfung abgelehnt („Production Deploy“). **Daniel startet ihn selbst:** `! bash C:/everything/portfolio/tools/deploy.sh`.
 Bis dahin ist live v4, und **`/.git/config` ist öffentlich erreichbar** (die neue `.htaccess` sperrt das erst nach dem Deploy).
-Nach dem Deploy: `bash .taste-skill/livecheck.sh` (erwartete Statuscodes, u. a. `.git/config`, `REDESIGN-PLAN.md`, `send.php` → 404; Seiten → 200). Bei 500ern: `git revert` + push + erneut deployen. Danach `inspect.mjs https://danielsell.com/ …`.
+Nach dem Deploy: `bash scripts/livecheck.sh` (erwartete Statuscodes, u. a. `.git/config`, `REDESIGN-PLAN.md`, `send.php` → 404; Seiten → 200). Bei 500ern: `git revert` + push + erneut deployen. Danach Screenshots der Live-Seite ansehen (`URL=https://danielsell.com/ node scripts/shot.mjs …`).
 
 ## Was entschieden ist (Daniels Feedback, in Reihenfolge)
 
@@ -89,5 +86,5 @@ Ground `#F5F2EB`, Ink `#1E0B4A`, Ink-soft `#574A78`, Ink-deep `#12062E` (Text au
    - `/about/` (Hero wie im Mockup, „how it started“, Eckdaten, Skills, off screen). Danach Navigation auf `/projects/` und `/about/` umstellen.
    - Argentinien-Bilder aus `C:\everything\portfolio\assets-raw\adventure\argentinien\` übernehmen (lag bisher noch nichts drin; vorerst steht das Lama-Foto als Bild). Screenshots der dev-Projekte (Mixer-Dashboard, Werner Gehner, danielsell.com).
    - Mobile-Fassung abstimmen.
-4. **Phase 3:** Bewegung (wenig, sauber; Inspector-FAIL `still-page`).
+4. **Phase 3:** Bewegung (wenig, sauber).
 5. **Phase 4:** Aufräumen (`index.html`, `script.js`, `styles.css`, `send.php`, `.DS_Store` von v4 löschen), README auf Deutsch, Abschlussbericht.

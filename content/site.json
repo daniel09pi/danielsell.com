@@ -46,23 +46,23 @@
     }
   ],
   "currently": {
-    "title": "Currently working on",
-    "updated": "2026-11-02",
+    "title": "Currently working on/at",
+    "updated": "2026-11-04",
     "items": [
       {
-        "title": "danielsell.com v5",
-        "text": "Redesign in the new identity.",
+        "title": "thefoundersbootcamp",
+        "text": "A three-day bootcamp for young startups, organised by the Founders Club Frankfurt.",
+        "status": "web design & dev"
+      },
+      {
+        "title": "Pomfort",
+        "text": "Software for film production. Team assistant.",
+        "status": "working student"
+      },
+      {
+        "title": "invoq",
+        "text": "Open-source, scalable invoicing and finance tool.",
         "status": "building"
-      },
-      {
-        "title": "Personal identity",
-        "text": "Logo, colours and business card.",
-        "status": "print prep"
-      },
-      {
-        "title": "Mixer dashboard v2",
-        "text": "Scenes and live levels for the mixing desk, in the browser.",
-        "status": "testing"
       }
     ]
   },
@@ -149,5 +149,5 @@
       "cta": "Explore dev"
     }
   },
-  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): areas.*.cta (Linktext pro Bereich), quote.text, socials LinkedIn (handle, url leer = nicht verlinkt), currently.items[2], about.howItStarted. Nicht erfunden und weiter Platzhalter: legal (Impressum-Adresse, Datenschutz)."
+  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): areas.*.cta (Linktext pro Bereich), quote.text, socials LinkedIn (handle, url leer = nicht verlinkt), about.howItStarted. Nicht erfunden und weiter Platzhalter: legal (Impressum-Adresse, Datenschutz)."
 }

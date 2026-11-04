@@ -1,20 +1,38 @@
 ---
-// Die drei Bereiche der Startseite (Runde 12): drei gleich breite Spalten.
-// Oben die Tab-Leiste: drei Farbfelder mit dem Wort des Bereichs (Link zur Seite des Bereichs, /creative/ …).
-// Darunter auf dem beigen Grund bis zu zwei Featured Projects: Titel, Art und Jahr, drei kleine, leicht gedrehte
-// Bilder nebeneinander (Hover je Bild); ein Klick aufs Projekt führt zur Projektseite (/projects/<slug>/).
-// Am Fuß jeder Spalte „All 5 projects →“ (Link zur Seite des Bereichs): zwei gezeigt, dahinter alle.
-// Zugehörigkeit: feine senkrechte Linien setzen die Kanten der Tabs nach unten fort; jede Spalte hängt an ihrem Tab.
+// Die drei Bereiche der Startseite (Runde 13): drei gleich breite Spalten.
+// Oben die Tab-Leiste: drei Farbfelder mit dem Wort des Bereichs (Link zur Seite des Bereichs, /creative/ …) und
+// darunter Kennzahlen: Projekte, Jahre, Bilder, Wörter (aus projects.json berechnet) und eigene aus site.json (areas).
+// Darunter auf dem beigen Grund bis zu zwei Featured Projects, je mit einer Zeile „Pinned“ (Nadel wie bei
+// angepinnten Chats), Titel, Art und Jahr und drei kleinen, leicht gedrehten Bildern (Hover je Bild); ein Klick
+// aufs Projekt führt zur Projektseite (/projects/<slug>/). Am Fuß „All 5 projects →“ (Seite des Bereichs).
+// Zugehörigkeit: feine senkrechte Linien setzen die Kanten der Tabs nach unten fort, eine waagerechte schließt ab.
 // Die Zeilen (Tab, Projekt 1, Projekt 2, Link) stehen über alle drei Spalten auf gleicher Höhe (Subgrid). Kein Skript.
 import Img from './Img.astro';
 import T from './T.astro';
-import { CATEGORIES, featuredProjects, byCategory, categoryLabel, categoryHref, projectHref, has } from '../lib/content.js';
+import { site, CATEGORIES, featuredProjects, byCategory, categoryLabel, categoryHref, projectHref, has } from '../lib/content.js';
 import { projectImages } from '../lib/images.js';
 
+const words = (text: unknown) => String(text ?? '').trim().split(/\s+/).filter(Boolean).length;
+const number = (n: number) => n.toLocaleString('en-US');
+const stats = (c: string) => {
+  const list = byCategory(c).filter((p) => has(p.title));
+  const years = list.flatMap((p) => String(p.year ?? '').match(/\d{4}/g) ?? []).map(Number);
+  const [from, to] = [Math.min(...years), Math.max(...years)];
+  const images = list.reduce((n, p) => n + projectImages(p).filter((im) => !im.placeholder).length, 0);
+  const own = (site.areas?.[c]?.stats ?? []).filter((s: any) => has(s?.value) && has(s?.label));
+  return [
+    { value: number(list.length), label: list.length === 1 ? 'project' : 'projects' },
+    ...(years.length ? [{ value: from === to ? String(from) : `${from}–${to}`, label: from === to ? 'year' : 'years' }] : []),
+    { value: number(images), label: images === 1 ? 'image' : 'images' },
+    { value: number(list.reduce((n, p) => n + words(p.text), 0)), label: 'words' },
+    ...own,
+  ];
+};
 const areas = CATEGORIES.map((c) => ({
   c,
   label: categoryLabel(c),
   count: byCategory(c).filter((x) => has(x.title)).length,
+  stats: stats(c),
   projects: featuredProjects(c).map((p) => ({
     p,
     meta: [p.kind, p.year].filter(has),
@@ -34,11 +52,22 @@ const tilts = [
   <div class="areas__grid">
     {areas.map((a) => (
       <section class:list={['area', `area--${a.c}`]} id={a.c} aria-labelledby={`${a.c}-word`}>
-        <h3 class="area__tab">
-          <a class="area__link" href={categoryHref(a.c)}><span class="area__word" id={`${a.c}-word`}>{a.label}</span></a>
-        </h3>
+        <div class="area__tab">
+          <h3 class="area__head">
+            <a class="area__link" href={categoryHref(a.c)}><span class="area__word" id={`${a.c}-word`}>{a.label}</span></a>
+          </h3>
+          <dl class="area__stats">
+            {a.stats.map((s) => (
+              <div class="area__stat"><dt><T v={s.label} /></dt><dd><T v={s.value} /></dd></div>
+            ))}
+          </dl>
+        </div>
         {a.projects.map(({ p, meta, images }, k) => (
           <article class="feat" aria-labelledby={`${p.slug}-feat`}>
+            <p class="feat__pin">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3.5h6M10 3.5v5.5l-3 3.5h10l-3-3.5V3.5M12 12.5V21" /></svg>
+              Pinned
+            </p>
             <a class="feat__link" href={projectHref(p)}>
               <h4 class="feat__title" id={`${p.slug}-feat`}><T v={p.title} /></h4>
               {meta.length > 0 && <p class="feat__meta">{meta.map((m, i) => (<>{i > 0 && ', '}<T v={m} /></>))}</p>}

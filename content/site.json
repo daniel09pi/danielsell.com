@@ -137,5 +137,32 @@
     },
     "datenschutz": "[Datenschutzerklärung: Text folgt. Die Seite setzt keine Cookies, lädt keine externen Schriften und hat kein Tracking.]"
   },
-  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): quote.text, socials LinkedIn (handle, url leer = nicht verlinkt), currently.items[2], about.howItStarted. Nicht erfunden und weiter Platzhalter: legal (Impressum-Adresse, Datenschutz)."
+  "areas": {
+    "_hinweis": "Kennzahlen im Farbfeld der Bereiche auf der Startseite. Projekte, Jahre, Bilder und Wörter rechnet die Seite selbst aus projects.json (Wörter = alle Texte der Projekte des Bereichs). Hier kommen pro Bereich eigene Zahlen dazu: { \"value\": \"…\", \"label\": \"…\" }; leere Liste = keine.",
+    "creative": {
+      "stats": [
+        {
+          "value": "2",
+          "label": "publishers"
+        }
+      ]
+    },
+    "adventure": {
+      "stats": [
+        {
+          "value": "4,000 m",
+          "label": "highest point"
+        }
+      ]
+    },
+    "dev": {
+      "stats": [
+        {
+          "value": "2",
+          "label": "live sites"
+        }
+      ]
+    }
+  },
+  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): areas.*.stats (eigene Kennzahlen: publishers aus den Links bei Bookcovers, highest point aus dem Argentina-Text, live sites aus den Live-Links), quote.text, socials LinkedIn (handle, url leer = nicht verlinkt), currently.items[2], about.howItStarted. Nicht erfunden und weiter Platzhalter: legal (Impressum-Adresse, Datenschutz)."
 }

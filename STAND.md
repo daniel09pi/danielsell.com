@@ -57,6 +57,7 @@ Nach dem Deploy: `bash .taste-skill/livecheck.sh` (erwartete Statuscodes, u. a. 
    - Die Slideshow ist in beiden Zuständen **dieselbe** (gleiches Bild). Wechsel: erst ausblenden (180 ms), dann umbauen und Breite animieren, dann einblenden; nichts springt sichtbar.
    - *Streifen:* die anderen beiden schmal, senkrechtes Wort mit Projektzahl. Hover **nur Unterstreichung, keine Verschiebung**.
    - Schließen: Kreuz, Escape (überall), Klick auf den Streifen der offenen Spalte. Links `#creative` usw. öffnen die Spalte.
+   - Bilder werden in der Spalte auf **4:3 zugeschnitten** (`object-fit: cover`, Daniels Wahl), damit die Kanten beim Blättern ruhig bleiben; ungeschnitten zeigt sie später die Projektseite.
    - Platzhalter-Bilder: adventure (Argentina) Bilder 2–7 von project500, dev (flowinsync) Bilder 2–7 von Stooney, vermerkt in `_beispiel` von `content/projects.json`.
    - In der Spalte zeigen **Punkte statt Zähler** „3 / 9“ die Position (Daniels Wunsch); für Screenreader sagt `aria-live` weiter „image 3 of 9“. Die Punkte sind nur für die Maus (`aria-hidden`), Tastatur nutzt Pfeil-Buttons und Pfeiltasten.
 7. **in short:** Layout wie „how it started“ (kleines Label links, Absatz rechts), ca. 32 px. Begriffe in den Bereichsfarben markiert und verlinkt; in `site.json` per `{creative: brand identities}`.
@@ -79,7 +80,7 @@ Ground `#F5F2EB`, Ink `#1E0B4A`, Ink-soft `#574A78`, Ink-deep `#12062E` (Text au
 
 ## Offen / nächste Schritte
 
-1. Daniels Feedback auf Runde 6 (Projekte: Etikett, ein Bild mit Punkten, offene Spalte mit Kreuz und klarer Rangfolge) abwarten und weiter am Desktop feilen. Offene Frage an Daniel: Bilder, die nicht 4:3 sind (z. B. flowinsync 16:10), stehen ganz und unten bündig im 4:3-Rahmen; darüber bleibt ein Streifen frei. Alternative wäre Zuschnitt auf 4:3.
+1. Daniels Feedback auf Runde 6 (Projekte: Etikett, ein Bild mit Punkten, offene Spalte mit Kreuz und klarer Rangfolge) abwarten und weiter am Desktop feilen.
 2. Deploy durch Daniel, dann Live-Prüfung (siehe oben).
 3. **Phase 2** laut Plan, erweitert um Daniels Wünsche:
    - `/projects/` (alle Projekte nach Bereich, Sprungmarken `#creative` usw.) und **eigene Seiten pro Projekt** `/projects/<slug>/` (sind auf der Startseite schon verlinkt).

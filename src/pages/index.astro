@@ -73,7 +73,7 @@ const quote = site.quote ?? {};
                   <a href={item.url} {...(isExternal(item.url) ? { rel: 'noopener', target: '_blank' } : {})}><T v={item.title} />{isExternal(item.url) && <><span class="now__ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></>}</a>
                 ) : <T v={item.title} />}
               </h3>
-              {has(item.role) && <p class="now__role"><T v={item.role} /></p>}
+              {has(item.role) && <p class="now__role">{parseMarks(item.role).map((part) => part.category ? <span class:list={['now__tag', `now__tag--${part.category}`]}>{part.text}</span> : part.text)}</p>}
             </div>
             {has(item.text) && <p class="now__text"><T v={item.text} /></p>}
           </li>

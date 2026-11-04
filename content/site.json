@@ -138,19 +138,16 @@
     "datenschutz": "[Datenschutzerklärung: Text folgt. Die Seite setzt keine Cookies, lädt keine externen Schriften und hat kein Tracking.]"
   },
   "areas": {
-    "_hinweis": "Farbfelder der Bereiche auf der Startseite. \"about\": ein Satz, was ein Projekt dieses Bereichs ist. Darunter zeigt die Seite selbst „5 projects, 2024–2026, 35 images“ (aus projects.json) und einen Link zur Seite des Bereichs (\"cta\", z. B. \"Explore creative\").",
+    "_hinweis": "Farbfelder der Bereiche auf der Startseite: unter dem Wort zeigt die Seite selbst „5 projects, 2024–2026, 35 images“ (aus projects.json) und einen Link zur Seite des Bereichs (\"cta\", z. B. \"Explore creative\").",
     "creative": {
-      "about": "Things I design: brand identities, book covers and other visual work.",
       "cta": "Explore creative"
     },
     "adventure": {
-      "about": "Places I travel to, and the photos I bring back.",
       "cta": "Explore adventure"
     },
     "dev": {
-      "about": "Things I build: websites and web apps.",
       "cta": "Explore dev"
     }
   },
-  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): areas.*.about und areas.*.cta (Sätze pro Bereich, Runde 16), quote.text, socials LinkedIn (handle, url leer = nicht verlinkt), currently.items[2], about.howItStarted. Nicht erfunden und weiter Platzhalter: legal (Impressum-Adresse, Datenschutz)."
+  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): areas.*.cta (Linktext pro Bereich), quote.text, socials LinkedIn (handle, url leer = nicht verlinkt), currently.items[2], about.howItStarted. Nicht erfunden und weiter Platzhalter: legal (Impressum-Adresse, Datenschutz)."
 }

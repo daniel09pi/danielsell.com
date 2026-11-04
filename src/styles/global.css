@@ -183,19 +183,18 @@ a:hover { text-decoration-color: currentColor; }
 .areas__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(4, auto); border-bottom: 1px solid var(--line); }
 .area { grid-row: span 4; display: grid; grid-template-rows: subgrid; }
 
-/* Tab: Farbfeld mit viel Luft. Rangfolge: Wort, Satz, Zahlen (leise), Textlink zur Seite des Bereichs. */
+/* Tab: Farbfeld mit viel Luft. Rangfolge: Wort, Zahlen (leise), Textlink zur Seite des Bereichs. */
 .area__tab {
   display: flex; flex-direction: column; align-items: flex-start;
   background: var(--area-bg); color: var(--area-fg);
   padding: clamp(2.25rem, 4.5vw, 3.75rem) var(--margin) clamp(2rem, 4vw, 3.25rem);
 }
 .area__word { font-size: var(--step-head); line-height: 0.95; letter-spacing: -0.035em; font-weight: 400; }
-.area__about { margin-top: clamp(1.25rem, 2vw, 1.75rem); max-width: 34ch; font-size: var(--step-body); line-height: 1.4; text-wrap: pretty; }
-/* Zahlen und Link stehen unten im Feld, über alle drei Spalten auf einer Höhe, egal wie lang der Satz ist */
+/* Zahlen und Link stehen unten im Feld, über alle drei Spalten auf einer Höhe */
 .area__facts { margin-top: auto; padding-top: 1.25rem; color: var(--area-soft); font-size: var(--step-small); }
 /* Textlink zur Seite des Bereichs, leicht unterstrichen (der Pfeil nicht); Hover: Linie wird kräftig */
 .area .area__cta {
-  display: inline-block; margin-top: 0.75rem; padding-block: 0.5rem; font-size: var(--step-small);
+  display: inline-block; margin-top: 0.75rem; padding-block: 0.5rem; font-size: var(--step-body);
   text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
   text-decoration-thickness: 1px; text-underline-offset: 0.25em; transition: text-decoration-color 0.25s var(--ease);
 }

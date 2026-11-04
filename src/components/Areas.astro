@@ -1,8 +1,7 @@
 ---
-// Die drei Bereiche der Startseite (Runde 17): drei gleich breite Spalten.
-// Oben die Tab-Leiste: drei Farbfelder mit dem Wort des Bereichs, einem schlichten Satz, warum er so heißt
-// (site.json → areas.<bereich>.about), leise die Zahlen „5 projects, 2024–2026, 35 images“ (aus projects.json)
-// und einem Textlink zur Seite des Bereichs (/creative/ …).
+// Die drei Bereiche der Startseite (Runde 18): drei gleich breite Spalten.
+// Oben die Tab-Leiste: drei Farbfelder mit dem Wort des Bereichs, leise die Zahlen „5 projects, 2024–2026,
+// 35 images“ (aus projects.json) und einem Textlink zur Seite des Bereichs (/creative/ …, Text aus site.json).
 // Darunter auf dem beigen Grund die zwei angepinnten Projekte (featured), je mit eigenem Label über dem Titel
 // („The longest adventure yet“, projects.json → pin). Am Fuß „Show all 5 projects“ klappt die übrigen Projekte des
 // Bereichs im selben Format auf (nochmal: „Show less“). Ohne JavaScript bleibt der Knopf weg; dann führt der
@@ -29,7 +28,7 @@ const areas = CATEGORIES.map((c) => {
   ].join(', ');
   const own = site.areas?.[c] ?? {};
   const label = categoryLabel(c);
-  return { c, label, about: own.about, cta: has(own.cta) ? own.cta : `Explore ${label}`, facts, pinned, rest, count: list.length };
+  return { c, label, cta: has(own.cta) ? own.cta : `Explore ${label}`, facts, pinned, rest, count: list.length };
 });
 ---
 <section class="areas" id="work" aria-labelledby="work-title">
@@ -39,7 +38,6 @@ const areas = CATEGORIES.map((c) => {
       <section class:list={['area', `area--${a.c}`]} id={a.c} aria-labelledby={`${a.c}-word`}>
         <div class="area__tab">
           <h3 class="area__word" id={`${a.c}-word`}>{a.label}</h3>
-          {has(a.about) && <p class="area__about">{a.about}</p>}
           <p class="area__facts">{a.facts}</p>
           <a class="area__cta" href={categoryHref(a.c)}>{a.cta}<span class="area__arrow" aria-hidden="true">→</span></a>
         </div>

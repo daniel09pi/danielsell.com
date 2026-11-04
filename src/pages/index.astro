@@ -15,7 +15,13 @@ const areas = CATEGORIES.map((c) => ({
   word: words.find((w) => w.category === c)?.word ?? c,
   projects: byCategory(c).filter((p) => has(p.title)),
 }));
-const currently = (site.currently?.items ?? []).filter((i) => has(i?.title) || has(i?.text));
+// Rolle: Text ohne Klammern; die Bereiche darin ({creative: design}) ergeben ein Quadrat vorne, bei zwei Bereichen
+// links die Farbe des ersten, rechts die des zweiten.
+const currently = (site.currently?.items ?? []).filter((i) => has(i?.title) || has(i?.text)).map((i) => {
+  const parts = has(i.role) ? parseMarks(i.role) : [];
+  const cats = [...new Set(parts.filter((x) => x.category).map((x) => x.category))];
+  return { ...i, roleText: parts.map((x) => x.text).join(''), roleCats: cats };
+});
 const about = site.about ?? {};
 const photo = has(about.photo?.src) && !isPlaceholder(about.photo.src) ? resolveImage(about.photo.src) : null;
 const facts = (about.facts ?? []).filter((f) => has(f?.label) && has(f?.value));
@@ -73,7 +79,12 @@ const quote = site.quote ?? {};
                   <a href={item.url} {...(isExternal(item.url) ? { rel: 'noopener', target: '_blank' } : {})}><T v={item.title} />{isExternal(item.url) && <><span class="now__ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></>}</a>
                 ) : <T v={item.title} />}
               </h3>
-              {has(item.role) && <p class="now__role">{parseMarks(item.role).map((part) => part.category ? <span class:list={['now__tag', `now__tag--${part.category}`]}>{part.text}</span> : part.text)}</p>}
+              {has(item.roleText) && (
+                <p class="now__role">
+                  {item.roleCats.length > 0 && <span class="now__swatch" style={`--a:var(--field-${item.roleCats[0]});--b:var(--field-${item.roleCats[item.roleCats.length - 1]})`} aria-hidden="true"></span>}
+                  {item.roleText}
+                </p>
+              )}
             </div>
             {has(item.text) && <p class="now__text"><T v={item.text} /></p>}
           </li>

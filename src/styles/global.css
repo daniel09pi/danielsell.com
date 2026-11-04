@@ -397,15 +397,10 @@ a:hover { text-decoration-color: currentColor; }
 .now__item a:hover { text-decoration-color: currentColor; }
 .now__ext { display: inline-block; margin-left: 0.3em; color: var(--ink-soft); font-size: 0.75em; font-weight: 400; }
 .now__role { margin-top: 0.4rem; color: var(--ink-soft); font-size: var(--step-small); }
-/* Teile der Rolle, die zu einem Bereich gehören: kleines Quadrat in dessen Farbe (design = creative, Limette;
-   development = dev, Violett), wie die Markierungen in „in short“. Feiner Rand, damit Limette auf Beige sichtbar bleibt. */
-.now__tag::before {
-  content: ""; display: inline-block; width: 0.6em; height: 0.6em; margin-right: 0.35em; vertical-align: -0.02em;
-  background: var(--tag); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 22%, transparent);
-}
-.now__tag--creative { --tag: var(--field-creative); }
-.now__tag--adventure { --tag: var(--field-adventure); }
-.now__tag--dev { --tag: var(--field-dev); }
+/* Quadrat vor der Rolle in den Farben der Bereiche, zu denen sie gehört (design = creative, Limette;
+   development = dev, Violett); bei zwei Bereichen links die eine, rechts die andere Hälfte. Ohne Rand. */
+.now__role { display: flex; align-items: center; gap: 0.45rem; }
+.now__swatch { flex: none; width: 0.7em; height: 0.7em; background: linear-gradient(to right, var(--a) 50%, var(--b) 50%); }
 .now__text { max-width: 46ch; }
 
 /* ---------- About-Vorschau (Brief) ---------- */

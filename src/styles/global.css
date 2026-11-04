@@ -379,16 +379,25 @@ a:hover { text-decoration-color: currentColor; }
 .slideshow__dot.is-current::before { background: currentColor; }
 
 /* ---------- Currently ---------- */
+/* Liste mit feinen Linien wie im Projekte-Raster. Links Name (Link zur Seite, ↗) und darunter klein die Rolle,
+   rechts, was es ist; Name und Text auf einer Grundlinie. */
 .now { margin-top: var(--section); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
 .now__title { grid-column: 1 / 13; font-size: var(--step-head); line-height: 0.95; letter-spacing: -0.035em; margin-left: -0.04em; font-weight: 400; }
-.now__updated { grid-column: 1 / 5; grid-row: 2; margin-top: clamp(2.5rem, 6vh, 4rem); padding-top: 1.25rem; color: var(--ink-soft); }
-.now__list { grid-column: 5 / 13; grid-row: 2; margin-top: clamp(2.5rem, 6vh, 4rem); }
-.now__row { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 5fr) minmax(0, 2fr); column-gap: var(--gutter); align-items: baseline; padding-block: 1.25rem; }
-.now__row + .now__row { margin-top: 0.5rem; }
+.now__updated { grid-column: 1 / 5; grid-row: 2; margin-top: clamp(2.5rem, 6vh, 4rem); padding-top: 1.5rem; color: var(--ink-soft); }
+.now__list { grid-column: 5 / 13; grid-row: 2; margin-top: clamp(2.5rem, 6vh, 4rem); border-top: 1px solid var(--line); }
+.now__row {
+  display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 5fr); column-gap: calc(2 * var(--gutter)); align-items: baseline;
+  padding-block: 1.5rem 1.75rem; border-bottom: 1px solid var(--line);
+}
 .now__item { font-size: var(--step-lead); line-height: 1.2; font-weight: 520; }
-.now__status { justify-self: end; text-align: right; }
-.marker { color: var(--ink-soft); white-space: nowrap; }
-.marker::before { content: ""; display: inline-block; width: 0.55em; height: 0.55em; margin-right: 0.5em; background: var(--accent); vertical-align: 0.05em; }
+.now__item a {
+  text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 0.06em; text-underline-offset: 0.18em;
+  transition: text-decoration-color 0.25s var(--ease);
+}
+.now__item a:hover { text-decoration-color: currentColor; }
+.now__ext { display: inline-block; margin-left: 0.3em; color: var(--ink-soft); font-size: 0.75em; font-weight: 400; }
+.now__role { margin-top: 0.4rem; color: var(--ink-soft); font-size: var(--step-small); }
+.now__text { max-width: 46ch; }
 
 /* ---------- About-Vorschau (Brief) ---------- */
 .letter { margin-top: var(--section); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); align-items: center; }
@@ -458,9 +467,7 @@ a:hover { text-decoration-color: currentColor; }
   .quote__label { grid-column: 1 / 13; }
   .quote__text { grid-column: 1 / 13; margin-top: 1rem; }
   .feature__category, .now__title, .letter__title, .closing__title, .textpage__title, .closing__email a { margin-left: 0; }
-  .now__row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 0.35rem; }
-  .now__text { grid-column: 1 / -1; grid-row: 2; }
-  .now__status { grid-column: 2; grid-row: 1; }
+  .now__row { grid-template-columns: minmax(0, 1fr); row-gap: 0.75rem; }
   .closing__email { font-size: 15.5vw; line-height: 0.95; white-space: normal; }
   .closing__email span { display: block; }
   .closing__email wbr { display: none; }

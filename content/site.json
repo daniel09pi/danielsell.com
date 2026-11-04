@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Alle Texte und Links der Website. Werte in [eckigen Klammern] sind Platzhalter: einfach ersetzen. Ein leerer String \"\" blendet das Feld auf der Seite aus. Neu in v5: hero.subtitle sind die drei Wörter unter dem Namen, eines pro Spalte (creative, adventure, dev); darunter zeigt die Startseite automatisch die Titel der Projekte aus projects.json; quote ist das Zitat \"in short\" (Begriffe in {creative: …}, {adventure: …} oder {dev: …} werden in der Farbe des Bereichs markiert, nur als Verzierung, ohne Link) (label: kleines Wort links, text: der große Absatz rechts; \"\" blendet es aus); currently.title, about.greeting und contact.title sind die Überschriften dieser Bereiche (\"\" blendet die Überschrift aus). legal.datenschutz: Text; Absätze durch eine Leerzeile (\n\n) trennen oder eine Liste von Absätzen angeben.",
+  "_hinweis": "Alle Texte und Links der Website. Werte in [eckigen Klammern] sind Platzhalter: einfach ersetzen. Ein leerer String \"\" blendet das Feld auf der Seite aus. Neu in v5: hero.subtitle sind die drei Wörter unter dem Namen, eines pro Spalte (creative, adventure, dev); darunter zeigt die Startseite automatisch die Titel der Projekte aus projects.json; quote ist das Zitat \"in short\" (Begriffe in {creative: …}, {adventure: …} oder {dev: …} werden in der Farbe des Bereichs markiert, nur als Verzierung, ohne Link) (label: kleines Wort links, text: der große Absatz rechts; \"\" blendet es aus); currently.title, about.greeting und contact.title sind die Überschriften dieser Bereiche (\"\" blendet die Überschrift aus). legal.datenschutz: Text; Absätze durch eine Leerzeile (\n\n) trennen oder eine Liste von Absätzen angeben. currently.items: title (Name, mit url verlinkt), url, text (was es ist), role (deine Rolle, klein unter dem Namen).",
   "person": {
     "name": "Daniel Sell",
     "based": "Munich, Germany",
@@ -51,18 +51,21 @@
     "items": [
       {
         "title": "thefoundersbootcamp",
+        "url": "https://thefounderbootcamp.de",
         "text": "A three-day bootcamp for young startups, organised by the Founders Club Frankfurt.",
-        "status": "web design & dev"
+        "role": "Website design & development"
       },
       {
         "title": "Pomfort",
-        "text": "Software for film production. Team assistant.",
-        "status": "working student"
+        "url": "https://pomfort.com",
+        "text": "Software for film production.",
+        "role": "Working student, team assistant"
       },
       {
         "title": "invoq",
+        "url": "https://invoq.de",
         "text": "Open-source, scalable invoicing and finance tool.",
-        "status": "building"
+        "role": "Design & development"
       }
     ]
   },
@@ -149,5 +152,5 @@
       "cta": "Explore dev"
     }
   },
-  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): areas.*.cta (Linktext pro Bereich), quote.text, socials LinkedIn (handle, url leer = nicht verlinkt), about.howItStarted. Nicht erfunden und weiter Platzhalter: legal (Impressum-Adresse, Datenschutz)."
+  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): currently.items[2].role (Rolle bei invoq geraten), areas.*.cta (Linktext pro Bereich), quote.text, socials LinkedIn (handle, url leer = nicht verlinkt), about.howItStarted. Nicht erfunden und weiter Platzhalter: legal (Impressum-Adresse, Datenschutz)."
 }

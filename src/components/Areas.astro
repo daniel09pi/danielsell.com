@@ -1,10 +1,12 @@
 ---
-// Die drei Bereiche der Startseite in einem Abschnitt: drei Farbspalten wie im Hero (Runde 8).
+// Die drei Bereiche der Startseite in einem Abschnitt: drei Farbspalten wie im Hero (Runde 9).
 // State 1 (Ausgangszustand): drei gleich breite Spalten. Oben links das Featured Project des Bereichs
-//   (Etikett, Titel, Art und Jahr), darunter drei gleich große, leicht gedrehte Bilder, unten Wort und Projektzahl.
-// State 2 (offen): Klick aufs Featured Project. Links eine Bilderbox mit allen Bildern des Projekts (Collage,
-//   gerade, ungeschnitten bis auf wenige Prozent), rechts Etikett, Titel, Text, Links; Kreuz oben rechts.
-//   Klick auf ein Bild: es wird groß, die anderen klein drumherum, alles bleibt in der Box. Nochmal klicken: zurück.
+//   (Etikett, Titel, Art und Jahr), darunter drei kleine, leicht gedrehte Bilder (Hover je Bild), mit Luft
+//   bis zu Wort und Projektzahl unten.
+// State 2 (offen): Klick aufs Featured Project. Links eine Bilderbox mit allen Bildern des Projekts, rechts
+//   Etikett, Titel, Text, Links; Kreuz oben rechts. In der Box zwei klar getrennte Zustände (src/lib/collage.js):
+//   alle gleich groß und eher klein in einem lockeren Raster; Klick auf ein Bild: es wird sehr groß, die anderen
+//   sehr klein daneben oder darunter. Nochmal klicken oder Escape: zurück.
 // State 3: die anderen beiden Spalten sind schmale Streifen mit senkrechtem Wort.
 // Wort und Projektzahl sind überall der Link zur Seite des Bereichs (/creative/ usw.).
 // Schließen: Kreuz oder Escape. Links #creative usw. öffnen das Featured Project der Spalte.
@@ -103,7 +105,7 @@ const boxTilt = [-1, 1.2, -0.8, 1, -1.2, 0.8];
 
 <script>
   // Bilderbox: Anordnung siehe src/lib/collage.js
-  import { collage, hash } from '../lib/collage.js';
+  import { gridLayout, focusLayout, hash } from '../lib/collage.js';
 
   const setupBox = (box: HTMLElement, seed: number) => {
     const items = Array.from(box.querySelectorAll<HTMLButtonElement>('.spot__img'));
@@ -117,7 +119,7 @@ const boxTilt = [-1, 1.2, -0.8, 1, -1.2, 0.8];
       if (!W || !H) return;
       size = { w: W, h: H };
       const g = parseFloat(getComputedStyle(box).columnGap) || 8;
-      const rects = collage(ratio, W, H, g, seed, focus);
+      const rects = focus < 0 ? gridLayout(ratio, W, H, g, seed) : focusLayout(ratio, W, H, g, focus);
       box.classList.toggle('is-animating', animate && !reduce.matches);
       items.forEach((b, i) => {
         const r = rects[i];
@@ -157,6 +159,7 @@ const boxTilt = [-1, 1.2, -0.8, 1, -1.2, 0.8];
         area,
         spot,
         open: spot.querySelector<HTMLButtonElement>('.spot__open')!,
+        peek: spot.querySelector<HTMLElement>('.spot__peek'),
         close: spot.querySelector<HTMLButtonElement>('.spot__close')!,
         title: spot.querySelector<HTMLElement>('.spot__title')!,
         box: box ? setupBox(box, hash(spot.dataset.spot ?? '')) : null,
@@ -192,6 +195,9 @@ const boxTilt = [-1, 1.2, -0.8, 1, -1.2, 0.8];
       p.open.hidden = false;
       // Doppelklick: nur der erste Klick zählt
       p.open.addEventListener('click', (e) => { if (e.detail <= 1) show(p.area, { focus: () => p.title }); });
+      // Die Vorschaubilder liegen über dem Button (eigener Hover je Bild) und öffnen per Maus genauso.
+      p.peek?.addEventListener('click', (e) => { if (e.detail <= 1 && (e.target as HTMLElement).closest('.spot__thumb')) show(p.area, { focus: () => p.title }); });
+      p.peek?.addEventListener('pointerover', () => p.box?.preload(), { once: true });
       p.open.addEventListener('pointerenter', () => p.box?.preload(), { once: true });
       p.open.addEventListener('focus', () => p.box?.preload(), { once: true });
       p.close.addEventListener('click', () => show(null, { focus: () => p.open }));

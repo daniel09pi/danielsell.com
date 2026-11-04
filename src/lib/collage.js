@@ -1,10 +1,10 @@
-// Bilderbox: alle Bilder eines Projekts in einem Rechteck (Startseite, State 2 der Bereiche).
-// Die Bilder werden als Baum aus waagerechten und senkrechten Teilungen angeordnet (Guillotine-Collage).
-// Jeder Teilbaum hat eine lineare Form: Breite = a · Höhe + b (b sammelt die Abstände). Damit lässt sich für
-// viele zufällige Bäume schnell ausrechnen, wie gut sie in die Box passen; gewählt wird der beste. Die äußeren
-// Bilder liegen genau an den Kanten, was nicht exakt aufgeht, gleicht ein Zuschnitt von wenigen Prozent aus
-// (object-fit: cover). Zufall mit festem Startwert: gleiche Box, gleiches Bild.
-// Fokus: ein Bild etwa halb so groß wie die Box, die anderen klein drumherum (in ein bis drei Gruppen).
+// Bilderbox: alle Bilder eines Projekts in einem Rechteck (Startseite, State 2 der Bereiche). Zwei klar
+// getrennte Zustände (Daniel, Runde 9):
+// - Allgemein (gridLayout): alle Bilder gleich groß (gleiche Fläche, eigenes Format, kein Zuschnitt) und eher
+//   klein, in Reihen über die Box verteilt; die äußeren liegen an den Kanten, dazwischen bleibt Luft.
+// - Fokus (focusLayout): ein Bild sehr groß oben links, die anderen sehr klein als Reihe darunter oder als
+//   Spalte daneben, je nachdem, wo das große Bild größer wird. Lücken sind erlaubt.
+// Zufall mit festem Startwert pro Projekt: gleiche Box, gleiches Bild.
 
 const rng = (seed) => () => {
   seed = (seed + 0x6d2b79f5) | 0;
@@ -22,127 +22,113 @@ const shuffle = (list, r) => {
   for (let i = out.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [out[i], out[j]] = [out[j], out[i]]; }
   return out;
 };
-const split = (r, a, b) => ({ dir: r() < 0.5 ? 'h' : 'v', kids: r() < 0.5 ? [a, b] : [b, a] });
-const randTree = (items, r) => {
-  if (items.length === 1) return { leaf: items[0] };
-  const k = 1 + Math.floor(r() * (items.length - 1));
-  return split(r, randTree(items.slice(0, k), r), randTree(items.slice(k), r));
-};
-// Das große Bild, nacheinander mit ein bis drei Gruppen kleiner Bilder umgeben (Spalte daneben, Reihe darunter …)
-const focusTree = (s, n, r) => {
-  const others = shuffle([...Array(n).keys()].filter((i) => i !== s), r);
-  const groups = Math.min(others.length, 1 + Math.floor(r() * 3));
-  const cuts = [0, ...shuffle([...Array(others.length - 1).keys()].map((k) => k + 1), r).slice(0, groups - 1).sort((a, b) => a - b), others.length];
-  let t = { leaf: s };
-  for (let g = 0; g < groups; g++) t = split(r, t, randTree(others.slice(cuts[g], cuts[g + 1]), r));
-  return t;
-};
+// Breite und Höhe eines Bildes mit Seitenverhältnis q und Fläche A
+const sized = (q, A) => ({ w: Math.sqrt(A * q), h: Math.sqrt(A / q) });
 
-// Form jedes Knotens einmal von unten nach oben ausrechnen (am Knoten gespeichert)
-const form = (t, ratio, g) => {
-  if ('leaf' in t) return (t.f = { a: ratio[t.leaf], b: 0 });
-  const [p, q] = t.kids.map((k) => form(k, ratio, g));
-  if (t.dir === 'h') return (t.f = { a: p.a + q.a, b: p.b + q.b + g });
-  const a = 1 / (1 / p.a + 1 / q.a);
-  return (t.f = { a, b: a * (p.b / p.a + q.b / q.a - g) });
-};
-const place = (t, g, box, out) => {
-  if ('leaf' in t) { out[t.leaf] = box; return; }
-  const [p, q] = t.kids;
-  if (t.dir === 'h') {
-    // nebeneinander, gleiche Höhe; die natürlichen Breiten werden auf die vorhandene Breite gestreckt
-    const np = p.f.a * box.h + p.f.b, nq = q.f.a * box.h + q.f.b;
-    const wp = (np / (np + nq)) * (box.w - g);
-    place(p, g, { x: box.x, y: box.y, w: wp, h: box.h }, out);
-    place(q, g, { x: box.x + wp + g, y: box.y, w: box.w - wp - g, h: box.h }, out);
-  } else {
-    const np = (box.w - p.f.b) / p.f.a, nq = (box.w - q.f.b) / q.f.a;
-    const hp = (np / (np + nq)) * (box.h - g);
-    place(p, g, { x: box.x, y: box.y, w: box.w, h: hp }, out);
-    place(q, g, { x: box.x, y: box.y + hp + g, w: box.w, h: box.h - hp - g }, out);
+/** Allgemein. ratio: Seitenverhältnisse (Breite/Höhe), W × H: Box, g: Abstand, fill: Größe relativ zum Maximum.
+ *  Reihen mit gleich großen Bildern (gleiche Fläche); in jeder Reihe das erste Bild an der linken, das letzte an
+ *  der rechten Kante, dazwischen gleichmäßig verteilt. Die Reihen verteilen sich über die Höhe (erste oben,
+ *  letzte unten). Die Zahl der Bilder pro Reihe wechselt, darum stehen die Bilder nicht in Spalten übereinander. */
+export const gridLayout = (ratio, W, H, g, seed, fill = 0.86) => {
+  const n = ratio.length, r = rng(seed), gap = 2 * g;
+  const sq = ratio.map(Math.sqrt);   // Breite = s · √q, Höhe = s / √q (s = Wurzel der Fläche)
+  const split = (counts) => { let i = 0; return counts.map((k) => { const row = [...Array(k).keys()].map((j) => i + j); i += k; return row; }); };
+  // größtes s, bei dem jede Reihe in die Breite und alle Reihen in die Höhe passen
+  const fit = (rows) => {
+    let sx = Infinity, sumH = 0;
+    for (const row of rows) {
+      sx = Math.min(sx, (W - (row.length - 1) * gap) / row.reduce((t, i) => t + sq[i], 0));
+      sumH += Math.max(...row.map((i) => 1 / sq[i]));
+    }
+    return Math.min(sx, (H - (rows.length - 1) * gap) / sumH);
+  };
+  const options = [];
+  for (let R = 1; R <= n; R++) {
+    for (let t = 0; t < 24; t++) {
+      const counts = Array(R).fill(Math.floor(n / R));
+      shuffle([...Array(R).keys()], r).slice(0, n % R).forEach((j) => counts[j]++);
+      // etwas Abwechslung: ein Bild wandert in eine andere Reihe
+      const x = Math.floor(r() * R), y = Math.floor(r() * R);
+      if (t > 0 && x !== y && counts[x] > 2) { counts[x]--; counts[y]++; }
+      if (n >= 4 && counts.some((k) => k < 2)) continue;
+      const rows = split(counts);
+      options.push({ rows, s: fit(rows) });
+    }
   }
-};
-const layoutOf = (t, ratio, g, W, H) => {
-  form(t, ratio, g);
-  const rects = [];
-  place(t, g, { x: 0, y: 0, w: W, h: H }, rects);
-  return rects;
-};
-
-// Bewertung (kleiner ist besser): Zuschnitt bis 3 % fast frei, darüber teuer; kein Bild winzig; normal das
-// Titelbild unter den größeren und verschiedene Größen, im Fokus das gewählte Bild etwa halb so groß wie die Box.
-export const measure = (rects, ratio, W, H, focus) => {
-  let crop = 0, min = 1, max = 0;
-  const area = rects.map((r) => (r.w * r.h) / (W * H));
-  rects.forEach((r, i) => {
-    crop = r.w > 0 && r.h > 0 ? Math.max(crop, Math.abs(Math.log(r.w / r.h / ratio[i]))) : Infinity;
-    if (i !== focus) { min = Math.min(min, area[i]); max = Math.max(max, area[i]); }
+  const top = Math.max(...options.map((o) => o.s));
+  const good = options.filter((o) => o.s >= top * 0.94);
+  const { rows } = good[Math.floor(r() * good.length)];
+  const side = top * fill;
+  const pick = () => [0, 0.5, 1][Math.floor(r() * 3)];
+  const rowH = rows.map((row) => Math.max(...row.map((i) => side / sq[i])));
+  const gy = rows.length > 1 ? (H - rowH.reduce((t, h) => t + h, 0)) / (rows.length - 1) : 0;
+  const out = [];
+  let y = 0;
+  rows.forEach((row, ri) => {
+    const ws = row.map((i) => side * sq[i]);
+    const gx = row.length > 1 ? (W - ws.reduce((t, w) => t + w, 0)) / (row.length - 1) : 0;
+    // senkrecht in der Reihe: erste oben, letzte unten, dazwischen je Reihe oben, mittig oder unten
+    const ay = ri === 0 ? 0 : ri === rows.length - 1 ? 1 : pick();
+    let x = row.length > 1 ? 0 : (W - ws[0]) * pick();
+    row.forEach((i, j) => {
+      const h = side / sq[i];
+      out[i] = { x, y: y + (rowH[ri] - h) * ay, w: ws[j], h };
+      x += ws[j] + gx;
+    });
+    y += rowH[ri] + gy;
   });
-  return { crop, min, max, area };
-};
-const score = (rects, ratio, W, H, focus) => {
-  const n = rects.length;
-  const { crop, min, max, area } = measure(rects, ratio, W, H, focus);
-  let s = crop * 2 + Math.max(0, crop - 0.03) * 30;
-  if (focus < 0) {
-    s += Math.max(0, 0.5 / n - min) * 80;           // kein Bild kleiner als die Hälfte des Durchschnitts
-    s += Math.max(0, max - 2.8 / n) * 8;             // keins dominiert
-    s += area[0] < max * 0.8 ? 0.3 : 0;              // das Titelbild gehört zu den großen
-    s += max / Math.max(min, 1e-6) < 2.2 ? 0.05 : 0; // verschiedene Größen, nicht alle gleich
-  } else {
-    s += Math.max(0, Math.abs(area[focus] - 0.5) - 0.06) * 10;
-    s += Math.max(0, 0.32 / n - min) * 100;          // die kleinen nicht winzig
-    s += Math.max(0, max - area[focus] * 0.4) * 6;   // keins fast so groß wie das gewählte
-  }
-  return s;
+  return out;
 };
 
-// Kleine Änderung an einer Kopie: eine Teilung kippen, zwei Bilder tauschen oder einen Teilbaum neu würfeln.
-// Das große Bild (Fokus) bleibt dabei, wo es ist.
-const clone = (t) => ('leaf' in t ? { leaf: t.leaf } : { dir: t.dir, kids: [clone(t.kids[0]), clone(t.kids[1])] });
-const leavesOf = (t) => ('leaf' in t ? [t.leaf] : [...leavesOf(t.kids[0]), ...leavesOf(t.kids[1])]);
-const mutate = (t, r, focus) => {
-  const c = clone(t), nodes = [], leaves = [];
-  const walk = (x) => { if ('leaf' in x) { if (x.leaf !== focus) leaves.push(x); } else { nodes.push(x); x.kids.forEach(walk); } };
-  walk(c);
-  const m = r();
-  if (m < 0.4 && nodes.length) {
-    const x = nodes[Math.floor(r() * nodes.length)];
-    x.dir = x.dir === 'h' ? 'v' : 'h';
-  } else if (m < 0.8 && leaves.length > 1) {
-    const a = leaves[Math.floor(r() * leaves.length)], b = leaves[Math.floor(r() * leaves.length)];
-    [a.leaf, b.leaf] = [b.leaf, a.leaf];
-  } else {
-    const free = nodes.filter((x) => !leavesOf(x).includes(focus));
-    if (free.length) {
-      const x = free[Math.floor(r() * free.length)];
-      const y = randTree(shuffle(leavesOf(x), r), r);
-      x.dir = y.dir; x.kids = y.kids;
-    }
-  }
-  return c;
-};
-
-/** ratio: Seitenverhältnisse (Breite/Höhe), W × H: Box, g: Abstand, focus: Index des großen Bildes oder -1.
- *  Erst viele zufällige Bäume, dann werden die besten Schritt für Schritt verbessert. */
-export const collage = (ratio, W, H, g, seed, focus = -1, samples = 1200, keep = 6, steps = 250) => {
+/** Fokus: Bild `focus` sehr groß, die anderen sehr klein (Kantenlänge etwa k · √(W·H)). */
+export const focusLayout = (ratio, W, H, g, focus, k = 0.11) => {
   const n = ratio.length;
-  if (n === 1) return [{ x: 0, y: 0, w: W, h: H }];
-  const r = rng(seed + (focus + 1) * 7919);
-  const items = [...Array(n).keys()];
-  const fresh = () => (focus < 0 || n < 3 ? randTree(shuffle(items, r), r) : focusTree(focus, n, r));
-  const rate = (t) => { const rects = layoutOf(t, ratio, g, W, H); return { t, rects, s: score(rects, ratio, W, H, focus) }; };
-  const pool = [];
-  for (let k = 0; k < samples; k++) pool.push(rate(fresh()));
-  pool.sort((a, b) => a.s - b.s);
-  let best = pool[0];
-  for (const start of pool.slice(0, keep)) {
-    let cur = start;
-    for (let i = 0; i < steps; i++) {
-      const next = rate(mutate(cur.t, r, focus));
-      if (next.s <= cur.s) cur = next;
+  const others = [...Array(n).keys()].filter((i) => i !== focus);
+  const q = ratio[focus];
+  if (!others.length) { const w = Math.min(W, H * q); return [{ x: 0, y: 0, w, h: w / q }]; }
+  for (let kk = k; kk > 0.03; kk *= 0.85) {
+    const A = kk * kk * W * H;
+    const small = ratio.map((x) => sized(x, A));
+    // Kleine Bilder in Linien packen: entlang x (Reihen unter dem großen Bild) oder y (Spalten daneben)
+    const pack = (along, room) => {
+      const lines = [];
+      let line = [], len = 0;
+      for (const i of others) {
+        const l = along === 'x' ? small[i].w : small[i].h;
+        if (line.length && len + g + l > room) { lines.push(line); line = []; len = 0; }
+        len += (line.length ? g : 0) + l;
+        line.push(i);
+      }
+      if (line.length) lines.push(line);
+      const thick = lines.map((L) => Math.max(...L.map((i) => (along === 'x' ? small[i].h : small[i].w))));
+      return { lines, thick, T: thick.reduce((a, b) => a + b, 0) + (lines.length - 1) * g };
+    };
+    const configs = [];
+    const below = pack('x', W);
+    { const room = H - below.T - g; const w = Math.min(W, room * q); configs.push({ side: 'below', ...below, w, h: w / q }); }
+    const beside = pack('y', H);
+    { const room = W - beside.T - g; const w = Math.min(room, H * q); configs.push({ side: 'beside', ...beside, w, h: w / q }); }
+    const ok = configs.filter((c) => c.w > 0 && c.h > 0);
+    if (!ok.length) continue;
+    const c = ok.reduce((a, b) => (b.w * b.h > a.w * a.h * 1.02 ? b : a));
+    const out = [];
+    out[focus] = { x: 0, y: 0, w: c.w, h: c.h };
+    if (c.side === 'below') {
+      let y = c.h + g;
+      c.lines.forEach((L, li) => {
+        let x = 0;
+        for (const i of L) { out[i] = { x, y, ...small[i] }; x += small[i].w + g; }
+        y += c.thick[li] + g;
+      });
+    } else {
+      let x = c.w + g;
+      c.lines.forEach((L, li) => {
+        let y = 0;
+        for (const i of L) { out[i] = { x, y, ...small[i] }; y += small[i].h + g; }
+        x += c.thick[li] + g;
+      });
     }
-    if (cur.s < best.s) best = cur;
+    return out;
   }
-  return best.rects;
+  return gridLayout(ratio, W, H, g, 0);
 };

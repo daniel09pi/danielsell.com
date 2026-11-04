@@ -1,11 +1,10 @@
 {
-  "_hinweis": "Alle Projekte. category: creative | adventure | dev. Pro Kategorie zeigt die Startseite bis zu zwei Projekte mit \"featured\": true (ohne Markierung die ersten beiden) oben angepinnt, darüber steht \"pin\" (kurzes Label, z. B. \"The longest adventure yet\"; leer = \"Pinned\"); die übrigen klappt \"Show all\" auf. Die Projektseite zeigt alle. Reihenfolge in der Liste = Reihenfolge auf der Seite. Werte in [eckigen Klammern] sind Platzhalter, \"\" blendet ein Feld aus. Bilder: Pfade relativ zum Repo. Neu in v5: Ein Bild darf statt eines Pfads auch ein Objekt { \"src\": \"portfolio_files/…\", \"alt\": \"Beschreibung des Bildes\" } sein; ohne alt erzeugt die Seite einen Alt-Text aus Titel und Nummer. Das erste Bild ist das Titelbild des Features.",
+  "_hinweis": "Alle Projekte. category: creative | adventure | dev. Pro Kategorie zeigt die Startseite bis zu zwei Projekte mit \"featured\": true (ohne Markierung die ersten beiden) oben angepinnt (mit „Pinned“); die übrigen klappt \"Show all\" auf. Die Projektseite zeigt alle. Reihenfolge in der Liste = Reihenfolge auf der Seite. Werte in [eckigen Klammern] sind Platzhalter, \"\" blendet ein Feld aus. Bilder: Pfade relativ zum Repo. Neu in v5: Ein Bild darf statt eines Pfads auch ein Objekt { \"src\": \"portfolio_files/…\", \"alt\": \"Beschreibung des Bildes\" } sein; ohne alt erzeugt die Seite einen Alt-Text aus Titel und Nummer. Das erste Bild ist das Titelbild des Features.",
   "projects": [
     {
       "slug": "alukeku",
       "category": "creative",
       "featured": true,
-      "pin": "Proudest project so far",
       "title": "ALUKEKU",
       "kind": "Brand Identity",
       "year": "2026",
@@ -58,7 +57,6 @@
       "slug": "bookcovers",
       "category": "creative",
       "featured": true,
-      "pin": "Eight covers and counting",
       "title": "Bookcovers",
       "kind": "Book Design",
       "year": "2024–2026",
@@ -158,7 +156,6 @@
       "slug": "argentinien",
       "category": "adventure",
       "featured": true,
-      "pin": "The longest adventure yet",
       "title": "Argentina",
       "kind": "Travel",
       "year": "2025",
@@ -195,7 +192,6 @@
       "slug": "iguazu",
       "category": "adventure",
       "featured": true,
-      "pin": "The wettest day yet",
       "title": "Iguazú",
       "kind": "Travel",
       "year": "2025",
@@ -224,7 +220,6 @@
       "slug": "flowinsync",
       "category": "dev",
       "featured": true,
-      "pin": "First realtime app",
       "title": "flowinsync",
       "kind": "Web App",
       "year": "2025",
@@ -327,7 +322,6 @@
       "slug": "danielsell-com",
       "category": "dev",
       "featured": true,
-      "pin": "Currently in progress",
       "title": "danielsell.com",
       "kind": "Website",
       "year": "2026",
@@ -358,5 +352,5 @@
       ]
     }
   ],
-  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): argentinien (Titel, Art, Jahr, Tags, Text; die Fotos stammen aus assets-raw, Zuordnung zu Argentina/Iguazú geraten), iguazu (ganzes Projekt erfunden, Fotos aus assets-raw), flowinsync (Bilder 2–7 vorläufig von Stooney, 8–10 von Bookcovers und Landeshut, bis es eigene Screenshots gibt), danielsell-com (Bilder sind Screenshots dieser Seite vom 4. November 2026), Jahre und Stack bei flowinsync, mixer-dashboard, werner-gehner. pin-Labels (Runde 16, alle erfunden außer „Currently in progress“ bei danielsell-com). Featured (je zwei pro Bereich, Runde 11): alukeku + bookcovers, argentinien + iguazu, flowinsync + danielsell-com. flowinsync: Source-Link entfernt."
+  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): argentinien (Titel, Art, Jahr, Tags, Text; die Fotos stammen aus assets-raw, Zuordnung zu Argentina/Iguazú geraten), iguazu (ganzes Projekt erfunden, Fotos aus assets-raw), flowinsync (Bilder 2–7 vorläufig von Stooney, 8–10 von Bookcovers und Landeshut, bis es eigene Screenshots gibt), danielsell-com (Bilder sind Screenshots dieser Seite vom 4. November 2026), Jahre und Stack bei flowinsync, mixer-dashboard, werner-gehner. Featured (je zwei pro Bereich, Runde 11): alukeku + bookcovers, argentinien + iguazu, flowinsync + danielsell-com. flowinsync: Source-Link entfernt."
 }

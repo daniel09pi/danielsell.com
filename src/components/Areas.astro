@@ -2,8 +2,7 @@
 // Die drei Bereiche der Startseite (Runde 18): drei gleich breite Spalten.
 // Oben die Tab-Leiste: drei Farbfelder mit dem Wort des Bereichs, leise die Zahlen „5 projects, 2024–2026,
 // 35 images“ (aus projects.json) und einem Textlink zur Seite des Bereichs (/creative/ …, Text aus site.json).
-// Darunter auf dem beigen Grund die zwei angepinnten Projekte (featured), je mit eigenem Label über dem Titel
-// („The longest adventure yet“, projects.json → pin). Am Fuß „Show all 5 projects“ klappt die übrigen Projekte des
+// Darunter auf dem beigen Grund die zwei angepinnten Projekte (featured), je mit „Pinned“ und Nadel über dem Titel. Am Fuß „Show all 5 projects“ klappt die übrigen Projekte des
 // Bereichs im selben Format auf (nochmal: „Show less“). Ohne JavaScript bleibt der Knopf weg; dann führt der
 // Call to Action zu allen Projekten.
 // Zugehörigkeit: feine senkrechte Linien setzen die Kanten der Tabs nach unten fort, eine waagerechte schließt ab.
@@ -41,7 +40,7 @@ const areas = CATEGORIES.map((c) => {
           <p class="area__facts">{a.facts}</p>
           <a class="area__cta" href={categoryHref(a.c)}>{a.cta}<span class="area__arrow" aria-hidden="true">→</span></a>
         </div>
-        {a.pinned.map((p, k) => <FeatProject project={p} pin={has(p.pin) ? p.pin : 'Pinned'} tilt={k} />)}
+        {a.pinned.map((p, k) => <FeatProject project={p} pin="Pinned" tilt={k} />)}
         <div class="area__more">
           {a.rest.length > 0 && (
             <>

@@ -9,7 +9,8 @@ import sharp from 'sharp';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const fav = await readFile(path.join(ROOT, 'public', 'favicon.svg'));
 await sharp(fav, { density: 300 }).resize(32, 32).png().toFile(path.join(ROOT, 'public', 'favicon-32.png'));
-await sharp(fav, { density: 600 }).resize(180, 180).png().toFile(path.join(ROOT, 'public', 'apple-touch-icon.png'));
+// iOS füllt Transparenz im Home-Bildschirm-Icon schwarz, darum hier auf den Seitengrund (Beige) legen.
+await sharp(fav, { density: 600 }).resize(180, 180).flatten({ background: '#F5F2EB' }).png().toFile(path.join(ROOT, 'public', 'apple-touch-icon.png'));
 
 const knock = (await readFile(path.join(ROOT, 'brand', 'logo-knockout.svg'), 'utf8')).replace(/<!--[\s\S]*?-->/g, '');
 const tpl = await readFile(path.join(ROOT, 'brand', 'og.html'), 'utf8');

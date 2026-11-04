@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 550 550">
-  <!-- Favicon: Ink-Quadrat, darin das Logo-Negativ (brand/logo-knockout.svg) verkleinert und mittig,
-       als quadratischer Ausschnitt der Karte (x 0–550), unverzerrt. Die beigen Linien enden am Ausschnitt. -->
+  <!-- Favicon: nur das Logo-Zeichen aus brand/logo-knockout.svg in Violett, ohne Grund (transparent),
+       als quadratischer Ausschnitt der Karte (x 0–550), unverzerrt, volle Größe. Die Linien laufen wie auf der Karte bis an den Rand.
+       Linienstärke 44 (Logo: 43). -->
   <defs>
     <clipPath id="c"><rect width="550" height="550"/></clipPath>
   </defs>
-  <rect width="550" height="550" fill="#1E0B4A"/>
-  <g transform="translate(137.5 137.5) scale(0.5)" clip-path="url(#c)">
-    <g fill="none" stroke="#F5F2EB" stroke-width="43">
+  <g clip-path="url(#c)">
+    <g fill="none" stroke="#8A63FF" stroke-width="44">
       <path d="M-60 22H260V286M260 286H524V610M260 286L-60 606"/>
       <circle cx="444.8" cy="101.2" r="79.2"/>
     </g>
-    <rect x="-10" y="-10" width="291.5" height="25" fill="#F5F2EB"/>
+    <rect x="-10" y="-10" width="292" height="25" fill="#8A63FF"/>
   </g>
 </svg>

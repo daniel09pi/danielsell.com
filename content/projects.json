@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Alle Projekte. category: creative | adventure | dev. Pro Kategorie zeigt die Startseite das Projekt mit \"featured\": true, die Projektseite zeigt alle. Reihenfolge in der Liste = Reihenfolge auf der Seite. Werte in [eckigen Klammern] sind Platzhalter, \"\" blendet ein Feld aus. Bilder: Pfade relativ zum Repo. Neu in v5: Ein Bild darf statt eines Pfads auch ein Objekt { \"src\": \"portfolio_files/…\", \"alt\": \"Beschreibung des Bildes\" } sein; ohne alt erzeugt die Seite einen Alt-Text aus Titel und Nummer. Das erste Bild ist das Titelbild des Features.",
+  "_hinweis": "Alle Projekte. category: creative | adventure | dev. Pro Kategorie zeigt die Startseite bis zu zwei Projekte mit \"featured\": true (ohne Markierung die ersten beiden), die Projektseite zeigt alle. Reihenfolge in der Liste = Reihenfolge auf der Seite. Werte in [eckigen Klammern] sind Platzhalter, \"\" blendet ein Feld aus. Bilder: Pfade relativ zum Repo. Neu in v5: Ein Bild darf statt eines Pfads auch ein Objekt { \"src\": \"portfolio_files/…\", \"alt\": \"Beschreibung des Bildes\" } sein; ohne alt erzeugt die Seite einen Alt-Text aus Titel und Nummer. Das erste Bild ist das Titelbild des Features.",
   "projects": [
     {
       "slug": "alukeku",
@@ -56,7 +56,7 @@
     {
       "slug": "bookcovers",
       "category": "creative",
-      "featured": false,
+      "featured": true,
       "title": "Bookcovers",
       "kind": "Book Design",
       "year": "2024–2026",
@@ -167,44 +167,52 @@
       "links": [],
       "images": [
         {
+          "src": "portfolio_files/argentinien/1.avif",
+          "alt": "Red rock hills above a small village in a valley in north Argentina, under a cloudy blue sky"
+        },
+        {
           "src": "portfolio_files/_assets/selfie daniel lama.avif",
           "alt": "Daniel with a llama on a mountain road in north Argentina"
         },
         {
-          "src": "portfolio_files/project500/1.avif",
-          "alt": "project500 wordmark printed on white paper"
+          "src": "portfolio_files/argentinien/2.avif",
+          "alt": "Red, eroded desert landscape with sparse shrubs under a blue sky with white clouds"
         },
         {
-          "src": "portfolio_files/project500/2.avif",
-          "alt": "project500 monogram in white on a dark navy background"
+          "src": "portfolio_files/argentinien/3.avif",
+          "alt": "Daniel and a friend taking a selfie with a llama on a mountain road"
         },
         {
-          "src": "portfolio_files/project500/3.avif",
-          "alt": "project500 wordmark over a blurred photo of a dancer in red fabric"
+          "src": "portfolio_files/argentinien/4.avif",
+          "alt": "A person exploring the ruin of a large abandoned concrete hall"
+        }
+      ]
+    },
+    {
+      "slug": "iguazu",
+      "category": "adventure",
+      "featured": true,
+      "title": "Iguazú",
+      "kind": "Travel",
+      "year": "2025",
+      "tags": [
+        "Misiones",
+        "Waterfalls"
+      ],
+      "text": "Two days at the Iguazú Falls on the border between Argentina and Brazil: the Devil’s Throat from the walkways, a boat ride straight into the spray and the jungle around it.",
+      "links": [],
+      "images": [
+        {
+          "src": "portfolio_files/iguazu/1.avif",
+          "alt": "The Iguazú Falls: water pouring over several cliffs into a misty gorge"
         },
         {
-          "src": "portfolio_files/project500/4.avif",
-          "alt": "The 500 mark of project500 above a diver in shafts of blue light"
+          "src": "portfolio_files/iguazu/2.avif",
+          "alt": "Soaked passengers in orange life vests on a boat in the spray of the falls"
         },
         {
-          "src": "portfolio_files/project500/5.avif",
-          "alt": "project500 wordmark in black on white"
-        },
-        {
-          "src": "portfolio_files/project500/6.avif",
-          "alt": "The 500 mark of project500 in dark navy on mint green"
-        },
-        {
-          "src": "portfolio_files/landeshut/2.avif",
-          "alt": "Landeshut logo mark in two shades of blue on white"
-        },
-        {
-          "src": "portfolio_files/landeshut/4.avif",
-          "alt": "A man speaks to a seated audience on a covered terrace, the Landeshut mark laid over the photo"
-        },
-        {
-          "src": "portfolio_files/landeshut/6.avif",
-          "alt": "Landeshut pattern of interlocking quarter circles in blue and dark navy"
+          "src": "portfolio_files/iguazu/3.avif",
+          "alt": "Looking up into a tree with dense green leaves, a person climbing in its branches"
         }
       ]
     },
@@ -313,7 +321,7 @@
     {
       "slug": "danielsell-com",
       "category": "dev",
-      "featured": false,
+      "featured": true,
       "title": "danielsell.com",
       "kind": "Website",
       "year": "2026",
@@ -329,9 +337,20 @@
         }
       ],
       "images": [
-        "[Screenshots der neuen Seite, macht der Agent am Ende]"
+        {
+          "src": "portfolio_files/danielsell-com/1.avif",
+          "alt": "danielsell.com: the start page with the name daniel sell over three colour fields"
+        },
+        {
+          "src": "portfolio_files/danielsell-com/2.avif",
+          "alt": "danielsell.com: the about section with a photo and the greeting “hi, i’m daniel.”"
+        },
+        {
+          "src": "portfolio_files/danielsell-com/3.avif",
+          "alt": "danielsell.com: the contact section, “Say hello” and the email address in lime on dark violet"
+        }
       ]
     }
   ],
-  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): argentinien (Titel, Art, Jahr, Tags, Text; Bild 1 vorerst das About-Foto aus Argentinien, Bilder 2–7 vorläufig von project500, 8–10 von Landeshut), flowinsync (Bilder 2–7 vorläufig von Stooney, 8–10 von Bookcovers und Landeshut, bis es eigene Screenshots gibt), Jahre und Stack bei flowinsync, mixer-dashboard, werner-gehner. flowinsync: Source-Link entfernt."
+  "_beispiel": "Erfundene Beispielwerte, damit das Layout stimmt (bitte prüfen und ersetzen): argentinien (Titel, Art, Jahr, Tags, Text; die Fotos stammen aus assets-raw, Zuordnung zu Argentina/Iguazú geraten), iguazu (ganzes Projekt erfunden, Fotos aus assets-raw), flowinsync (Bilder 2–7 vorläufig von Stooney, 8–10 von Bookcovers und Landeshut, bis es eigene Screenshots gibt), danielsell-com (Bilder sind Screenshots dieser Seite vom 4. November 2026), Jahre und Stack bei flowinsync, mixer-dashboard, werner-gehner. Featured (je zwei pro Bereich, Runde 11): alukeku + bookcovers, argentinien + iguazu, flowinsync + danielsell-com. flowinsync: Source-Link entfernt."
 }

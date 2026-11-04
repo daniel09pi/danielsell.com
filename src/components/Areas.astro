@@ -1,235 +1,62 @@
 ---
-// Die drei Bereiche der Startseite (Runde 10): oben immer drei gleich breite Tabs, darunter der Inhalt.
-// Tab = Wort des Bereichs (Button): zeigt darunter das Featured Project des Bereichs in voller Breite; nochmal
-//   klicken, Kreuz oder Escape: zurück zum Split. Daneben die Projektzahl: Link zur Seite des Bereichs (/creative/ …).
-// Split (State 1): unter jedem Tab das Featured Project (Etikett, Titel, Art und Jahr, drei kleine, leicht
-//   gedrehte Bilder mit Hover je Bild). Klick darauf öffnet es wie der Tab.
-// Offen (State 2): links die Bilderbox mit allen Bildern (src/lib/collage.js: allgemein alle gleich groß; Klick
-//   auf ein Bild: sehr groß, die anderen sehr klein), rechts Etikett, Titel, Text, Links; Kreuz oben rechts.
-//   Box und Text stehen auf dem Raster der Tabs (Box unter den ersten beiden, Text unter dem dritten).
-// Links #creative usw. öffnen den Bereich. Ohne JavaScript bleibt der Split stehen (die Projektzahlen sind Links).
+// Die drei Bereiche der Startseite (Runde 11): drei gleich breite Farbspalten.
+// Oben die Tab-Leiste: pro Spalte Wort + Projektzahl, beides ein Link zur Seite des Bereichs (/creative/ …).
+// Darunter bis zu zwei Featured Projects: Titel, Art und Jahr, drei kleine, leicht gedrehte Bilder nebeneinander
+// (Hover je Bild). Ein Klick aufs Projekt führt zur Projektseite (/projects/<slug>/). Kein Aufklappen, kein Skript.
+// Die Zeilen (Tab, Etikett, Projekt 1, Projekt 2) stehen über alle drei Spalten auf gleicher Höhe (Subgrid).
 import Img from './Img.astro';
 import T from './T.astro';
-import { CATEGORIES, featured, byCategory, categoryLabel, categoryHref, has, isUrl, isExternal } from '../lib/content.js';
+import { CATEGORIES, featuredProjects, byCategory, categoryLabel, categoryHref, projectHref, has } from '../lib/content.js';
 import { projectImages } from '../lib/images.js';
 
-const areas = CATEGORIES.map((c) => {
-  const p = featured(c);
-  if (!p) return null;
-  return {
-    c,
+const areas = CATEGORIES.map((c) => ({
+  c,
+  label: categoryLabel(c),
+  count: byCategory(c).filter((x) => has(x.title)).length,
+  projects: featuredProjects(c).map((p) => ({
     p,
-    label: categoryLabel(c),
-    count: byCategory(c).filter((x) => has(x.title)).length,
-    images: projectImages(p).filter((im) => !im.placeholder),
     meta: [p.kind, p.year].filter(has),
-    links: (p.links ?? []).filter((l) => has(l?.label) && isUrl(l?.url)),
-  };
-}).filter(Boolean);
+    images: projectImages(p).filter((im) => !im.placeholder).slice(0, 3),
+  })),
+}));
 const countLabel = (n: number) => `${n} ${n === 1 ? 'project' : 'projects'}`;
-// Drei Vorschaubilder wie in v4 beim Hover über ein Projekt: Ruhewinkel, beim Hover in die Gegenrichtung
-const peekTilt = [[-1.5, 1], [2, -0.5], [-1, 1.5]];
-// Bilder in der Box stehen gerade und werden beim Hover leicht schief, abwechselnd nach links und rechts
-const boxTilt = [-1, 1.2, -0.8, 1, -1.2, 0.8];
+// Leicht gedreht wie die Vorschau in v4 beim Hover über ein Projekt; beim Hover dreht jedes Bild in die Gegenrichtung.
+// Zweites Projekt mit anderen Winkeln, damit die beiden Reihen nicht gleich aussehen.
+const tilts = [
+  [[-1.5, 1], [2, -0.5], [-1, 1.5]],
+  [[1.2, -1], [-1.8, 0.6], [1, -1.4]],
+];
 ---
 <section class="areas" id="work" aria-labelledby="work-title">
   <h2 class="sr-only" id="work-title">Work</h2>
-  <div class="areas__row" data-areas>
-    <div class="areas__tabs">
-      {areas.map((a) => (
-        <div class:list={['tab', `area--${a.c}`]} id={a.c} data-tab={a.c}>
-          <button type="button" class="tab__btn" aria-expanded="false" aria-controls={`${a.c}-spot`} disabled>
-            <span class="tab__word">{a.label}</span>
-          </button>
-          <a class="tab__count" href={categoryHref(a.c)}>{countLabel(a.count)}<span class="sr-only"> in {a.label}</span><span class="tab__arrow" aria-hidden="true">→</span></a>
-        </div>
-      ))}
-    </div>
-    <div class="areas__body">
-      {areas.map((a) => (
-        <article class:list={['spot', `area--${a.c}`]} id={`${a.c}-spot`} aria-labelledby={`${a.c}-title`} data-spot={a.p.slug} data-key={a.c}>
-          <div class="spot__in">
-            <div class="spot__text">
-              <p class="spot__tag">Featured project<span class="sr-only"> in {a.label}</span></p>
-              <h3 class="spot__title" id={`${a.c}-title`} tabindex="-1"><T v={a.p.title} /></h3>
-              {a.meta.length > 0 && <p class="spot__meta">{a.meta.map((m, i) => (<>{i > 0 && ', '}<T v={m} /></>))}</p>}
-              <div class="spot__more">
-                {has(a.p.text) && <p class="spot__body"><T v={a.p.text} /></p>}
-                {a.links.length > 0 && (
-                  <ul class="spot__links">
-                    {a.links.map((l) => (
-                      <li><a href={l.url} {...(isExternal(l.url) ? { rel: 'noopener', target: '_blank' } : {})}>{l.label}{isExternal(l.url) && <><span class="spot__ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></>}</a></li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-
-            {a.images.length > 0 && (
-              <div class="spot__peek" aria-hidden="true">
-                {a.images.slice(0, 3).map((im, i) => (
-                  <div class="spot__thumb" style={`--tilt:${peekTilt[i][0]}deg;--tilt-to:${peekTilt[i][1]}deg`}>
-                    <Img meta={im.meta} alt="" sizes="(min-width: 960px) 18vw, 50vw" />
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {a.images.length > 0 && (
-              <div class="spot__box" role="group" aria-label={`${a.p.title}: images`} data-box>
-                {a.images.map((im, i) => (
-                  <button
-                    type="button"
-                    class="spot__img"
-                    aria-pressed="false"
-                    data-ratio={(im.meta.width / im.meta.height).toFixed(4)}
-                    style={`--tilt:${boxTilt[i % boxTilt.length]}deg`}
-                  >
-                    <Img meta={im.meta} alt={im.alt} sizes="(min-width: 960px) 60vw, 90vw" />
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <button type="button" class="spot__open" aria-controls={`${a.c}-spot`} hidden>
-              <span class="sr-only">Show featured project: {a.p.title}</span>
-            </button>
-            <button type="button" class="spot__close" aria-label={`Close ${a.p.title}`} hidden>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
-            </button>
-          </div>
-        </article>
-      ))}
-    </div>
+  <div class="areas__grid">
+    {areas.map((a) => (
+      <section class:list={['area', `area--${a.c}`]} id={a.c} aria-labelledby={`${a.c}-word`}>
+        <h3 class="area__tab">
+          <a class="area__link" href={categoryHref(a.c)}>
+            <span class="area__word" id={`${a.c}-word`}>{a.label}</span>
+            <span class="area__count">{countLabel(a.count)}<span class="area__arrow" aria-hidden="true">→</span></span>
+          </a>
+        </h3>
+        {a.projects.length > 0 && <p class="area__tag">{a.projects.length > 1 ? 'Featured projects' : 'Featured project'}</p>}
+        {a.projects.map(({ p, meta, images }, k) => (
+          <article class="feat" aria-labelledby={`${p.slug}-feat`}>
+            <a class="feat__link" href={projectHref(p)}>
+              <h4 class="feat__title" id={`${p.slug}-feat`}><T v={p.title} /></h4>
+              {meta.length > 0 && <p class="feat__meta">{meta.map((m, i) => (<>{i > 0 && ', '}<T v={m} /></>))}</p>}
+              {images.length > 0 && (
+                <span class="feat__thumbs" aria-hidden="true">
+                  {images.map((im, i) => (
+                    <span class="feat__thumb" style={`--tilt:${tilts[k % 2][i][0]}deg;--tilt-to:${tilts[k % 2][i][1]}deg`}>
+                      <Img meta={im.meta} alt="" sizes="(min-width: 960px) 10vw, 30vw" />
+                    </span>
+                  ))}
+                </span>
+              )}
+            </a>
+          </article>
+        ))}
+      </section>
+    ))}
   </div>
 </section>
-
-<script>
-  // Bilderbox: Anordnung siehe src/lib/collage.js
-  import { gridLayout, focusLayout, hash } from '../lib/collage.js';
-
-  const setupBox = (box: HTMLElement, seed: number) => {
-    const items = Array.from(box.querySelectorAll<HTMLButtonElement>('.spot__img'));
-    const ratio = items.map((b) => Number(b.dataset.ratio) || 1.333);
-    let focus = -1;
-    let size = { w: 0, h: 0 };
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-    const layout = (animate: boolean) => {
-      const W = box.clientWidth, H = box.clientHeight;
-      if (!W || !H) return;
-      size = { w: W, h: H };
-      const g = parseFloat(getComputedStyle(box).columnGap) || 8;
-      const rects = focus < 0 ? gridLayout(ratio, W, H, g, seed) : focusLayout(ratio, W, H, g, focus);
-      box.classList.toggle('is-animating', animate && !reduce.matches);
-      items.forEach((b, i) => {
-        const r = rects[i];
-        b.style.left = `${r.x}px`; b.style.top = `${r.y}px`;
-        b.style.width = `${r.w}px`; b.style.height = `${r.h}px`;
-        b.setAttribute('aria-pressed', String(i === focus));
-        b.classList.toggle('is-focus', i === focus);
-      });
-      box.classList.toggle('has-focus', focus >= 0);
-      box.classList.add('is-ready');
-    };
-    items.forEach((b, i) => b.addEventListener('click', () => { focus = focus === i ? -1 : i; layout(true); }));
-    // Größe ändert sich (Fenster, Spalte geht auf): ohne Bewegung neu anordnen. Versteckt (0 × 0) merkt sie
-    // sich nichts, damit beim nächsten Öffnen auf jeden Fall neu angeordnet wird.
-    new ResizeObserver(() => {
-      const W = box.clientWidth, H = box.clientHeight;
-      if (!W || !H) { size = { w: 0, h: 0 }; return; }
-      if (W !== size.w || H !== size.h) layout(false);
-    }).observe(box);
-    return {
-      reset: () => { if (focus >= 0) { focus = -1; layout(false); } },
-      unfocus: () => { if (focus < 0) return false; focus = -1; layout(true); return true; },
-      // Bilder der Box laden, bevor sie gebraucht werden (lazy lädt in einer versteckten Box nicht)
-      preload: () => box.querySelectorAll('img[loading="lazy"]').forEach((img) => img.setAttribute('loading', 'eager')),
-    };
-  };
-
-  // ---------- Tabs und Inhalt: Split (null) oder ein Bereich offen ----------
-  const row = document.querySelector<HTMLElement>('[data-areas]');
-  if (row) {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const wide = window.matchMedia('(min-width: 60rem)');
-    const parts = Array.from(row.querySelectorAll<HTMLElement>('[data-tab]')).map((tab) => {
-      const key = tab.dataset.tab!;
-      const spot = row.querySelector<HTMLElement>(`[data-key="${key}"]`)!;
-      const box = spot.querySelector<HTMLElement>('[data-box]');
-      return {
-        key,
-        tab,
-        btn: tab.querySelector<HTMLButtonElement>('.tab__btn')!,
-        spot,
-        open: spot.querySelector<HTMLButtonElement>('.spot__open')!,
-        close: spot.querySelector<HTMLButtonElement>('.spot__close')!,
-        title: spot.querySelector<HTMLElement>('.spot__title')!,
-        peek: spot.querySelector<HTMLElement>('.spot__peek'),
-        box: box ? setupBox(box, hash(spot.dataset.spot ?? '')) : null,
-      };
-    });
-    let wanted: string | null | undefined;   // offener Bereich, null = Split
-    let timer = 0;
-
-    const apply = (target: string | null) => {
-      parts.forEach(({ key, btn, spot, open, close, box }) => {
-        const isOpen = key === target;
-        spot.classList.toggle('is-open', isOpen);
-        btn.setAttribute('aria-expanded', String(isOpen));
-        open.hidden = target !== null;
-        close.hidden = !isOpen;
-        spot.inert = target !== null && !isOpen;
-        if (!isOpen) box?.reset();
-      });
-      row.classList.toggle('has-open', target !== null);
-    };
-    // Die Tabs bleiben stehen; nur der Inhalt blendet aus, wird umgebaut und blendet wieder ein.
-    const show = (target: string | null, opts: { instant?: boolean; focus?: () => HTMLElement | null } = {}) => {
-      if (target === wanted) return;
-      wanted = target;
-      clearTimeout(timer);
-      if (target) parts.find((p) => p.key === target)?.box?.preload();
-      const done = () => { apply(target); opts.focus?.()?.focus({ preventScroll: true }); };
-      if (opts.instant || reduce.matches || !wide.matches) { row.classList.remove('is-leaving'); done(); return; }
-      row.classList.add('is-leaving');
-      timer = window.setTimeout(() => { done(); row.classList.remove('is-leaving'); }, 180);
-    };
-
-    parts.forEach((p) => {
-      p.btn.disabled = false;
-      p.open.hidden = false;
-      // Doppelklick: nur der erste Klick zählt
-      p.btn.addEventListener('click', (e) => { if (e.detail <= 1) show(wanted === p.key ? null : p.key); });
-      p.open.addEventListener('click', (e) => { if (e.detail <= 1) show(p.key, { focus: () => p.title }); });
-      // Die Vorschaubilder liegen über dem Button (eigener Hover je Bild) und öffnen per Maus genauso.
-      p.peek?.addEventListener('click', (e) => {
-        if (e.detail <= 1 && (e.target as HTMLElement).closest('.spot__thumb')) show(p.key, { focus: () => p.title });
-      });
-      for (const el of [p.btn, p.open, p.peek]) el?.addEventListener('pointerenter', () => p.box?.preload(), { once: true });
-      p.open.addEventListener('focus', () => p.box?.preload(), { once: true });
-      p.close.addEventListener('click', () => show(null, { focus: () => p.btn }));
-    });
-    // Escape: erst ein großes Bild zurück, dann zum Split.
-    document.addEventListener('keydown', (e) => {
-      const open = parts.find((p) => p.key === wanted);
-      if (e.key !== 'Escape' || !open) return;
-      if (open.box?.unfocus()) return;
-      const inside = open.spot.contains(document.activeElement);
-      show(null, { focus: () => (inside ? open.btn : null) });
-    });
-    wide.addEventListener('change', () => { if (wanted !== undefined) apply(wanted); });
-
-    const fromHash = (h: string) => parts.find((p) => `#${p.tab.id}` === h)?.key ?? null;
-    window.addEventListener('hashchange', () => { const k = fromHash(location.hash); if (k) show(k); });
-    // Gleicher Link zweimal hintereinander löst kein hashchange aus, deshalb auch beim Klick öffnen.
-    document.addEventListener('click', (e) => {
-      const link = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#"]');
-      const k = link && fromHash(link.getAttribute('href') ?? '');
-      if (k) show(k);
-    });
-
-    row.classList.add('is-enhanced');
-    show(fromHash(location.hash), { instant: true });
-  }
-</script>

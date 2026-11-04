@@ -164,150 +164,70 @@ a:hover { text-decoration-color: currentColor; }
 .mark--adventure { background: var(--field-adventure); color: var(--ground); }
 .mark--dev { background: var(--field-dev); color: var(--ink-deep); }
 
-/* ---------- Bereiche: Tabs oben, darunter Split oder ein Bereich in voller Breite (Startseite) ---------- */
-/* Oben immer drei gleich breite Tabs in den Farben der Bereiche. Split: unter jedem Tab sein Featured Project.
-   Offen: der Inhalt eines Bereichs füllt die ganze Breite unter den Tabs; sein Tab geht nahtlos in den Inhalt
-   über (gleiche Farbe), die anderen beiden stehen darüber wie Browser-Tabs. Nichts verschiebt sich beim Hover. */
-/* overflow-anchor: Beim Umbau soll der Browser nicht nachscrollen (die Höhe bleibt gleich). */
-.areas { margin-top: var(--section); overflow-anchor: none; }
+/* ---------- Bereiche: drei Farbspalten mit Tab-Leiste und je zwei Featured Projects (Startseite) ---------- */
+/* Oben die Tab-Leiste (Wort + Projektzahl, Link zur Seite des Bereichs), darunter bis zu zwei Featured Projects
+   mit je drei kleinen Bildern nebeneinander; Klick aufs Projekt führt zur Projektseite. Hover: Unterstreichung
+   und eine leichte Drehung der Bilder, nichts verschiebt sich. */
+.areas { margin-top: var(--section); }
 .area--creative { --area-bg: var(--field-creative); --area-fg: var(--ink); --area-soft: var(--ink-soft); }
 .area--adventure { --area-bg: var(--field-adventure); --area-fg: var(--ground); --area-soft: var(--line); }
 /* Ink auf Violett hätte 4,4 : 1; das tiefere Ink erreicht 4,9 : 1 */
 .area--dev { --area-bg: var(--field-dev); --area-fg: var(--ink-deep); --area-soft: var(--ink-deep); }
-.tab, .spot { background: var(--area-bg); color: var(--area-fg); }
-:is(.tab, .spot) :focus-visible { outline-color: var(--area-fg); }
-:is(.tab, .spot) a { color: inherit; }
+.area { background: var(--area-bg); color: var(--area-fg); padding: 0 var(--margin) clamp(2.75rem, 5vw, 4.5rem); scroll-margin-top: 0; }
+.area :focus-visible { outline-color: var(--area-fg); }
+.area a { color: inherit; text-decoration: none; }
 
-/* Tab: Wort (Button, öffnet den Bereich) und Projektzahl (Link zur Seite des Bereichs) auf einer Grundlinie.
-   Das Wort des offenen Bereichs bleibt unterstrichen. */
-.areas__tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.tab { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.75rem; padding: 1.25rem var(--margin) 0; scroll-margin-top: 0; }
-.tab__btn { padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-.tab__btn:disabled { cursor: default; }
-.tab__btn:focus-visible { outline-offset: 4px; }
-.tab__word {
+/* Zeilen über alle drei Spalten gleich hoch: Tab, Etikett, Projekt 1, Projekt 2 */
+.areas__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(4, auto); }
+.area { grid-row: span 4; display: grid; grid-template-rows: subgrid; align-content: start; }
+
+/* Tab-Leiste: viel Luft über und unter dem Wort; Wort und Projektzahl auf einer Grundlinie */
+.area__tab { font: inherit; padding-block: clamp(2.25rem, 4.5vw, 3.75rem) clamp(2rem, 4vw, 3.25rem); }
+.area__link { display: inline-flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.75rem; }
+.area__link:focus-visible { outline-offset: 6px; }
+.area__word {
   font-size: var(--step-head); line-height: 0.95; letter-spacing: -0.035em;
   text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 0.04em; text-underline-offset: 0.14em;
   transition: text-decoration-color 0.25s var(--ease);
 }
-.tab__btn:not(:disabled):hover .tab__word, .tab__btn[aria-expanded="true"] .tab__word { text-decoration-color: currentColor; }
-.tab a.tab__count {
-  display: inline-block; padding-block: 0.75rem; color: var(--area-soft); font-size: var(--step-small); white-space: nowrap;
-  text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 0.2em; transition: text-decoration-color 0.25s var(--ease);
-}
-.tab__count:hover { text-decoration-color: currentColor; }
-.tab__arrow { display: inline-block; margin-left: 0.3em; }
+.area__count { color: var(--area-soft); font-size: var(--step-small); white-space: nowrap; }
+.area__arrow { display: inline-block; margin-left: 0.3em; }
+.area__link:hover .area__word { text-decoration-color: currentColor; }
 
-/* Featured Project */
-.spot { position: relative; }
-.spot__in { position: relative; padding: 2.25rem var(--margin) var(--margin); }
-.spot__tag { display: block; width: fit-content; padding: 0.2rem 0.5rem; background: var(--area-fg); color: var(--area-bg); font-size: var(--step-small); line-height: 1.4; font-weight: 500; }
-.spot__title {
-  margin-top: 1rem; font-size: clamp(2rem, 1.2rem + 1.6vw, 2.75rem); line-height: 1.05; font-weight: 450; letter-spacing: -0.025em;
+.area__tag { justify-self: start; align-self: start; padding: 0.2rem 0.5rem; background: var(--area-fg); color: var(--area-bg); font-size: var(--step-small); line-height: 1.4; font-weight: 500; }
+
+/* Featured Project: Titel, Art und Jahr, drei Bilder nebeneinander; das ganze Projekt ist ein Link */
+.feat { padding-top: 1.5rem; }
+.feat + .feat { padding-top: 2.75rem; }
+.feat__link { display: block; width: fit-content; max-width: 100%; }
+.feat__link:focus-visible { outline-offset: 6px; }
+.feat__title {
+  font-size: clamp(1.75rem, 1.1rem + 1.3vw, 2.375rem); line-height: 1.05; font-weight: 450; letter-spacing: -0.025em;
   text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 0.05em; text-underline-offset: 0.14em;
   transition: text-decoration-color 0.25s var(--ease);
 }
-.spot__title:focus { outline: none; }
-.spot__meta { margin-top: 0.5rem; color: var(--area-soft); font-size: 1rem; }
-.spot__more { display: none; }
-.spot__body { margin-top: 1.5rem; max-width: 36ch; }
-.spot__links { margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: 0 1.25rem; }
-.spot__links a { display: inline-block; padding-block: 0.6rem; min-width: 44px; }
-.spot__ext { margin-left: 0.25em; display: inline-block; text-decoration: none; }
-
-/* Split: drei kleine, gleich große Bilder untereinander, leicht gedreht wie die Vorschau in v4. Sie liegen über
-   dem Button der Fläche und haben je einen eigenen Hover (drehen in die Gegenrichtung, sättigen). */
-.spot__peek { display: grid; justify-items: start; align-content: start; gap: 0.875rem; margin-top: 1.75rem; pointer-events: none; }
-.spot__thumb {
-  position: relative; z-index: 2; pointer-events: auto; cursor: pointer;
-  width: clamp(7rem, 8.9vw, 10.5rem); aspect-ratio: 3 / 2; overflow: hidden; background: color-mix(in srgb, var(--area-fg) 12%, transparent);
+.feat__link:hover .feat__title { text-decoration-color: currentColor; }
+.feat__meta { margin-top: 0.4rem; color: var(--area-soft); font-size: 1rem; }
+.feat__thumbs { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+.feat__thumb {
+  flex: none; width: clamp(5.75rem, 7.4vw, 8.5rem); aspect-ratio: 3 / 2; overflow: hidden;
+  background: color-mix(in srgb, var(--area-fg) 12%, transparent);
   transform: rotate(var(--tilt)); filter: saturate(0.75);
   transition: transform var(--tilt-time) var(--ease), filter var(--tilt-time) var(--ease);
 }
-.spot__thumb:hover { transform: rotate(var(--tilt-to)); filter: saturate(1); }
-.spot__thumb picture, .spot__thumb img { display: block; width: 100%; height: 100%; }
-.spot__thumb img { object-fit: cover; }
-
-/* Die ganze Fläche des Featured Project öffnet den Bereich (ein Button, über Etikett und Titel gelegt) */
-.spot__open { position: absolute; inset: 0; z-index: 1; padding: 0; border: 0; background: none; cursor: pointer; }
-.spot__open[hidden] { display: none; }
-.spot__open:focus-visible { outline-offset: -6px; }
-.spot:has(.spot__open:hover, .spot__thumb:hover) .spot__title { text-decoration-color: currentColor; }
-
-.spot__close {
-  position: absolute; z-index: 2; top: calc(var(--margin) - 0.5rem); right: calc(var(--margin) - 0.625rem);
-  width: 2.75rem; height: 2.75rem; display: grid; place-items: center; border: 0; background: none; color: inherit; cursor: pointer;
-  transition: background-color 0.25s var(--ease), color 0.25s var(--ease);
-}
-.spot__close[hidden] { display: none; }
-.spot__close svg { width: 1.5rem; height: 1.5rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: square; }
-.spot__close:hover { background: var(--area-fg); color: var(--area-bg); }
-
-/* Bilderbox (offen). Die Bilder stehen gerade, im eigenen Format; Lage und Größe rechnet src/lib/collage.js aus
-   (column-gap = Abstand). Allgemein alle gleich groß, im Fokus eins sehr groß und die anderen sehr klein. */
-.spot__box { display: none; position: relative; column-gap: clamp(0.5rem, 0.8cqi, 0.875rem); }
-.spot__img {
-  position: absolute; padding: 0; border: 0; background: color-mix(in srgb, var(--area-fg) 12%, transparent); cursor: zoom-in;
-  transform: rotate(0deg); transition: transform var(--tilt-time) var(--ease);
-}
-.spot__img.is-focus { cursor: zoom-out; }
-.spot__box:not(.is-ready) .spot__img { visibility: hidden; }
-.spot__box.is-animating .spot__img {
-  transition: transform var(--tilt-time) var(--ease),
-    left 0.55s var(--ease), top 0.55s var(--ease), width 0.55s var(--ease), height 0.55s var(--ease);
-}
-.spot__img:hover, .spot__img:focus-visible { transform: rotate(var(--tilt)); z-index: 1; }
-.spot__img:focus-visible { outline-offset: 3px; }
-.spot__img picture, .spot__img img { display: block; width: 100%; height: 100%; }
-.spot__img img { object-fit: cover; }
-
-.spot.is-open .spot__more { display: block; }
-.spot.is-open .spot__peek { display: none; }
-.spot.is-open .spot__box { display: block; }
-
-@media (min-width: 60rem) {
-  .areas__row {
-    container-type: inline-size;
-    display: grid; grid-template-rows: auto minmax(0, 1fr); height: clamp(36rem, 88svh, 56rem);
-  }
-  /* Inhalt: drei Spalten nebeneinander. Offen wird eine 100 % breit, die anderen 0; der Inhalt hat je Zustand
-     eine feste Breite und wird nur abgeschnitten, damit er während der Bewegung nicht neu umbricht. */
-  .areas__body { display: flex; min-height: 0; }
-  .spot { flex: 0 0 auto; width: calc(100cqi / 3); min-width: 0; overflow: hidden; }
-  .spot__in { width: calc(100cqi / 3); height: 100%; }
-  .is-enhanced .spot { transition: width 0.6s var(--ease); }
-  .has-open .spot { width: 0; }
-  .has-open .spot.is-open { width: 100cqi; }
-
-  /* Offen: Box unter den ersten beiden Tabs, Text unter dem dritten; außen überall der gleiche Rand */
-  .spot.is-open .spot__in {
-    width: 100cqi; display: grid;
-    grid-template-columns: calc(100cqi * 2 / 3 - 2 * var(--margin)) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr);
-    column-gap: calc(2 * var(--margin)); padding: var(--margin);
-  }
-  .spot.is-open .spot__box { grid-column: 1; grid-row: 1; }
-  .spot.is-open .spot__text { grid-column: 2; grid-row: 1; align-self: start; min-width: 0; }
-
-  /* Wechsel: Tabs bleiben stehen; der Inhalt blendet aus (is-leaving), wird umgebaut und blendet wieder ein */
-  .is-enhanced .spot__in { transition: opacity 0.4s var(--ease) 0.3s; }
-  .is-enhanced.is-leaving .spot__in { opacity: 0; transition: opacity 0.18s var(--ease); }
-}
+.feat__thumb:hover { transform: rotate(var(--tilt-to)); filter: saturate(1); }
+.feat__thumb picture, .feat__thumb img { display: block; width: 100%; height: 100%; }
+.feat__thumb img { object-fit: cover; }
 
 @media (max-width: 59.99rem) {
-  .tab { flex-direction: column; padding: 1rem var(--margin) 0.25rem; }
-  .tab__word { font-size: var(--step-lead); }
-  .tab__count { padding-block: 0.5rem; }
-  .has-open .spot:not(.is-open) { display: none; }
-  .spot__in { padding-top: 1.75rem; }
-  .spot__thumb { width: 9rem; }
-  .spot.is-open .spot__box { margin-top: 1.75rem; aspect-ratio: 4 / 5; }
+  .areas__grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+  .area { grid-row: auto; display: block; }
+  .area__tab { padding-block: 2rem 1.5rem; }
+  .area__tag { display: inline-block; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .is-enhanced :is(.spot, .spot__in) { transition: none !important; }
-  .spot__thumb:hover { transform: rotate(var(--tilt)); }
-  .spot__img:hover, .spot__img:focus-visible { transform: none; }
-}
+@media (hover: none) { .feat__thumb { filter: saturate(1); } }
+@media (prefers-reduced-motion: reduce) { .feat__thumb:hover { transform: rotate(var(--tilt)); } }
 
 /* ---------- Kapitel und Feature ---------- */
 .chapter { margin-top: var(--section); scroll-margin-top: 1rem; }

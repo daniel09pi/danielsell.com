@@ -25,11 +25,15 @@ export const byCategory = (cat) => projects.filter((p) => p.category === cat);
 /** Eigene Seite pro Bereich (Phase 2): /creative/, /adventure/, /dev/ */
 export const categoryHref = (cat) => `/${cat}/`;
 
-/** Feature pro Kategorie: das Projekt mit featured: true, sonst das erste der Liste. */
-export const featured = (cat) => {
-  const list = byCategory(cat);
-  return list.find((p) => p.featured === true) ?? list[0] ?? null;
+/** Featured Projects pro Kategorie (Startseite): bis zu n Projekte mit featured: true, ohne Markierung die ersten n. */
+export const featuredProjects = (cat, n = 2) => {
+  const list = byCategory(cat).filter((p) => has(p.title));
+  const marked = list.filter((p) => p.featured === true);
+  return (marked.length ? marked : list).slice(0, n);
 };
+
+/** Projektseite (Phase 2) */
+export const projectHref = (p) => `/projects/${p.slug}/`;
 
 /** Untertitel-Wort i verlinkt auf Kategorie i (creative, adventure, dev). */
 export const subtitleLinks = () =>

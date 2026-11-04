@@ -81,7 +81,7 @@ const quote = site.quote ?? {};
   {has(quote.text) && (
     <section class="quote wrap" aria-label={has(quote.label) ? quote.label : 'In short'}>
       {has(quote.label) && <p class="quote__label" aria-hidden="true"><T v={quote.label} /></p>}
-      <blockquote class="quote__text"><p>{parseMarks(quote.text).map((part) => part.category ? <a class:list={["mark", `mark--${part.category}`]} href={`#${part.category}`}>{part.text}</a> : part.text)}</p></blockquote>
+      <blockquote class="quote__text"><p>{parseMarks(quote.text).map((part) => part.category ? <span class:list={["mark", `mark--${part.category}`]}>{part.text}</span> : part.text)}</p></blockquote>
     </section>
   )}
 

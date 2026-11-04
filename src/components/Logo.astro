@@ -1,14 +1,16 @@
 ---
 // Logo aus brand/*.svg, unverändert in der Geometrie. Farbe über currentColor (CSS: color).
+// stroke: andere Linienstärke als im Logo (43), z. B. 44 wie im Favicon; der Balken oben links wächst mit.
 import loose from '../../brand/logo.svg?raw';
 import knockout from '../../brand/logo-knockout.svg?raw';
 
-interface Props { variant?: 'loose' | 'knockout'; class?: string; label?: string; uid?: string }
-const { variant = 'loose', class: cls = '', label, uid = 'a' } = Astro.props;
+interface Props { variant?: 'loose' | 'knockout'; class?: string; label?: string; uid?: string; stroke?: number }
+const { variant = 'loose', class: cls = '', label, uid = 'a', stroke } = Astro.props;
 
 let svg = (variant === 'knockout' ? knockout : loose)
   .replace(/<!--[\s\S]*?-->/g, '')
   .replace(/ds-logo-knockout/g, `ds-logo-knockout-${uid}`);
+if (stroke) svg = svg.replace(/stroke-width="43"/g, `stroke-width="${stroke}"`).replace(/width="291\.5"/g, `width="${270 + stroke / 2}"`);
 svg = label
   ? svg.replace(/aria-label="[^"]*"/, `aria-label="${label}"`)
   : svg.replace(/ role="img"/, ' aria-hidden="true" focusable="false"').replace(/ aria-label="[^"]*"/, '');

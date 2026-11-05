@@ -90,6 +90,9 @@ for (const c of CATEGORIES) {
     <div class="ht-grp"><span class="ht-lab">Farbe</span><div class="ht-btns">
       <button type="button" data-k="m" data-v="color">Original</button><button type="button" data-k="m" data-v="tint">ins Feld eingefärbt</button><button type="button" data-k="m" data-v="gray">schwarzweiß</button>
     </div></div>
+    <div class="ht-grp"><span class="ht-lab">Spalte unter der Maus</span><div class="ht-btns">
+      <button type="button" data-k="hc" data-v="off">bleibt wie oben</button><button type="button" data-k="hc" data-v="snap">wird farbig, sofort</button><button type="button" data-k="hc" data-v="fade">wird farbig, sanft</button>
+    </div></div>
     <label class="ht-grp"><span class="ht-lab">Deckkraft</span><input type="range" data-k="o" min="10" max="100" step="1" /><output data-o="o"></output></label>
     <div class="ht-grp"><span class="ht-lab">Rahmen</span><div class="ht-btns">
       <button type="button" data-k="fr" data-v="none">keiner</button><button type="button" data-k="fr" data-v="line">Linie</button><button type="button" data-k="fr" data-v="mat">Passepartout</button>
@@ -152,6 +155,11 @@ for (const c of CATEGORIES) {
   .lb--tint .lb__img img { filter: grayscale(1) contrast(1.08); }
   .lb--tint .lb__layer { mix-blend-mode: multiply; }
   .lb--tint .lb__layer[data-cat='adventure'] { mix-blend-mode: screen; }
+  /* Spalte unter der Maus (oder unter dem Wort/den Titeln darunter) in Originalfarbe */
+  .lb--hc-fade .lb__img img { transition: filter 0.6s var(--ease); }
+  .lb:not(.lb--hc-off)[data-col='creative'] .lb__layer[data-cat='creative'] img,
+  .lb:not(.lb--hc-off)[data-col='adventure'] .lb__layer[data-cat='adventure'] img,
+  .lb:not(.lb--hc-off)[data-col='dev'] .lb__layer[data-cat='dev'] img { filter: none; }
 
   /* Rahmen */
   .lb--fr-line .lb__img { outline: 1px solid var(--cap); outline-offset: -1px; }
@@ -202,16 +210,17 @@ for (const c of CATEGORIES) {
 
   // ---------- Einstellungen ----------
   const DEFAULTS: Record<string, string> = {
-    sp: '40', dir: 'rtl', hov: 'slow',
-    h: '170', g: '16', ar: '1.333', y: '32', rows: '1', z: 'front', bg: 'none',
-    bt: '0', tm: 'none', tt: '0.6',
-    m: 'color', o: '100', fr: 'none', rd: '0', cap: 'off', set: 'all', ord: 'mix',
+    // Daniels Auswahl vom 5. November 2026
+    sp: '100', dir: 'ltr', hov: 'run',
+    h: '160', g: '5', ar: '0.8', y: '50', rows: '2', z: 'front', bg: 'none',
+    bt: '-9', tm: 'none', tt: '0.6',
+    m: 'gray', hc: 'fade', o: '100', fr: 'none', rd: '0', cap: 'off', set: 'all', ord: 'mix',
     ed: 'hard', ew: '80',
   };
   const state: Record<string, string> = { ...DEFAULTS };
   for (const [k, v] of new URLSearchParams(location.hash.slice(1))) if (k in state) state[k] = v;
   // Diese Werte ändern nur CSS-Variablen/Klassen; alle anderen bauen das Band neu
-  const LIVE = new Set(['sp', 'hov', 'y', 'bt', 'm', 'o', 'fr', 'rd', 'cap', 'bg', 'ed', 'ew', 'z']);
+  const LIVE = new Set(['sp', 'hov', 'y', 'bt', 'm', 'hc', 'o', 'fr', 'rd', 'cap', 'bg', 'ed', 'ew', 'z']);
   const UNITS: Record<string, string> = { sp: ' px/s', h: ' px', g: ' px', y: ' %', bt: '°', tt: '°', o: ' %', rd: ' px', ew: ' px' };
 
   // ---------- Bildfolge pro Bereich ----------
@@ -348,13 +357,27 @@ for (const c of CATEGORIES) {
     rampTo(1);
   });
 
+  // Welche Spalte hat die Maus? Über den Feldern nach x-Position (Drittel), darunter das Wort und die Titel des Bereichs.
+  const setCol = (c: string | null) => { if (c) lb.dataset.col = c; else delete lb.dataset.col; };
+  stage.addEventListener('pointermove', (e) => {
+    const r = stage.getBoundingClientRect();
+    setCol(CATS[Math.min(2, Math.max(0, Math.floor(((e.clientX - r.left) / r.width) * 3)))]);
+  });
+  stage.addEventListener('pointerleave', () => setCol(null));
+  document.querySelectorAll<HTMLElement>('.hero__area').forEach((area, i) => {
+    area.addEventListener('pointerenter', () => setCol(CATS[i]));
+    area.addEventListener('pointerleave', () => setCol(null));
+    area.addEventListener('focusin', () => setCol(CATS[i]));
+    area.addEventListener('focusout', (e) => { if (!area.contains(e.relatedTarget as Node)) setCol(null); });
+  });
+
   function applyLive() {
     lb.style.setProperty('--y', `${state.y}%`);
     lb.style.setProperty('--bt', `${state.bt}deg`);
     lb.style.setProperty('--lb-o', `${+state.o / 100}`);
     lb.style.setProperty('--rd', `${state.rd}px`);
     lb.style.setProperty('--ew', `${state.ew}px`);
-    lb.className = ['lb', `lb--${state.m}`, `lb--fr-${state.fr}`, `lb--cap-${state.cap}`, `lb--bg-${state.bg}`, state.ed === 'soft' ? 'lb--soft' : ''].join(' ');
+    lb.className = ['lb', `lb--${state.m}`, `lb--hc-${state.hc}`, `lb--fr-${state.fr}`, `lb--cap-${state.cap}`, `lb--bg-${state.bg}`, state.ed === 'soft' ? 'lb--soft' : ''].join(' ');
     // Name vor oder hinter dem Band: Reihenfolge im DOM (beide positioniert, ohne z-index, damit der Mischmodus
     // weiter mit den Feldern mischt)
     if (state.z === 'front') stage.insertBefore(lb, nameEl); else stage.append(lb);
@@ -370,7 +393,7 @@ for (const c of CATEGORIES) {
       `Tempo ${state.sp} px/s ${label('dir')}, Maus: ${label('hov')}`,
       `Bild ${state.h} px, ${label('ar')}, Abstand ${state.g} px, Lage ${state.y} %, Reihen: ${label('rows')}, Name ${label('z')}, Unterlage: ${label('bg')}`,
       `Band ${state.bt}°, Bilder: ${label('tm')}${state.tm !== 'none' ? ` ${state.tt}°` : ''}`,
-      `${label('m')} ${state.o} %, Rahmen: ${label('fr')}, Ecken ${state.rd} px, Titel: ${label('cap')}, ${label('set')}, ${label('ord')}`,
+      `${label('m')}, Spalte unter der Maus: ${label('hc')}, ${state.o} %, Rahmen: ${label('fr')}, Ecken ${state.rd} px, Titel: ${label('cap')}, ${label('set')}, ${label('ord')}`,
       `Kante: ${label('ed')}${state.ed === 'soft' ? ` ${state.ew} px` : ''}`,
     ].join(' · ');
     history.replaceState(null, '', `#${new URLSearchParams(state)}`);

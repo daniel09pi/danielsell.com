@@ -1,0 +1,406 @@
+---
+// Testseite für den Hero: "Laufband". Ein Band aus Projektbildern läuft endlos von rechts nach links quer über die
+// drei Felder. Über jedem Feld zeigt jede Kachel ein Bild aus dessen Bereich; an den Feldkanten ist eine Kachel
+// geteilt (links das Bild des einen, rechts das des anderen Bereichs).
+// Umsetzung: drei deckungsgleiche Ebenen (eine pro Bereich) mit identischer Geometrie und derselben Animation,
+// jede auf ihre Spalte zugeschnitten (clip-path). Bewegung nur per transform (Web Animations), kein Zeichnen pro Bild.
+// Nicht verlinkt, noindex, nicht in der Sitemap (Filter auf varianten/ in sitemap.xml.js).
+import Base from '../../layouts/Base.astro';
+import T from '../../components/T.astro';
+import { site, has, isPlaceholder, CATEGORIES, byCategory, subtitleLinks } from '../../lib/content.js';
+import { resolveImage } from '../../lib/images.js';
+
+const name = site.person?.name ?? '';
+const words = subtitleLinks();
+const areas = CATEGORIES.map((c) => ({ category: c, word: words.find((w) => w.category === c)?.word ?? c, projects: byCategory(c).filter((p) => has(p.title)) }));
+
+// Bilder pro Bereich. Ein Bild, das schon in einem früheren Bereich vorkommt (flowinsync zeigt vorläufig Bilder
+// aus creative), gehört dem ersten Bereich; sonst stünde ein creative-Bild über dem dev-Feld.
+const owner = new Map();
+const pools = {};
+for (const c of CATEGORIES) {
+  pools[c] = areas.find((a) => a.category === c).projects.map((p) => {
+    const imgs = (p.images ?? [])
+      .map((e) => (typeof e === 'string' ? e : e?.src))
+      .filter((src) => has(src) && !isPlaceholder(src))
+      .filter((src) => { if (owner.has(src) && owner.get(src) !== c) return false; owner.set(src, c); return true; })
+      .map((src) => {
+        const m = resolveImage(src);
+        return { srcset: m.variants.avif.map((v) => `${encodeURI(v.url)} ${v.w}w`).join(', '), src: encodeURI(m.variants.avif[0].url) };
+      });
+    return { slug: p.slug, title: p.title, imgs };
+  }).filter((p) => p.imgs.length);
+}
+---
+<Base title="Laufband-Test" noindex nav={[{ label: 'work', href: '/#work' }, { label: 'about', href: '/#about' }, { label: 'contact', href: '/#contact' }]}>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero__stage" id="lb-stage">
+      {areas.map((a) => <div class:list={['hero__field', `hero__field--${a.category}`]} aria-hidden="true"></div>)}
+      <div class="lb" id="lb" aria-hidden="true"></div>
+      <h1 class="hero__name" id="hero-title">{name.toLowerCase()}</h1>
+    </div>
+    <ul class="hero__index">
+      {areas.map((a) => (
+        <li class:list={['hero__area', `hero__area--${a.category}`]}>
+          <a class="hero__word" href={`/#${a.category}`}><T v={a.word} /></a>
+          {a.projects.length > 0 && <ul class="hero__titles">{a.projects.map((p) => <li><a href={`/projects/${p.slug}/`}><T v={p.title} /></a></li>)}</ul>}
+        </li>
+      ))}
+    </ul>
+  </section>
+  <script type="application/json" id="lb-data" set:html={JSON.stringify(pools)}></script>
+
+  <aside class="ht-panel" id="ht-panel" aria-label="Einstellungen">
+    <div class="ht-head"><strong>Hero-Test: Laufband</strong><span class="ht-keys">Leertaste Pause · H aus</span></div>
+
+    <p class="ht-sec">Bewegung</p>
+    <label class="ht-grp"><span class="ht-lab">Tempo</span><input type="range" data-k="sp" min="0" max="240" step="2" /><output data-o="sp"></output></label>
+    <div class="ht-grp"><span class="ht-lab">Richtung</span><div class="ht-btns">
+      <button type="button" data-k="dir" data-v="rtl">← nach links</button><button type="button" data-k="dir" data-v="ltr">nach rechts →</button>
+    </div></div>
+    <div class="ht-grp"><span class="ht-lab">Maus drauf</span><div class="ht-btns">
+      <button type="button" data-k="hov" data-v="run">läuft weiter</button><button type="button" data-k="hov" data-v="slow">wird langsam</button><button type="button" data-k="hov" data-v="stop">hält an</button>
+    </div></div>
+
+    <p class="ht-sec">Band</p>
+    <label class="ht-grp"><span class="ht-lab">Höhe Bild</span><input type="range" data-k="h" min="60" max="420" step="2" /><output data-o="h"></output></label>
+    <label class="ht-grp"><span class="ht-lab">Abstand</span><input type="range" data-k="g" min="0" max="120" step="1" /><output data-o="g"></output></label>
+    <div class="ht-grp"><span class="ht-lab">Format</span><div class="ht-btns">
+      <button type="button" data-k="ar" data-v="0.8">4:5</button><button type="button" data-k="ar" data-v="1">1:1</button><button type="button" data-k="ar" data-v="1.333">4:3</button><button type="button" data-k="ar" data-v="1.5">3:2</button><button type="button" data-k="ar" data-v="1.778">16:9</button>
+    </div></div>
+    <label class="ht-grp"><span class="ht-lab">Lage</span><input type="range" data-k="y" min="0" max="100" step="1" /><output data-o="y"></output></label>
+    <div class="ht-grp"><span class="ht-lab">Reihen</span><div class="ht-btns">
+      <button type="button" data-k="rows" data-v="1">eine</button><button type="button" data-k="rows" data-v="2">zwei, gleich</button><button type="button" data-k="rows" data-v="2o">zwei, gegenläufig</button>
+    </div></div>
+    <div class="ht-grp"><span class="ht-lab">Name</span><div class="ht-btns">
+      <button type="button" data-k="z" data-v="front">vor dem Band</button><button type="button" data-k="z" data-v="back">hinter dem Band</button>
+    </div></div>
+    <div class="ht-grp"><span class="ht-lab">Unterlage</span><div class="ht-btns">
+      <button type="button" data-k="bg" data-v="none">keine</button><button type="button" data-k="bg" data-v="lines">Linien</button><button type="button" data-k="bg" data-v="belt">Beige-Streifen</button>
+    </div></div>
+
+    <p class="ht-sec">Kippen</p>
+    <label class="ht-grp"><span class="ht-lab">ganzes Band</span><input type="range" data-k="bt" min="-12" max="12" step="0.5" /><output data-o="bt"></output></label>
+    <div class="ht-grp"><span class="ht-lab">jedes Bild</span><div class="ht-btns">
+      <button type="button" data-k="tm" data-v="none">gerade</button><button type="button" data-k="tm" data-v="alt">abwechselnd</button><button type="button" data-k="tm" data-v="rand">zufällig</button><button type="button" data-k="tm" data-v="same">alle gleich</button>
+    </div></div>
+    <label class="ht-grp"><span class="ht-lab">Winkel Bild</span><input type="range" data-k="tt" min="0" max="8" step="0.1" /><output data-o="tt"></output></label>
+
+    <p class="ht-sec">Bilder</p>
+    <div class="ht-grp"><span class="ht-lab">Farbe</span><div class="ht-btns">
+      <button type="button" data-k="m" data-v="color">Original</button><button type="button" data-k="m" data-v="tint">ins Feld eingefärbt</button><button type="button" data-k="m" data-v="gray">schwarzweiß</button>
+    </div></div>
+    <label class="ht-grp"><span class="ht-lab">Deckkraft</span><input type="range" data-k="o" min="10" max="100" step="1" /><output data-o="o"></output></label>
+    <div class="ht-grp"><span class="ht-lab">Rahmen</span><div class="ht-btns">
+      <button type="button" data-k="fr" data-v="none">keiner</button><button type="button" data-k="fr" data-v="line">Linie</button><button type="button" data-k="fr" data-v="mat">Passepartout</button>
+    </div></div>
+    <label class="ht-grp"><span class="ht-lab">Ecken</span><input type="range" data-k="rd" min="0" max="40" step="1" /><output data-o="rd"></output></label>
+    <div class="ht-grp"><span class="ht-lab">Titel</span><div class="ht-btns">
+      <button type="button" data-k="cap" data-v="off">aus</button><button type="button" data-k="cap" data-v="below">unter dem Bild</button><button type="button" data-k="cap" data-v="hover">beim Zeigen</button>
+    </div></div>
+    <div class="ht-grp"><span class="ht-lab">Auswahl</span><div class="ht-btns">
+      <button type="button" data-k="set" data-v="all">alle Bilder</button><button type="button" data-k="set" data-v="first">je Projekt eins</button>
+    </div></div>
+    <div class="ht-grp"><span class="ht-lab">Reihenfolge</span><div class="ht-btns">
+      <button type="button" data-k="ord" data-v="mix">Projekte im Wechsel</button><button type="button" data-k="ord" data-v="proj">Projekt für Projekt</button>
+    </div></div>
+
+    <p class="ht-sec">Übergang an den Feldkanten</p>
+    <div class="ht-grp"><span class="ht-lab">Kante</span><div class="ht-btns">
+      <button type="button" data-k="ed" data-v="hard">hart geteilt</button><button type="button" data-k="ed" data-v="soft">weich überblendet</button>
+    </div></div>
+    <label class="ht-grp"><span class="ht-lab">Breite weich</span><input type="range" data-k="ew" min="10" max="400" step="5" /><output data-o="ew"></output></label>
+
+    <div class="ht-actions"><button type="button" id="ht-reset">Zurücksetzen</button><button type="button" id="ht-hide">Ausblenden</button></div>
+    <p class="ht-sum" id="ht-sum"></p>
+  </aside>
+  <button class="ht-show" id="ht-show" type="button" hidden>Einstellungen (H)</button>
+</Base>
+
+<style is:global>
+  /* ---------- Laufband ---------- */
+  #lb-stage { position: relative; }
+  .lb { position: absolute; inset: 0; pointer-events: none; }
+  /* Eine Ebene pro Bereich, auf ihre Spalte zugeschnitten. Der Mischmodus sitzt auf der Ebene selbst, damit sie
+     mit der Feldfarbe dahinter mischt (innerhalb der Ebene gäbe es nichts zum Mischen). */
+  .lb__layer { position: absolute; inset: 0; opacity: var(--lb-o, 1); }
+  .lb__layer[data-cat='creative'] { clip-path: inset(0 66.6667% 0 0); --cap: var(--ink); }
+  .lb__layer[data-cat='adventure'] { clip-path: inset(0 33.3333% 0 33.3333%); --cap: var(--ground); }
+  .lb__layer[data-cat='dev'] { clip-path: inset(0 0 0 66.6667%); --cap: var(--ink-deep); }
+  /* Weiche Kante: Maske mit Verlauf statt hartem Schnitt; die Spalte wird um die halbe Verlaufsbreite erweitert */
+  .lb--soft .lb__layer { clip-path: none; }
+  .lb--soft .lb__layer[data-cat='creative'] { mask-image: linear-gradient(to right, #000 calc(33.3333% - var(--ew) / 2), transparent calc(33.3333% + var(--ew) / 2)); }
+  .lb--soft .lb__layer[data-cat='adventure'] { mask-image: linear-gradient(to right, transparent calc(33.3333% - var(--ew) / 2), #000 calc(33.3333% + var(--ew) / 2), #000 calc(66.6667% - var(--ew) / 2), transparent calc(66.6667% + var(--ew) / 2)); }
+  .lb--soft .lb__layer[data-cat='dev'] { mask-image: linear-gradient(to right, transparent calc(66.6667% - var(--ew) / 2), #000 calc(66.6667% + var(--ew) / 2)); }
+
+  /* Band: breiter als die Bühne, damit es auch gekippt bis an die Ränder reicht */
+  .lb__band { position: absolute; left: -25%; width: 150%; top: var(--y); transform: translateY(-50%) rotate(var(--bt)); display: flex; flex-direction: column; gap: var(--g); }
+  .lb__row { position: relative; }
+  .lb__track { display: flex; width: max-content; will-change: transform; }
+  .lb__tile { flex: none; width: var(--w); margin-right: var(--g); display: flex; flex-direction: column; gap: 0.4rem; color: var(--cap); text-decoration: none; pointer-events: auto; transform: rotate(var(--r, 0deg)); }
+  .lb__img { display: block; height: var(--h); overflow: hidden; border-radius: var(--rd); }
+  .lb__img img { width: 100%; height: 100%; object-fit: cover; }
+  .lb__cap { font-size: 0.875rem; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Unterlage: zwei feine Linien oder ein Beige-Streifen quer über das Band (in jeder Ebene, also mit eingefärbt) */
+  .lb__row::before { content: ''; position: absolute; left: 0; right: 0; top: calc(var(--pad) * -1); bottom: calc(var(--pad) * -1); }
+  .lb--bg-lines .lb__row::before { border-block: 1px solid var(--cap); opacity: 0.55; }
+  .lb--bg-belt .lb__row::before { background: var(--ground); }
+
+  /* Farbe der Bilder */
+  .lb--gray .lb__img img { filter: grayscale(1) contrast(1.06); }
+  .lb--tint .lb__img img { filter: grayscale(1) contrast(1.08); }
+  .lb--tint .lb__layer { mix-blend-mode: multiply; }
+  .lb--tint .lb__layer[data-cat='adventure'] { mix-blend-mode: screen; }
+
+  /* Rahmen */
+  .lb--fr-line .lb__img { outline: 1px solid var(--cap); outline-offset: -1px; }
+  .lb--fr-mat .lb__img { padding: clamp(4px, calc(var(--h) * 0.035), 10px); background: var(--ground); }
+  .lb--fr-mat .lb__img img { border-radius: calc(var(--rd) * 0.6); }
+
+  /* Titel */
+  .lb--cap-off .lb__cap { display: none; }
+  .lb--cap-hover .lb__cap { opacity: 0; transition: opacity 0.2s var(--ease); }
+  .lb--cap-hover .lb__tile:hover .lb__cap { opacity: 1; }
+  .lb__tile:hover .lb__cap { text-decoration: underline; text-underline-offset: 0.2em; }
+
+  /* ---------- Panel ---------- */
+  .ht-panel, .ht-show { position: fixed; right: 16px; bottom: 16px; z-index: 50; font-size: 13px; line-height: 1.35; }
+  .ht-panel { width: 430px; max-height: calc(100vh - 32px); overflow-y: auto; background: var(--ink); color: var(--ground); padding: 14px 16px 16px; box-shadow: 0 10px 40px rgb(18 6 46 / 0.3); }
+  .ht-panel[hidden], .ht-show[hidden] { display: none; }
+  .ht-show { background: var(--ink); color: var(--ground); border: 0; padding: 8px 12px; font-family: inherit; cursor: pointer; }
+  .ht-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .ht-keys { opacity: 0.6; font-size: 11px; }
+  .ht-sec { margin-top: 14px; padding-top: 8px; border-top: 1px solid color-mix(in srgb, var(--ground) 18%, transparent); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--lime); }
+  .ht-grp { display: grid; grid-template-columns: 84px minmax(0, 1fr) auto; gap: 8px; align-items: center; margin-top: 6px; }
+  .ht-grp:has(.ht-btns) { grid-template-columns: 84px minmax(0, 1fr); align-items: start; }
+  .ht-lab { opacity: 0.7; }
+  .ht-grp:has(.ht-btns) .ht-lab { padding-top: 5px; }
+  .ht-grp output { min-width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+  .ht-grp input[type='range'] { width: 100%; accent-color: var(--lime); }
+  .ht-btns { display: flex; flex-wrap: wrap; gap: 4px; }
+  .ht-panel button { font: inherit; color: inherit; background: transparent; border: 1px solid color-mix(in srgb, var(--ground) 28%, transparent); padding: 4px 8px; cursor: pointer; transition: border-color 0.15s, background-color 0.15s; }
+  .ht-panel button:hover { border-color: var(--ground); }
+  .ht-panel button[aria-pressed='true'] { background: var(--lime); color: var(--ink); border-color: var(--lime); }
+  .ht-actions { display: flex; gap: 6px; margin-top: 14px; }
+  .ht-actions button { background: var(--ground); color: var(--ink); border-color: var(--ground); }
+  .ht-sum { margin-top: 10px; font-size: 11px; opacity: 0.7; user-select: all; }
+</style>
+
+<script>
+  type Img = { srcset: string; src: string };
+  type Proj = { slug: string; title: string; imgs: Img[] };
+  const pools: Record<string, Proj[]> = JSON.parse(document.getElementById('lb-data')!.textContent!);
+  const CATS = ['creative', 'adventure', 'dev'];
+  const stage = document.getElementById('lb-stage')!;
+  const lb = document.getElementById('lb')!;
+  const nameEl = document.getElementById('hero-title')!;
+  const panel = document.getElementById('ht-panel')!;
+  const showBtn = document.getElementById('ht-show')!;
+  const sumEl = document.getElementById('ht-sum')!;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- Einstellungen ----------
+  const DEFAULTS: Record<string, string> = {
+    sp: '40', dir: 'rtl', hov: 'slow',
+    h: '170', g: '16', ar: '1.333', y: '32', rows: '1', z: 'front', bg: 'none',
+    bt: '0', tm: 'none', tt: '0.6',
+    m: 'color', o: '100', fr: 'none', rd: '0', cap: 'off', set: 'all', ord: 'mix',
+    ed: 'hard', ew: '80',
+  };
+  const state: Record<string, string> = { ...DEFAULTS };
+  for (const [k, v] of new URLSearchParams(location.hash.slice(1))) if (k in state) state[k] = v;
+  // Diese Werte ändern nur CSS-Variablen/Klassen; alle anderen bauen das Band neu
+  const LIVE = new Set(['sp', 'hov', 'y', 'bt', 'm', 'o', 'fr', 'rd', 'cap', 'bg', 'ed', 'ew', 'z']);
+  const UNITS: Record<string, string> = { sp: ' px/s', h: ' px', g: ' px', y: ' %', bt: '°', tt: '°', o: ' %', rd: ' px', ew: ' px' };
+
+  // ---------- Bildfolge pro Bereich ----------
+  function sequence(cat: string): (Img & { slug: string; title: string })[] {
+    const projs = pools[cat].map((p) => ({ ...p, imgs: state.set === 'first' ? p.imgs.slice(0, 1) : p.imgs }));
+    const out: (Img & { slug: string; title: string })[] = [];
+    if (state.ord === 'proj') {
+      for (const p of projs) for (const i of p.imgs) out.push({ ...i, slug: p.slug, title: p.title });
+    } else {
+      // Projekte im Wechsel: erst je das erste Bild jedes Projekts, dann je das zweite …
+      const max = Math.max(...projs.map((p) => p.imgs.length));
+      for (let n = 0; n < max; n++) for (const p of projs) if (p.imgs[n]) out.push({ ...p.imgs[n], slug: p.slug, title: p.title });
+    }
+    return out;
+  }
+
+  // gleichmäßig verteilte Pseudo-Zufallszahl pro Kachel, in allen Ebenen gleich
+  const rnd = (i: number) => { const x = Math.sin(i * 12.9898 + 4.1414) * 43758.5453; return x - Math.floor(x); };
+  function tilt(i: number) {
+    const a = +state.tt;
+    if (state.tm === 'alt') return (i % 2 ? 1 : -1) * a;
+    if (state.tm === 'rand') return (rnd(i) * 2 - 1) * a;
+    if (state.tm === 'same') return -a;
+    return 0;
+  }
+
+  let anims: Animation[] = [];
+  let rate = 1; // Faktor beim Zeigen
+  let paused = false;
+
+  function build() {
+    anims.forEach((a) => a.cancel());
+    anims = [];
+    lb.textContent = '';
+    const h = +state.h, g = +state.g, ar = +state.ar;
+    const w = Math.round(h * ar);
+    const step = w + g;
+    const bandW = stage.clientWidth * 1.5;
+    let n = Math.max(2, Math.ceil(bandW / step));
+    if (n % 2) n++; // gerade Zahl, damit "abwechselnd" auch über die Nahtstelle aufgeht
+    const loop = n * step;
+    const rows = state.rows === '1' ? 1 : 2;
+    lb.style.setProperty('--w', `${w}px`);
+    lb.style.setProperty('--h', `${h}px`);
+    lb.style.setProperty('--g', `${g}px`);
+    lb.style.setProperty('--pad', `${Math.max(6, Math.round(g / 2))}px`);
+    const seqs = Object.fromEntries(CATS.map((c) => [c, sequence(c)]));
+    const dpr = devicePixelRatio || 1;
+
+    for (const cat of CATS) {
+      const layer = document.createElement('div');
+      layer.className = 'lb__layer';
+      layer.dataset.cat = cat;
+      const band = document.createElement('div');
+      band.className = 'lb__band';
+      const seq = seqs[cat];
+      for (let r = 0; r < rows; r++) {
+        const row = document.createElement('div');
+        row.className = 'lb__row';
+        const track = document.createElement('div');
+        track.className = 'lb__track';
+        const offset = r * 3; // zweite Reihe beginnt mit anderen Bildern
+        for (let i = 0; i < n * 2; i++) {
+          const k = i % n;
+          const item = seq.length ? seq[(k + offset) % seq.length] : null;
+          const a = document.createElement('a');
+          a.className = 'lb__tile';
+          a.tabIndex = -1;
+          a.style.setProperty('--r', `${tilt(k + r * 7)}deg`);
+          if (item) a.href = `/projects/${item.slug}/`;
+          const box = document.createElement('span');
+          box.className = 'lb__img';
+          if (item) {
+            const img = document.createElement('img');
+            img.alt = '';
+            img.decoding = 'async';
+            img.sizes = `${Math.ceil(w)}px`;
+            img.srcset = item.srcset;
+            img.src = item.src;
+            box.append(img);
+          }
+          const cap = document.createElement('span');
+          cap.className = 'lb__cap';
+          cap.textContent = item?.title ?? '';
+          a.append(box, cap);
+          track.append(a);
+        }
+        row.append(track);
+        band.append(row);
+        const reverse = (state.dir === 'ltr') !== (state.rows === '2o' && r === 1);
+        const frames = reverse
+          ? [{ transform: `translateX(${-loop}px)` }, { transform: 'translateX(0)' }]
+          : [{ transform: 'translateX(0)' }, { transform: `translateX(${-loop}px)` }];
+        // Grundtempo 100 px/s; das eingestellte Tempo ist die Abspielrate
+        const anim = track.animate(frames, { duration: (loop / 100) * 1000, iterations: Infinity, easing: 'linear' });
+        (anim as any)._row = r;
+        anims.push(anim);
+      }
+      layer.append(band);
+      lb.append(layer);
+    }
+    // Alle Ebenen auf exakt dieselbe Zeit setzen (sonst stimmen die geteilten Kacheln nicht überein);
+    // die zweite Reihe um eine halbe Kachel versetzt
+    const t0 = anims[0].currentTime as number ?? 0;
+    const per = (loop / 100) * 1000;
+    for (const a of anims) a.currentTime = t0 + ((a as any)._row ? (per * (step / 2)) / loop : 0);
+    applyRate();
+    if (reduce) anims.forEach((a) => a.pause());
+  }
+
+  function applyRate() {
+    const r = paused ? 0 : (+state.sp / 100) * rate;
+    for (const a of anims) a.playbackRate = r;
+  }
+  // weich auf ein neues Tempo (nur während des Übergangs ein paar Frames)
+  let ramp = 0;
+  function rampTo(target: number) {
+    cancelAnimationFrame(ramp);
+    const from = rate, start = performance.now(), dur = 450;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / dur);
+      rate = from + (target - from) * (1 - Math.pow(1 - t, 3));
+      applyRate();
+      if (t < 1) ramp = requestAnimationFrame(tick);
+    };
+    ramp = requestAnimationFrame(tick);
+  }
+  lb.addEventListener('pointerover', (e) => {
+    if (!(e.target as Element).closest('.lb__tile')) return;
+    rampTo(state.hov === 'stop' ? 0 : state.hov === 'slow' ? 0.25 : 1);
+  });
+  lb.addEventListener('pointerout', (e) => {
+    if ((e.relatedTarget as Element | null)?.closest?.('.lb__tile')) return;
+    rampTo(1);
+  });
+
+  function applyLive() {
+    lb.style.setProperty('--y', `${state.y}%`);
+    lb.style.setProperty('--bt', `${state.bt}deg`);
+    lb.style.setProperty('--lb-o', `${+state.o / 100}`);
+    lb.style.setProperty('--rd', `${state.rd}px`);
+    lb.style.setProperty('--ew', `${state.ew}px`);
+    lb.className = ['lb', `lb--${state.m}`, `lb--fr-${state.fr}`, `lb--cap-${state.cap}`, `lb--bg-${state.bg}`, state.ed === 'soft' ? 'lb--soft' : ''].join(' ');
+    // Name vor oder hinter dem Band: Reihenfolge im DOM (beide positioniert, ohne z-index, damit der Mischmodus
+    // weiter mit den Feldern mischt)
+    if (state.z === 'front') stage.insertBefore(lb, nameEl); else stage.append(lb);
+    applyRate();
+  }
+
+  function syncPanel() {
+    panel.querySelectorAll<HTMLButtonElement>('button[data-k]').forEach((b) => b.setAttribute('aria-pressed', String(state[b.dataset.k!] === b.dataset.v)));
+    panel.querySelectorAll<HTMLInputElement>('input[data-k]').forEach((i) => { i.value = state[i.dataset.k!]; });
+    panel.querySelectorAll<HTMLOutputElement>('output[data-o]').forEach((o) => { o.textContent = state[o.dataset.o!] + (UNITS[o.dataset.o!] ?? ''); });
+    const label = (k: string) => panel.querySelector(`button[data-k="${k}"][data-v="${state[k]}"]`)?.textContent ?? state[k];
+    sumEl.textContent = [
+      `Tempo ${state.sp} px/s ${label('dir')}, Maus: ${label('hov')}`,
+      `Bild ${state.h} px, ${label('ar')}, Abstand ${state.g} px, Lage ${state.y} %, Reihen: ${label('rows')}, Name ${label('z')}, Unterlage: ${label('bg')}`,
+      `Band ${state.bt}°, Bilder: ${label('tm')}${state.tm !== 'none' ? ` ${state.tt}°` : ''}`,
+      `${label('m')} ${state.o} %, Rahmen: ${label('fr')}, Ecken ${state.rd} px, Titel: ${label('cap')}, ${label('set')}, ${label('ord')}`,
+      `Kante: ${label('ed')}${state.ed === 'soft' ? ` ${state.ew} px` : ''}`,
+    ].join(' · ');
+    history.replaceState(null, '', `#${new URLSearchParams(state)}`);
+  }
+
+  function set(k: string, v: string) {
+    state[k] = v;
+    syncPanel();
+    if (LIVE.has(k)) applyLive(); else build();
+  }
+  panel.querySelectorAll<HTMLButtonElement>('button[data-k]').forEach((b) => b.addEventListener('click', () => set(b.dataset.k!, b.dataset.v!)));
+  panel.querySelectorAll<HTMLInputElement>('input[data-k]').forEach((i) => {
+    // Regler, die das Band neu bauen, erst beim Loslassen anwenden; Live-Werte sofort
+    i.addEventListener('input', () => { if (LIVE.has(i.dataset.k!)) set(i.dataset.k!, i.value); else { state[i.dataset.k!] = i.value; syncPanel(); } });
+    i.addEventListener('change', () => set(i.dataset.k!, i.value));
+  });
+  document.getElementById('ht-reset')!.addEventListener('click', () => { Object.assign(state, DEFAULTS); syncPanel(); applyLive(); build(); });
+  const togglePanel = (on = panel.hidden) => { panel.hidden = !on; showBtn.hidden = on; };
+  document.getElementById('ht-hide')!.addEventListener('click', () => togglePanel(false));
+  showBtn.addEventListener('click', () => togglePanel(true));
+  addEventListener('keydown', (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey || (e.target as Element).matches?.('input')) return;
+    if (e.key === 'h' || e.key === 'H') togglePanel();
+    else if (e.key === ' ') { e.preventDefault(); paused = !paused; applyRate(); }
+  });
+  let rz = 0;
+  let lastW = stage.clientWidth;
+  addEventListener('resize', () => { clearTimeout(rz); rz = window.setTimeout(() => { if (stage.clientWidth !== lastW) { lastW = stage.clientWidth; build(); } }, 200); });
+
+  syncPanel();
+  applyLive();
+  build();
+</script>

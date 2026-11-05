@@ -121,7 +121,10 @@ for (const a of areas) {
 
   /* ---------- Steuerung in der Navigation (dezent: Ink, feine Linie, kleiner Punkt) ---------- */
   .site-nav { position: relative; }
-  .lbc { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 0.5rem; color: var(--ink); }
+  /* genau so breit wie die mittlere Spalte (--lbc-w aus dem Skript); die Symbole sitzen bündig an ihren Kanten */
+  .lbc { position: absolute; left: 50%; top: 50%; width: var(--lbc-w, 33.3333vw); transform: translate(-50%, -50%); display: flex; align-items: center; gap: 0.75rem; color: var(--ink); }
+  .lbc__play { margin-left: -11px; }
+  .lbc__color { margin-right: -11px; }
   .lbc__btn { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; opacity: 0.55; transition: opacity 0.2s var(--ease); }
   .lbc__btn:hover, .lbc__btn:focus-visible, .lbc__btn[aria-pressed='true'] { opacity: 1; }
   .lbc__btn svg { width: 14px; height: 14px; fill: currentColor; }
@@ -131,7 +134,7 @@ for (const a of areas) {
   .lbc__color[aria-pressed='true'] circle { fill: currentColor; }
   /* Positionsleiste: 1 px Linie, gefüllter Teil in Ink, Punkt; Füllung und Punkt laufen per Web Animation mit dem
      Band mit (gleiche Dauer, gleiche Zeit), ohne Skript pro Frame */
-  .lbc__bar { position: relative; width: 140px; height: 32px; cursor: pointer; touch-action: none; }
+  .lbc__bar { position: relative; flex: 1; height: 32px; cursor: pointer; touch-action: none; }
   .lbc__track { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: color-mix(in srgb, var(--ink) 22%, transparent); overflow: hidden; }
   .lbc__fill { position: absolute; inset: 0; background: var(--ink); transform-origin: left; transform: scaleX(0); opacity: 0.55; }
   .lbc__knob { position: absolute; left: -3px; top: calc(50% - 3px); width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
@@ -209,7 +212,6 @@ for (const a of areas) {
   let anims: Animation[] = [];
   let duration = 1;
   let playing = !reduce;
-  const BAR_W = 140;
   const ctrl = document.querySelector<HTMLElement>('.lbc')!;
   const bar = document.getElementById('lbc-bar')!;
   const playBtn = document.getElementById('lbc-play')!;
@@ -302,7 +304,9 @@ for (const a of areas) {
     // Positionsleiste läuft mit: Füllung und Punkt, gleiche Dauer
     const opts = { duration, iterations: Infinity, easing: 'linear' };
     const fill = document.getElementById('lbc-fill')!.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], opts);
-    const knob = document.getElementById('lbc-knob')!.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${BAR_W}px)` }], opts);
+    ctrl.style.setProperty('--lbc-w', `${stage.clientWidth / 3}px`);
+    const barW = bar.clientWidth;
+    const knob = document.getElementById('lbc-knob')!.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${barW}px)` }], opts);
     (fill as any)._off = 0;
     (knob as any)._off = 0;
     anims.push(fill, knob);

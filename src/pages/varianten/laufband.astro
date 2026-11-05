@@ -48,13 +48,22 @@ for (const c of CATEGORIES) {
       ))}
     </ul>
   </section>
+  <div class="lb-spacer" aria-hidden="true"></div>
   <script type="application/json" id="lb-data" set:html={JSON.stringify(pools)}></script>
 
   <aside class="ht-panel" id="ht-panel" aria-label="Einstellungen">
     <div class="ht-head"><strong>Hero-Test: Laufband</strong><span class="ht-keys">Leertaste Pause · H aus</span></div>
 
-    <p class="ht-sec">Bewegung</p>
     <label class="ht-grp"><span class="ht-lab">Tempo</span><input type="range" data-k="sp" min="0" max="240" step="2" /><output data-o="sp"></output></label>
+    <div class="ht-grp"><span class="ht-lab">Beim Scrollen</span><div class="ht-btns">
+      <button type="button" data-k="pin" data-v="on">bleibt stehen</button><button type="button" data-k="pin" data-v="off">scrollt mit</button>
+    </div></div>
+    <div class="ht-grp"><span class="ht-lab">Spalte unter der Maus</span><div class="ht-btns">
+      <button type="button" data-k="hc" data-v="off">bleibt wie oben</button><button type="button" data-k="hc" data-v="snap">wird farbig, sofort</button><button type="button" data-k="hc" data-v="fade">wird farbig, sanft</button>
+    </div></div>
+
+    <details class="ht-more"><summary>Weitere Einstellungen</summary>
+    <p class="ht-sec">Bewegung</p>
     <div class="ht-grp"><span class="ht-lab">Richtung</span><div class="ht-btns">
       <button type="button" data-k="dir" data-v="rtl">← nach links</button><button type="button" data-k="dir" data-v="ltr">nach rechts →</button>
     </div></div>
@@ -68,7 +77,7 @@ for (const c of CATEGORIES) {
     <div class="ht-grp"><span class="ht-lab">Format</span><div class="ht-btns">
       <button type="button" data-k="ar" data-v="0.8">4:5</button><button type="button" data-k="ar" data-v="1">1:1</button><button type="button" data-k="ar" data-v="1.333">4:3</button><button type="button" data-k="ar" data-v="1.5">3:2</button><button type="button" data-k="ar" data-v="1.778">16:9</button>
     </div></div>
-    <label class="ht-grp"><span class="ht-lab">Lage</span><input type="range" data-k="y" min="0" max="100" step="1" /><output data-o="y"></output></label>
+    <label class="ht-grp"><span class="ht-lab">Lage (Höhe im Fenster)</span><input type="range" data-k="y" min="0" max="100" step="1" /><output data-o="y"></output></label>
     <div class="ht-grp"><span class="ht-lab">Reihen</span><div class="ht-btns">
       <button type="button" data-k="rows" data-v="1">eine</button><button type="button" data-k="rows" data-v="2">zwei, gleich</button><button type="button" data-k="rows" data-v="2o">zwei, gegenläufig</button>
     </div></div>
@@ -90,9 +99,6 @@ for (const c of CATEGORIES) {
     <div class="ht-grp"><span class="ht-lab">Farbe</span><div class="ht-btns">
       <button type="button" data-k="m" data-v="color">Original</button><button type="button" data-k="m" data-v="tint">ins Feld eingefärbt</button><button type="button" data-k="m" data-v="gray">schwarzweiß</button>
     </div></div>
-    <div class="ht-grp"><span class="ht-lab">Spalte unter der Maus</span><div class="ht-btns">
-      <button type="button" data-k="hc" data-v="off">bleibt wie oben</button><button type="button" data-k="hc" data-v="snap">wird farbig, sofort</button><button type="button" data-k="hc" data-v="fade">wird farbig, sanft</button>
-    </div></div>
     <label class="ht-grp"><span class="ht-lab">Deckkraft</span><input type="range" data-k="o" min="10" max="100" step="1" /><output data-o="o"></output></label>
     <div class="ht-grp"><span class="ht-lab">Rahmen</span><div class="ht-btns">
       <button type="button" data-k="fr" data-v="none">keiner</button><button type="button" data-k="fr" data-v="line">Linie</button><button type="button" data-k="fr" data-v="mat">Passepartout</button>
@@ -113,6 +119,8 @@ for (const c of CATEGORIES) {
       <button type="button" data-k="ed" data-v="hard">hart geteilt</button><button type="button" data-k="ed" data-v="soft">weich überblendet</button>
     </div></div>
     <label class="ht-grp"><span class="ht-lab">Breite weich</span><input type="range" data-k="ew" min="10" max="400" step="5" /><output data-o="ew"></output></label>
+
+    </details>
 
     <div class="ht-actions"><button type="button" id="ht-reset">Zurücksetzen</button><button type="button" id="ht-hide">Ausblenden</button></div>
     <p class="ht-sum" id="ht-sum"></p>
@@ -137,6 +145,14 @@ for (const c of CATEGORIES) {
   .lb--soft .lb__layer[data-cat='dev'] { mask-image: linear-gradient(to right, transparent calc(66.6667% - var(--ew) / 2), #000 calc(66.6667% + var(--ew) / 2)); }
 
   /* Band: breiter als die Bühne, damit es auch gekippt bis an die Ränder reicht */
+  /* Bleibt stehen: die Ebene wird so weit nach unten geschoben, wie gescrollt wird (scroll-getriebene Animation,
+     läuft im Compositor). Die Bühne schneidet ab, also verschwindet das Band hinter dem Grund darunter. */
+  .lb__pin { position: absolute; inset: 0; }
+  .lb--pin .lb__pin { animation: lb-pin linear both; animation-range: 0px var(--pin-end); }
+  /* eigene Regel: sonst fasst der Minifier alles zu "animation: … scroll(root)" zusammen, das Chrome verwirft */
+  .lb.lb--pin .lb__pin { animation-timeline: scroll(root block); }
+  @keyframes lb-pin { from { transform: translateY(0); } to { transform: translateY(var(--pin-end)); } }
+  .lb-spacer { height: 160vh; }
   .lb__band { position: absolute; left: -25%; width: 150%; top: var(--y); transform: translateY(-50%) rotate(var(--bt)); display: flex; flex-direction: column; gap: var(--g); }
   .lb__row { position: relative; }
   .lb__track { display: flex; width: max-content; will-change: transform; }
@@ -190,6 +206,9 @@ for (const c of CATEGORIES) {
   .ht-panel button { font: inherit; color: inherit; background: transparent; border: 1px solid color-mix(in srgb, var(--ground) 28%, transparent); padding: 4px 8px; cursor: pointer; transition: border-color 0.15s, background-color 0.15s; }
   .ht-panel button:hover { border-color: var(--ground); }
   .ht-panel button[aria-pressed='true'] { background: var(--lime); color: var(--ink); border-color: var(--lime); }
+  .ht-more { margin-top: 12px; }
+  .ht-more summary { cursor: pointer; opacity: 0.8; padding-block: 4px; }
+  .ht-more summary:hover { opacity: 1; }
   .ht-actions { display: flex; gap: 6px; margin-top: 14px; }
   .ht-actions button { background: var(--ground); color: var(--ink); border-color: var(--ground); }
   .ht-sum { margin-top: 10px; font-size: 11px; opacity: 0.7; user-select: all; }
@@ -211,7 +230,7 @@ for (const c of CATEGORIES) {
   // ---------- Einstellungen ----------
   const DEFAULTS: Record<string, string> = {
     // Daniels Auswahl vom 5. November 2026
-    sp: '100', dir: 'ltr', hov: 'run',
+    sp: '64', pin: 'on', dir: 'ltr', hov: 'run',
     h: '160', g: '5', ar: '0.8', y: '50', rows: '2', z: 'front', bg: 'none',
     bt: '-9', tm: 'none', tt: '0.6',
     m: 'gray', hc: 'fade', o: '100', fr: 'none', rd: '0', cap: 'off', set: 'all', ord: 'mix',
@@ -220,7 +239,7 @@ for (const c of CATEGORIES) {
   const state: Record<string, string> = { ...DEFAULTS };
   for (const [k, v] of new URLSearchParams(location.hash.slice(1))) if (k in state) state[k] = v;
   // Diese Werte ändern nur CSS-Variablen/Klassen; alle anderen bauen das Band neu
-  const LIVE = new Set(['sp', 'hov', 'y', 'bt', 'm', 'hc', 'o', 'fr', 'rd', 'cap', 'bg', 'ed', 'ew', 'z']);
+  const LIVE = new Set(['pin', 'sp', 'hov', 'y', 'bt', 'm', 'hc', 'o', 'fr', 'rd', 'cap', 'bg', 'ed', 'ew', 'z']);
   const UNITS: Record<string, string> = { sp: ' px/s', h: ' px', g: ' px', y: ' %', bt: '°', tt: '°', o: ' %', rd: ' px', ew: ' px' };
 
   // ---------- Bildfolge pro Bereich ----------
@@ -319,7 +338,10 @@ for (const c of CATEGORIES) {
         (anim as any)._row = r;
         anims.push(anim);
       }
-      layer.append(band);
+      const pin = document.createElement('div');
+      pin.className = 'lb__pin';
+      pin.append(band);
+      layer.append(pin);
       lb.append(layer);
     }
     // Alle Ebenen auf exakt dieselbe Zeit setzen (sonst stimmen die geteilten Kacheln nicht überein);
@@ -372,12 +394,16 @@ for (const c of CATEGORIES) {
   });
 
   function applyLive() {
-    lb.style.setProperty('--y', `${state.y}%`);
+    // Lage in Prozent der Fensterhöhe (beim Laden, oben auf der Seite); 50 = Mitte des Bildschirms
+    const top = stage.getBoundingClientRect().top + scrollY;
+    lb.style.setProperty('--y', `${(innerHeight * +state.y) / 100 - top}px`);
+    lb.style.setProperty('--pin-end', `${Math.round(top + stage.offsetHeight)}px`);
+    if (state.pin === 'on' && !CSS.supports('animation-timeline: scroll()')) onScroll();
     lb.style.setProperty('--bt', `${state.bt}deg`);
     lb.style.setProperty('--lb-o', `${+state.o / 100}`);
     lb.style.setProperty('--rd', `${state.rd}px`);
     lb.style.setProperty('--ew', `${state.ew}px`);
-    lb.className = ['lb', `lb--${state.m}`, `lb--hc-${state.hc}`, `lb--fr-${state.fr}`, `lb--cap-${state.cap}`, `lb--bg-${state.bg}`, state.ed === 'soft' ? 'lb--soft' : ''].join(' ');
+    lb.className = ['lb', `lb--${state.m}`, `lb--hc-${state.hc}`, `lb--fr-${state.fr}`, `lb--cap-${state.cap}`, `lb--bg-${state.bg}`, state.ed === 'soft' ? 'lb--soft' : '', state.pin === 'on' ? 'lb--pin' : ''].join(' ');
     // Name vor oder hinter dem Band: Reihenfolge im DOM (beide positioniert, ohne z-index, damit der Mischmodus
     // weiter mit den Feldern mischt)
     if (state.z === 'front') stage.insertBefore(lb, nameEl); else stage.append(lb);
@@ -390,7 +416,7 @@ for (const c of CATEGORIES) {
     panel.querySelectorAll<HTMLOutputElement>('output[data-o]').forEach((o) => { o.textContent = state[o.dataset.o!] + (UNITS[o.dataset.o!] ?? ''); });
     const label = (k: string) => panel.querySelector(`button[data-k="${k}"][data-v="${state[k]}"]`)?.textContent ?? state[k];
     sumEl.textContent = [
-      `Tempo ${state.sp} px/s ${label('dir')}, Maus: ${label('hov')}`,
+      `Tempo ${state.sp} px/s ${label('dir')}, Scrollen: ${label('pin')}, Maus: ${label('hov')}`,
       `Bild ${state.h} px, ${label('ar')}, Abstand ${state.g} px, Lage ${state.y} %, Reihen: ${label('rows')}, Name ${label('z')}, Unterlage: ${label('bg')}`,
       `Band ${state.bt}°, Bilder: ${label('tm')}${state.tm !== 'none' ? ` ${state.tt}°` : ''}`,
       `${label('m')}, Spalte unter der Maus: ${label('hc')}, ${state.o} %, Rahmen: ${label('fr')}, Ecken ${state.rd} px, Titel: ${label('cap')}, ${label('set')}, ${label('ord')}`,
@@ -419,9 +445,16 @@ for (const c of CATEGORIES) {
     if (e.key === 'h' || e.key === 'H') togglePanel();
     else if (e.key === ' ') { e.preventDefault(); paused = !paused; applyRate(); }
   });
+  // Rückfall ohne scroll-getriebene Animationen: beim Scrollen die Ebenen verschieben
+  function onScroll() {
+    const end = parseFloat(lb.style.getPropertyValue('--pin-end')) || 0;
+    const t = state.pin === 'on' ? Math.min(scrollY, end) : 0;
+    lb.querySelectorAll<HTMLElement>('.lb__pin').forEach((p) => { p.style.transform = `translateY(${t}px)`; });
+  }
+  if (!CSS.supports('animation-timeline: scroll()')) addEventListener('scroll', onScroll, { passive: true });
   let rz = 0;
   let lastW = stage.clientWidth;
-  addEventListener('resize', () => { clearTimeout(rz); rz = window.setTimeout(() => { if (stage.clientWidth !== lastW) { lastW = stage.clientWidth; build(); } }, 200); });
+  addEventListener('resize', () => { clearTimeout(rz); rz = window.setTimeout(() => { applyLive(); if (stage.clientWidth !== lastW) { lastW = stage.clientWidth; build(); } }, 200); });
 
   syncPanel();
   applyLive();

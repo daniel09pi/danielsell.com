@@ -4,7 +4,9 @@
 // sondern einmal pro Größe pixelgenau gerechnet, mit Korn. Kein Animations-Loop: neu gerechnet wird nur bei Größenänderung.
 // Fest (Daniels Wahl, Runde 26): Fasern, Gauß-Blur mit Mischung in OKLab, ganzer Hintergrund weich
 // (Grundunschärfe, nach oben stärker), kein Ink-Ausgleich, Schrift ohne Fasern, Verlauf lang.
-// Im Panel: Stärke des Korns, Korn auf den vollen Flächen, Linien bei ⅓ und ⅔ (Stil, auch unter den Wörtern). H blendet das Panel aus.
+// Linien bei ⅓ und ⅔ fest im Stil "Ton der Fläche". Hover: Um die Maus ist ein Kreis, in dem das gerechnete Bild fehlt
+// und die scharfen Volltonflächen darunter zu sehen sind (nur Maske verschoben, nichts neu gerechnet).
+// Im Panel: Korn, Korn auf den vollen Flächen, Linien unter den Wörtern, Kreis (Rand, Größe, Bewegung). H blendet das Panel aus.
 import Base from '../../layouts/Base.astro';
 import T from '../../components/T.astro';
 import { site, has, CATEGORIES, byCategory, subtitleLinks } from '../../lib/content.js';
@@ -51,17 +53,28 @@ const areas = CATEGORIES.map((c) => ({
       <label><input type="radio" name="f" value="1" checked /> ja</label>
     </fieldset>
     <fieldset>
-      <legend>Linien bei ⅓ und ⅔</legend>
-      <label><input type="radio" name="l" value="0" /> aus</label>
-      <label><input type="radio" name="l" value="hair" /> Haarlinie (bisher)</label>
-      <label><input type="radio" name="l" value="dissolve" checked /> löst sich auf</label>
-      <label><input type="radio" name="l" value="tick" /> kurze Marken</label>
-      <label><input type="radio" name="l" value="tone" /> Ton der Fläche</label>
-    </fieldset>
-    <fieldset>
       <legend>Linien auch unter den Wörtern</legend>
       <label><input type="radio" name="u" value="0" checked /> nein</label>
       <label><input type="radio" name="u" value="1" /> ja</label>
+    </fieldset>
+    <fieldset>
+      <legend>Kreis um die Maus: Rand</legend>
+      <label><input type="radio" name="k" value="hard" checked /> hart</label>
+      <label><input type="radio" name="k" value="fade" /> Fade nach außen</label>
+      <label><input type="radio" name="k" value="soft" /> ganz weich</label>
+      <label><input type="radio" name="k" value="grain" /> Korn-Rand</label>
+      <label><input type="radio" name="k" value="0" /> aus</label>
+    </fieldset>
+    <fieldset>
+      <legend>Kreis: Größe</legend>
+      <label><input type="radio" name="r" value="90" /> klein</label>
+      <label><input type="radio" name="r" value="150" checked /> mittel</label>
+      <label><input type="radio" name="r" value="240" /> groß</label>
+    </fieldset>
+    <fieldset>
+      <legend>Kreis: Bewegung</legend>
+      <label><input type="radio" name="b" value="0" checked /> direkt</label>
+      <label><input type="radio" name="b" value="1" /> folgt weich</label>
     </fieldset>
     <p class="gx-panel__hint">H Panel</p>
   </form>
@@ -89,15 +102,38 @@ const areas = CATEGORIES.map((c) => ({
     border-inline: 1px solid var(--gx-line); pointer-events: none; z-index: 1; display: none;
   }
   .gx .hero__index { position: relative; }
-  /* Haarlinie: durchgehend, nach oben unter der Navigation ausgeblendet */
-  .gx[data-lines='hair'] .hero__stage::after { display: block; -webkit-mask: linear-gradient(to bottom, transparent var(--nav-h), #000 55%); mask: linear-gradient(to bottom, transparent var(--nav-h), #000 55%); }
-  /* Kurze Marken: nur ein Stück über der Grundlinie, wie Striche auf einem Lineal */
-  .gx[data-lines='tick'] .hero__stage::after { display: block; top: auto; height: clamp(1.25rem, 2.2vw, 2rem); }
-  /* Ton der Fläche: helle Linie, die sich mit der Farbe darunter mischt */
-  .gx[data-lines='tone'] .hero__stage::after { display: block; border-color: #fff; mix-blend-mode: soft-light; opacity: 0.9;
-    -webkit-mask: linear-gradient(to bottom, transparent var(--nav-h), #000 55%); mask: linear-gradient(to bottom, transparent var(--nav-h), #000 55%); }
-  /* "löst sich auf" wird im Canvas gezeichnet. Unter den Wörtern: durchgehend grau */
-  .gx[data-under='1']:not([data-lines='0']) .hero__index::after { display: block; }
+  /* Ton der Fläche (Daniels Wahl): helle Linie, die sich mit der Farbe darunter mischt, nach oben ausgeblendet */
+  .gx .hero__stage::after { display: block; border-color: #fff; mix-blend-mode: soft-light; opacity: 0.9;
+    mask: linear-gradient(to bottom, transparent var(--nav-h), #000 55%); }
+  /* Unter den Wörtern (auf Beige wäre "Ton" unsichtbar): grau */
+  .gx[data-under='1'] .hero__index::after { display: block; }
+
+  /* ---- Kreis um die Maus: Loch in der Maske des Canvas, darunter die scharfen Volltonflächen ---- */
+  @property --lx { syntax: '<length>'; inherits: true; initial-value: -9999px; }
+  @property --ly { syntax: '<length>'; inherits: true; initial-value: -9999px; }
+  @property --lr { syntax: '<length>'; inherits: true; initial-value: 0px; }
+  .gx .hero__stage { --lr: 0px; transition: --lr 0.35s var(--ease); }
+  .gx .hero__stage.is-lens { --lr: var(--lens-size, 150px); }
+  .gx .hero__stage[data-follow='1'] { transition: --lr 0.35s var(--ease), --lx 0.28s cubic-bezier(0.2, 0.7, 0.3, 1), --ly 0.28s cubic-bezier(0.2, 0.7, 0.3, 1); }
+  .gx .hero__stage.no-follow { transition: --lr 0.35s var(--ease); }
+  /* Sobald das Bild gerechnet ist, stehen die Felder darunter voll und scharf */
+  .gx .hero__stage.is-painted .hero__field { mask: none; }
+  /* Oben unter der Navigation bleibt das Bild immer stehen (Lesbarkeit der Links) */
+  .gx .hero__stage { --keep: linear-gradient(to bottom, #000 calc(var(--nav-h) - 8px), transparent calc(var(--nav-h) + 140px)); }
+  .gx .hero__stage[data-lens='hard'] .gx__canvas { mask-image: var(--keep), radial-gradient(circle at var(--lx) var(--ly), transparent var(--lr), #000 calc(var(--lr) + 0.75px)); }
+  .gx .hero__stage[data-lens='fade'] .gx__canvas { mask-image: var(--keep), radial-gradient(circle at var(--lx) var(--ly), transparent calc(var(--lr) * 0.6), #000 calc(var(--lr) * 1.15)); }
+  .gx .hero__stage[data-lens='soft'] .gx__canvas { mask-image: var(--keep), radial-gradient(circle at var(--lx) var(--ly), transparent 0, rgb(0 0 0 / 0.12) calc(var(--lr) * 0.45), rgb(0 0 0 / 0.55) calc(var(--lr) * 1.05), #000 calc(var(--lr) * 1.7)); }
+  /* Korn-Rand: innen frei, am Rand zerfällt das Bild körnig. Maske = Rand ∪ (Rauschen ∩ weiter innen liegender Rand),
+     so geht es außen ohne Kante ins volle Bild über und die Körner reichen ein Stück in den Kreis hinein. */
+  .gx .hero__stage[data-lens='grain'] .gx__canvas {
+    mask-image: var(--keep),
+      radial-gradient(circle at var(--lx) var(--ly), transparent calc(var(--lr) * 0.55), #000 calc(var(--lr) * 1.2)),
+      var(--noise),
+      radial-gradient(circle at var(--lx) var(--ly), transparent calc(var(--lr) * 0.35), #000 calc(var(--lr) * 0.95));
+    mask-size: auto, auto, 180px 180px, auto;
+    mask-repeat: no-repeat, no-repeat, repeat, no-repeat;
+    mask-composite: add, add, intersect, add;
+  }
 
   .gx-panel {
     position: fixed; right: 16px; bottom: 16px; z-index: 10;
@@ -149,7 +185,7 @@ const areas = CATEGORIES.map((c) => ({
 
   const css = getComputedStyle(document.documentElement);
   const cv = (n: string) => oklab(hex(css.getPropertyValue(n).trim()));
-  const G = cv('--ground'), C = [cv('--lime'), cv('--ink'), cv('--accent')], GREY = oklab([0.5019, 0.5019, 0.5019]);
+  const G = cv('--ground'), C = [cv('--lime'), cv('--ink'), cv('--accent')];
 
   // ---- Zufall: fester Startwert, damit das Bild bei gleicher Größe gleich aussieht
   function rng(seed: number) { return () => { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -172,7 +208,7 @@ const areas = CATEGORIES.map((c) => ({
 
   function paint() {
     const fd = new FormData(form);
-    const grainFull = fd.get('f') === '1', GRAIN = +fd.get('g')!, drawLine = fd.get('l') === 'dissolve';
+    const grainFull = fd.get('f') === '1', GRAIN = +fd.get('g')!;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const box = stage.getBoundingClientRect();
     const W = Math.round(box.width * dpr), H = Math.round(box.height * dpr);
@@ -207,19 +243,9 @@ const areas = CATEGORIES.map((c) => ({
 
         // Mischung in OKLab
         const q = 1 - fade;
-        let L = (k0 * C[0][0] + k1 * C[1][0] + k2 * C[2][0]) * q + G[0] * fade;
-        let A = (k0 * C[0][1] + k1 * C[1][1] + k2 * C[2][1]) * q + G[1] * fade;
-        let B = (k0 * C[0][2] + k1 * C[1][2] + k2 * C[2][2]) * q + G[2] * fade;
-        if (drawLine) {
-          // Linie bei ⅓ und ⅔, die sich auflöst wie die Flächen: unten 1 px scharf, nach oben breiter und blasser
-          // (gleiche Menge Grau, nur verteilt), mit denselben Fasern; wo die Flächen ins Beige gehen, verschwindet sie.
-          const sl = 0.45 * dpr + 0.05 * (sig - sigFloor);
-          const d = Math.min(Math.abs(x - x1), Math.abs(x - x2));
-          if (d < sl * 4) {
-            const a = Math.min(1, dpr / (2.5066 * sl)) ** 0.6 * Math.exp(-(d * d) / (2 * sl * sl)) * q;
-            L += (GREY[0] - L) * a; A += (GREY[1] - A) * a; B += (GREY[2] - B) * a;
-          }
-        }
+        const L = (k0 * C[0][0] + k1 * C[1][0] + k2 * C[2][0]) * q + G[0] * fade;
+        const A = (k0 * C[0][1] + k1 * C[1][1] + k2 * C[2][1]) * q + G[1] * fade;
+        const B = (k0 * C[0][2] + k1 * C[1][2] + k2 * C[2][2]) * q + G[2] * fade;
         let l = L + 0.3963377774 * A + 0.2158037573 * B, m = L - 0.1055613458 * A - 0.0638541728 * B, s = L - 0.0894841775 * A - 1.291485548 * B;
         l *= l * l; m *= m * m; s *= s * s;
         const R = enc(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s);
@@ -235,18 +261,48 @@ const areas = CATEGORIES.map((c) => ({
     }
     ctx.putImageData(img, 0, 0);
     canvas.classList.add('is-ready');
+    stage.classList.add('is-painted');
   }
 
-  // Zustand in der Adresse (#g=1.8&f=1&l=dissolve&u=0)
+  // Rauschbild für den Korn-Rand des Kreises: einmal erzeugt, als Maske gekachelt
+  {
+    const n = document.createElement('canvas'); n.width = n.height = 180;
+    const c = n.getContext('2d')!, d = c.createImageData(180, 180), r = rng(5);
+    for (let i = 0; i < d.data.length; i += 4) d.data[i + 3] = 255 * r() ** 0.7;
+    c.putImageData(d, 0, 0);
+    stage.style.setProperty('--noise', `url(${n.toDataURL()})`);
+  }
+
+  // Kreis um die Maus: nur Lage und Größe als CSS-Variablen; das Bild wird dafür nicht neu gerechnet
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    let raf = 0, px = 0, py = 0;
+    const place = () => { raf = 0; stage.style.setProperty('--lx', px + 'px'); stage.style.setProperty('--ly', py + 'px'); };
+    const at = (e: PointerEvent) => { const b = stage.getBoundingClientRect(); px = e.clientX - b.left; py = e.clientY - b.top; };
+    stage.addEventListener('pointerenter', (e) => {
+      // Beim Hineinfahren springt der Kreis an die Maus (sonst flöge er beim weichen Folgen von der alten Stelle herein)
+      at(e); stage.classList.add('no-follow'); place(); stage.offsetWidth; stage.classList.remove('no-follow');
+      stage.classList.add('is-lens');
+    });
+    stage.addEventListener('pointermove', (e) => { at(e); if (!raf) raf = requestAnimationFrame(place); });
+    stage.addEventListener('pointerleave', () => stage.classList.remove('is-lens'));
+  }
+
+  // Zustand in der Adresse (#g=1.8&f=1&u=0&k=hard&r=150&b=0)
   function readHash() {
     const p = new URLSearchParams(location.hash.slice(1));
-    for (const k of ['g', 'f', 'l', 'u']) { const val = p.get(k); const el = val && form.querySelector<HTMLInputElement>(`input[name="${k}"][value="${val}"]`); if (el) el.checked = true; }
+    for (const k of ['g', 'f', 'u', 'k', 'r', 'b']) { const val = p.get(k); const el = val && form.querySelector<HTMLInputElement>(`input[name="${k}"][value="${val}"]`); if (el) el.checked = true; }
   }
   function writeHash() { history.replaceState(null, '', '#' + new URLSearchParams(Object.entries(Object.fromEntries(new FormData(form))) as [string, string][]).toString()); }
-  const setLines = () => { const fd = new FormData(form); gx.dataset.lines = String(fd.get('l')); gx.dataset.under = String(fd.get('u')); };
+  const setLines = () => {
+    const fd = new FormData(form);
+    gx.dataset.under = String(fd.get('u'));
+    stage.dataset.lens = String(fd.get('k'));
+    stage.dataset.follow = String(fd.get('b'));
+    stage.style.setProperty('--lens-size', fd.get('r') + 'px');
+  };
 
   readHash(); setLines();
-  form.addEventListener('change', (e) => { writeHash(); setLines(); if ((e.target as HTMLInputElement).name !== 'u') paint(); });
+  form.addEventListener('change', (e) => { writeHash(); setLines(); if (['g', 'f'].includes((e.target as HTMLInputElement).name)) paint(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'h' || e.key === 'H') form.hidden = !form.hidden; });
   let timer = 0, lastW = 0, lastH = 0;
   new ResizeObserver(([e]) => {

@@ -50,6 +50,7 @@ const path = Astro.url.pathname;
       <a class="site-nav__home" href="/" aria-label={`${site.person?.name ?? 'Home'}, home`} aria-current={path === '/' ? 'page' : undefined}>
         <Logo variant="loose" uid="nav" stroke={44} />
       </a>
+      <slot name="nav-center" />
       <nav aria-label="Main">
         <ul>
           {nav.map((l) => (

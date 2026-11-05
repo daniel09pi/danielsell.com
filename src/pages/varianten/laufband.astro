@@ -38,6 +38,20 @@ for (const a of areas) {
 }
 ---
 <Base title="Laufband-Test" noindex nav={[{ label: 'work', href: '/#work' }, { label: 'about', href: '/#about' }, { label: 'contact', href: '/#contact' }]}>
+  {/* Steuerung des Bands, mittig in der Navigation: Start/Stopp, Position (zum Verschieben), Farbe statt Schwarzweiß */}
+  <div class="lbc" slot="nav-center" role="group" aria-label="Image band">
+    <button class="lbc__btn lbc__play" id="lbc-play" type="button" aria-label="Pause the image band">
+      <svg class="lbc__pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3" width="2.4" height="10" /><rect x="9.6" y="3" width="2.4" height="10" /></svg>
+      <svg class="lbc__resume" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3l8 5-8 5z" /></svg>
+    </button>
+    <div class="lbc__bar" id="lbc-bar" role="slider" tabindex="0" aria-label="Position of the image band" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <span class="lbc__track"><span class="lbc__fill" id="lbc-fill"></span></span>
+      <span class="lbc__knob" id="lbc-knob"></span>
+    </div>
+    <button class="lbc__btn lbc__color" id="lbc-color" type="button" aria-pressed="false" aria-label="Show images in colour">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.3" /><path class="lbc__half" d="M8 2.5a5.5 5.5 0 0 1 0 11z" /></svg>
+    </button>
+  </div>
   {/* Ladeanimation: nur einmal pro Besuch (Tab), nicht bei reduzierter Bewegung, ohne JS gar nicht. Steht vor dem Hero und
       läuft sofort, damit nichts erst sichtbar ist und dann verschwindet. ?intro in der Adresse erzwingt sie. */}
   <script is:inline>
@@ -105,6 +119,25 @@ for (const a of areas) {
   @keyframes in-name { from { transform: translateY(102%); } }
   @keyframes in-fade { from { opacity: 0; } }
 
+  /* ---------- Steuerung in der Navigation (dezent: Ink, feine Linie, kleiner Punkt) ---------- */
+  .site-nav { position: relative; }
+  .lbc { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 0.5rem; color: var(--ink); }
+  .lbc__btn { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; opacity: 0.55; transition: opacity 0.2s var(--ease); }
+  .lbc__btn:hover, .lbc__btn:focus-visible, .lbc__btn[aria-pressed='true'] { opacity: 1; }
+  .lbc__btn svg { width: 14px; height: 14px; fill: currentColor; }
+  .lbc__resume, .lbc.is-paused .lbc__pause { display: none; }
+  .lbc.is-paused .lbc__resume { display: block; }
+  .lbc__half { fill: currentColor; }
+  .lbc__color[aria-pressed='true'] circle { fill: currentColor; }
+  /* Positionsleiste: 1 px Linie, gefüllter Teil in Ink, Punkt; Füllung und Punkt laufen per Web Animation mit dem
+     Band mit (gleiche Dauer, gleiche Zeit), ohne Skript pro Frame */
+  .lbc__bar { position: relative; width: 140px; height: 32px; cursor: pointer; touch-action: none; }
+  .lbc__track { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: color-mix(in srgb, var(--ink) 22%, transparent); overflow: hidden; }
+  .lbc__fill { position: absolute; inset: 0; background: var(--ink); transform-origin: left; transform: scaleX(0); opacity: 0.55; }
+  .lbc__knob { position: absolute; left: -3px; top: calc(50% - 3px); width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+  .lbc__bar:focus-visible { outline: 1px solid var(--ink); outline-offset: 2px; }
+  .lbc.is-dragging .lbc__bar { cursor: grabbing; }
+
   /* ---------- Laufband ---------- */
   .lb { position: absolute; inset: 0; pointer-events: none; }
   /* Eine Ebene pro Bereich, per overflow: clip auf ihre Spalte zugeschnitten; innen liegt das Band wieder bühnenbreit
@@ -128,7 +161,8 @@ for (const a of areas) {
   /* Die Spalte, über deren Farbfeld die Maus ist, zeigt ihre Bilder in Farbe */
   .lb[data-col='creative'] .lb__layer[data-cat='creative'] .lb__tile,
   .lb[data-col='adventure'] .lb__layer[data-cat='adventure'] .lb__tile,
-  .lb[data-col='dev'] .lb__layer[data-cat='dev'] .lb__tile { filter: none; }
+  .lb[data-col='dev'] .lb__layer[data-cat='dev'] .lb__tile,
+  .lb.lb--color .lb__tile { filter: none; }
 </style>
 
 <script>
@@ -173,6 +207,13 @@ for (const a of areas) {
 
   // ---------- Band bauen ----------
   let anims: Animation[] = [];
+  let duration = 1;
+  let playing = !reduce;
+  const BAR_W = 140;
+  const ctrl = document.querySelector<HTMLElement>('.lbc')!;
+  const bar = document.getElementById('lbc-bar')!;
+  const playBtn = document.getElementById('lbc-play')!;
+  const colorBtn = document.getElementById('lbc-color')!;
   // Fotos laden: alle Kacheln mit derselben Datei gemeinsam; geladen = Klasse is-loaded (Foto blendet über die Farbe)
   const loaded = new Set<string>();
   function load(src: string, imgs: HTMLImageElement[]) {
@@ -186,6 +227,7 @@ for (const a of areas) {
   }
 
   function build() {
+    const keep = anims.length ? progress() : null; // Stand behalten, wenn neu gebaut wird (Fenstergröße)
     anims.forEach((a) => a.cancel());
     anims = [];
     lb.textContent = '';
@@ -199,7 +241,7 @@ for (const a of areas) {
     lb.style.setProperty('--h', `${h}px`);
     lb.style.setProperty('--g', `${g}px`);
     lb.style.setProperty('--tilt', `${CONFIG.tilt}deg`);
-    const duration = (loop / CONFIG.speed) * 1000;
+    duration = (loop / CONFIG.speed) * 1000;
     const frames = CONFIG.direction > 0
       ? [{ transform: `translateX(${-loop}px)` }, { transform: 'translateX(0)' }]
       : [{ transform: 'translateX(0)' }, { transform: `translateX(${-loop}px)` }];
@@ -246,7 +288,7 @@ for (const a of areas) {
         }
         band.append(track);
         const anim = track.animate(frames, { duration, iterations: Infinity, easing: 'linear' });
-        (anim as any)._row = r;
+        (anim as any)._off = (r * duration * (step / 2)) / loop; // jede weitere Reihe eine halbe Kachel versetzt
         anims.push(anim);
       }
       stick.append(band);
@@ -257,9 +299,17 @@ for (const a of areas) {
     // Alle Ebenen auf exakt dieselbe Zeit (sonst stimmen die geteilten Kacheln nicht überein); jede weitere Reihe um
     // eine halbe Kachel versetzt
     const t0 = (anims[0]?.currentTime as number) ?? 0;
-    for (const a of anims) a.currentTime = t0 + (((a as any)._row * duration) * (step / 2)) / loop;
+    // Positionsleiste läuft mit: Füllung und Punkt, gleiche Dauer
+    const opts = { duration, iterations: Infinity, easing: 'linear' };
+    const fill = document.getElementById('lbc-fill')!.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], opts);
+    const knob = document.getElementById('lbc-knob')!.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${BAR_W}px)` }], opts);
+    (fill as any)._off = 0;
+    (knob as any)._off = 0;
+    anims.push(fill, knob);
+    for (const a of anims) a.currentTime = t0 + (a as any)._off;
+    if (keep !== null) seek(keep);
     waiting.forEach((imgs, src) => load(src, imgs));
-    if (reduce) anims.forEach((a) => a.pause());
+    if (!playing) anims.forEach((a) => a.pause());
     else if (intro && !rampDone) rampIn();
     place();
   }
@@ -272,12 +322,91 @@ for (const a of areas) {
     const tick = () => {
       const t = Math.min(1, Math.max(0, (performance.now() - INTRO.bandStart) / INTRO.bandRamp));
       const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      if (rampDone) return; // inzwischen angehalten oder verschoben
       anims.forEach((a) => { a.playbackRate = e; });
       if (t < 1) requestAnimationFrame(tick); else rampDone = true;
     };
     requestAnimationFrame(tick);
   }
   if (intro) setTimeout(() => document.documentElement.classList.remove('intro'), Math.max(0, INTRO.end - performance.now()));
+
+  // ---------- Steuerung: Start/Stopp, Position, Farbe ----------
+  // Stand 0…1 innerhalb einer Runde (an der ersten Reihe gemessen)
+  function progress() {
+    const t = (anims[0]?.currentTime as number) ?? 0;
+    return (((t / duration) % 1) + 1) % 1;
+  }
+  // Alle Ebenen, Reihen und die Leiste gemeinsam auf einen Stand setzen
+  function seek(p: number) {
+    const base = Math.floor(((anims[0]?.currentTime as number) ?? 0) / duration) * duration + p * duration;
+    for (const a of anims) a.currentTime = base + (a as any)._off;
+    bar.setAttribute('aria-valuenow', String(Math.round(p * 100)));
+  }
+  // Weich auf ein Tempo (Faktor 0…1) bremsen oder anfahren; nur während des Übergangs ein paar Frames
+  let rampId = 0;
+  function rampTo(target: number, ms: number, done?: () => void) {
+    cancelAnimationFrame(rampId);
+    const from = anims[0]?.playbackRate ?? 1, start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / ms);
+      const r = from + (target - from) * (1 - Math.pow(1 - t, 3));
+      anims.forEach((a) => { a.playbackRate = r; });
+      if (t < 1) rampId = requestAnimationFrame(tick); else done?.();
+    };
+    rampId = requestAnimationFrame(tick);
+  }
+  function setPlaying(on: boolean) {
+    playing = on;
+    rampDone = true;
+    ctrl.classList.toggle('is-paused', !on);
+    playBtn.setAttribute('aria-label', on ? 'Pause the image band' : 'Play the image band');
+    if (on) {
+      anims.forEach((a) => { a.playbackRate = 0; a.play(); });
+      rampTo(1, 500);
+    } else {
+      rampTo(0, 400, () => { if (!playing) anims.forEach((a) => a.pause()); });
+    }
+  }
+  playBtn.addEventListener('click', () => setPlaying(!playing));
+  ctrl.classList.toggle('is-paused', !playing);
+  if (!playing) playBtn.setAttribute('aria-label', 'Play the image band');
+
+  // Position: ziehen oder klicken (läuft es, hält es dabei an und läuft danach weiter), Pfeiltasten
+  let dragging = false, resume = false;
+  const pAt = (x: number) => { const r = bar.getBoundingClientRect(); return Math.min(0.9999, Math.max(0, (x - r.left) / r.width)); };
+  bar.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    resume = playing;
+    rampDone = true;
+    bar.setPointerCapture(e.pointerId);
+    ctrl.classList.add('is-dragging');
+    cancelAnimationFrame(rampId);
+    anims.forEach((a) => { a.playbackRate = 1; a.pause(); });
+    seek(pAt(e.clientX));
+  });
+  bar.addEventListener('pointermove', (e) => { if (dragging) seek(pAt(e.clientX)); });
+  const endDrag = () => {
+    if (!dragging) return;
+    dragging = false;
+    ctrl.classList.remove('is-dragging');
+    if (resume) { anims.forEach((a) => { a.playbackRate = 0; a.play(); }); rampTo(1, 500); }
+  };
+  bar.addEventListener('pointerup', endDrag);
+  bar.addEventListener('pointercancel', endDrag);
+  bar.addEventListener('keydown', (e) => {
+    const step = e.key === 'ArrowRight' || e.key === 'ArrowUp' ? 0.02 : e.key === 'ArrowLeft' || e.key === 'ArrowDown' ? -0.02 : 0;
+    if (!step) return;
+    e.preventDefault();
+    seek((progress() + step + 1) % 1);
+  });
+
+  // Farbe: alle Bilder ohne Schwarzweiß
+  colorBtn.addEventListener('click', () => {
+    const on = colorBtn.getAttribute('aria-pressed') !== 'true';
+    colorBtn.setAttribute('aria-pressed', String(on));
+    colorBtn.setAttribute('aria-label', on ? 'Show images in black and white' : 'Show images in colour');
+    lb.classList.toggle('lb--color', on);
+  });
 
   // ---------- Lage, Stehenbleiben, Ausblenden ----------
   function place() {

@@ -59,6 +59,17 @@ const areas = CATEGORIES.map((c) => ({
       <label><input type="radio" name="m" value="0" /> nicht mischen</label>
     </fieldset>
     <fieldset>
+      <legend>Blur beginnt</legend>
+      <label><input type="radio" name="b" value="oben" /> über dem Namen</label>
+      <label><input type="radio" name="b" value="name" checked /> hinter dem Namen</label>
+      <label><input type="radio" name="b" value="all" /> ganzer Hintergrund weich</label>
+    </fieldset>
+    <fieldset>
+      <legend>Schrift läuft in Fasern aus</legend>
+      <label><input type="radio" name="s" value="0" checked /> nein</label>
+      <label><input type="radio" name="s" value="1" /> ja</label>
+    </fieldset>
+    <fieldset>
       <legend>Verlauf</legend>
       <label><input type="radio" name="h" value="0.75" /> kurz</label>
       <label><input type="radio" name="h" value="1" /> mittel</label>
@@ -153,11 +164,11 @@ const areas = CATEGORIES.map((c) => ({
 
   function state() {
     const fd = new FormData(form);
-    return { v: String(fd.get('v')), g: +fd.get('g')!, f: fd.get('f') === '1', h: +fd.get('h')!, m: +fd.get('m')! };
+    return { v: String(fd.get('v')), g: +fd.get('g')!, f: fd.get('f') === '1', h: +fd.get('h')!, m: +fd.get('m')!, b: String(fd.get('b')), s: fd.get('s') === '1' };
   }
 
   function paint() {
-    const { v: variant, g: grain, f: grainFull, h: reach, m: mode } = state();
+    const { v: variant, g: grain, f: grainFull, h: reach, m: mode, b: blurStart, s: nameFibers } = state();
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const box = stage.getBoundingClientRect();
     const W = Math.round(box.width * dpr), H = Math.round(box.height * dpr);
@@ -181,24 +192,54 @@ const areas = CATEGORIES.map((c) => ({
     const blurMode = mode >= 2, linear = mode === 2;
     const sigMax = 0.14 * W;
     const x1 = W / 3, x2 = (2 * W) / 3;
-    const LIN = [RGB.c0, RGB.c1, RGB.c2, RGB.ground].map((c) => c.map((v) => toLin(v / 255)));                                           // Korn in 8-bit-Stufen (Spitze-Spitze ≈ 2 × amp)
+    const LIN = [RGB.c0, RGB.c1, RGB.c2, RGB.ground].map((c) => c.map((v) => toLin(v / 255)));
+    // Wo der Blur anfängt: über dem Namen (spitz, alt), hinter dem Namen ab der Grundlinie (sanft), oder überall mit Grundunschärfe
+    const baseY = (nb.bottom - box.top) * dpr;
+    const y0 = blurStart === 'all' ? H : baseY;
+    const sigFloor = blurStart === 'all' ? 0.045 * W : 0;
+    const span0 = Math.max(1, y0 - topY);
+
+    // Schrift in Fasern: Name unsichtbar nachzeichnen, pro Spalte die oberste Kante finden und von dort beige Fasern nach oben ziehen.
+    // Der echte Text (h1) bleibt darüber und scharf; der Canvas malt nur die Fasern über den Buchstaben.
+    let trail: Float32Array | null = null;
+    if (nameFibers) {
+      const off = document.createElement('canvas'); off.width = W; off.height = H;
+      const o = off.getContext('2d', { willReadFrequently: true })!;
+      const cs = getComputedStyle(nameEl);
+      o.font = `${cs.fontWeight} ${fs * dpr}px ${cs.fontFamily}`;
+      (o as any).letterSpacing = `${parseFloat(cs.letterSpacing) * dpr}px`;
+      o.textBaseline = 'alphabetic';
+      o.fillText(nameEl.textContent!.trim(), (nb.left - box.left + parseFloat(cs.paddingLeft)) * dpr, baseY);
+      const a = o.getImageData(0, 0, W, H).data;
+      trail = new Float32Array(W * H);
+      const nf = fibers(W, dpr * 0.35), r = rng(99), L0 = 0.32 * fs * dpr;
+      for (let x = 0; x < W; x++) {
+        let top = -1;
+        for (let y = 0; y < H; y++) if (a[(y * W + x) * 4 + 3] > 8) { top = y; break; }
+        if (top < 0) continue;
+        const L = L0 * (0.2 + 0.8 * Math.min(1, Math.max(0, 0.5 + 0.6 * nf[x]))) * (0.65 + 0.7 * r());
+        // ein paar Pixel in den Buchstaben hinein beginnen (dort deckt der echte Text), damit keine Kante zwischen Text und Faser bleibt
+        for (let y = Math.min(H - 1, top + 3 * dpr); y >= 0; y--) { const v = 0.92 * Math.exp(-Math.max(0, top - y) / L); if (v < 0.004) break; trail[y * W + x] = v; }
+      }
+    }
 
     for (let y = 0; y < H; y++) {
       // t: 0 an der vollen Fläche, 1 oben im Beige
       const t0 = 1 - (y - topY) / span;
       for (let x = 0; x < W; x++) {
-        let t = t0;
-        if (fib) t += fib[x] * 0.16 * ss(-0.1, 0.6, t0) * (1 - ss(0.85, 1.3, t0));
-        t = Math.min(1, Math.max(0, t));
+        const shift = fib ? fib[x] * 0.16 * span * ss(-0.1, 0.6, t0) * (1 - ss(0.85, 1.3, t0)) : 0;
+        const yy = y - shift;                                           // y, um die Fasern verschoben
+        const t = Math.min(1, Math.max(0, 1 - (yy - topY) / span));
         // Seiten verschmelzen zuerst (unterer Teil des Verlaufs), dann blasst alles zu Beige aus (oberer Teil)
         let k0: number, k1: number, k2: number, fade: number;
         if (blurMode) {
-          const sig = sigMax * Math.pow(t, 0.6);                        // Maske: schnell wachsend, damit keine spitzen Trichter entstehen
+          // Maske für den Blur-Radius: oben stark, unten schwach
+          const tb = Math.min(1, Math.max(0, (y0 - yy) / span0));
+          const sig = blurStart === 'oben' ? sigMax * Math.pow(t, 0.6) : sigFloor + (sigMax - sigFloor) * Math.pow(tb, 1.4);
           if (sig < 0.3) { k0 = x < x1 ? 1 : 0; k2 = x >= x2 ? 1 : 0; }
           else { k0 = Phi((x1 - x) / sig); k2 = Phi((x - x2) / sig); }
           k1 = 1 - k0 - k2;
           const yEnd = solidY - 0.62 * span;                            // hier enden die Streifen, der Blur macht daraus den Übergang ins Beige
-          const yy = solidY - t * span;                                 // y, um die Fasern verschoben
           fade = sig < 0.3 ? 0 : 1 - Phi((yy - yEnd) / Math.max(sig, 1));
         } else {
           const blend = mode === 1 ? ss(0.0, 0.75, t) * 0.2 : 0;        // halbe Breite der Übergangszone; 0 = jede Spalte läuft für sich aus
@@ -208,6 +249,7 @@ const areas = CATEGORIES.map((c) => ({
           k0 = 1 - w1; k1 = w1 - w2; k2 = w2;
           fade = ss(0.2, 1, t);                                         // Anteil Beige
         }
+        if (trail) { const tr = trail[y * W + x]; if (tr) fade += (1 - fade) * tr; }
         const i = (y * W + x) * 4;
 
         if (variant === 'streu') {
@@ -251,7 +293,7 @@ const areas = CATEGORIES.map((c) => ({
   // Zustand in der Adresse (#v=faser&g=1&f=1&h=1.3&m=0), damit Daniel Links auf eine Fassung schicken kann
   function readHash() {
     const p = new URLSearchParams(location.hash.slice(1));
-    for (const k of ['v', 'g', 'f', 'h', 'm']) { const val = p.get(k); const el = val && form.querySelector<HTMLInputElement>(`input[name="${k}"][value="${val}"]`); if (el) el.checked = true; }
+    for (const k of ['v', 'g', 'f', 'h', 'm', 'b', 's']) { const val = p.get(k); const el = val && form.querySelector<HTMLInputElement>(`input[name="${k}"][value="${val}"]`); if (el) el.checked = true; }
   }
   function writeHash() { history.replaceState(null, '', '#' + new URLSearchParams(Object.entries(Object.fromEntries(new FormData(form))) as [string, string][]).toString()); }
 

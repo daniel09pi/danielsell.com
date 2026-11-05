@@ -10,6 +10,7 @@ import Base from '../../layouts/Base.astro';
 import T from '../../components/T.astro';
 import { site, has, isPlaceholder, CATEGORIES, byCategory, subtitleLinks } from '../../lib/content.js';
 import { resolveImage } from '../../lib/images.js';
+import sharp from 'sharp';
 
 const name = site.person?.name ?? '';
 const words = subtitleLinks();
@@ -17,20 +18,23 @@ const areas = CATEGORIES.map((c) => ({ category: c, word: words.find((w) => w.ca
 
 // Bilder pro Bereich. Ein Bild, das schon in einem früheren Bereich vorkommt (flowinsync zeigt vorläufig Bilder
 // aus creative), gehört dem ersten Bereich; sonst stünde ein creative-Bild über dem dev-Feld.
+// Zu jedem Bild die Hauptfarbe (häufigste Farbe, sharp beim Build): die Kachel zeigt sie, bis das Foto geladen ist.
 const owner = new Map();
 const pools = {};
-for (const c of CATEGORIES) {
-  pools[c] = areas.find((a) => a.category === c).projects.map((p) => {
-    const imgs = (p.images ?? [])
-      .map((e) => (typeof e === 'string' ? e : e?.src))
-      .filter((src) => has(src) && !isPlaceholder(src))
-      .filter((src) => { if (owner.has(src) && owner.get(src) !== c) return false; owner.set(src, c); return true; })
-      .map((src) => {
-        const m = resolveImage(src);
-        return { srcset: m.variants.avif.map((v) => `${encodeURI(v.url)} ${v.w}w`).join(', '), src: encodeURI(m.variants.avif[0].url) };
-      });
-    return { slug: p.slug, imgs };
-  }).filter((p) => p.imgs.length);
+for (const a of areas) {
+  pools[a.category] = [];
+  for (const p of a.projects) {
+    const imgs = [];
+    for (const src of (p.images ?? []).map((e) => (typeof e === 'string' ? e : e?.src))) {
+      if (!has(src) || isPlaceholder(src)) continue;
+      if (owner.has(src) && owner.get(src) !== a.category) continue;
+      owner.set(src, a.category);
+      const m = resolveImage(src);
+      const { dominant: d } = await sharp(src.trim().replace(/^\.?\/+/, ''), { failOn: 'none' }).stats();
+      imgs.push({ srcset: m.variants.avif.map((v) => `${encodeURI(v.url)} ${v.w}w`).join(', '), src: encodeURI(m.variants.avif[0].url), color: `rgb(${d.r} ${d.g} ${d.b})` });
+    }
+    if (imgs.length) pools[a.category].push({ slug: p.slug, imgs });
+  }
 }
 ---
 <Base title="Laufband-Test" noindex nav={[{ label: 'work', href: '/#work' }, { label: 'about', href: '/#about' }, { label: 'contact', href: '/#contact' }]}>
@@ -76,8 +80,9 @@ for (const c of CATEGORIES) {
 
   /* ---------- Ladeanimation: alles kommt aus der Linie unter dem Namen (ca. 1,2 s) ----------
      1. die Linie zeichnet sich von links nach rechts, 2. die Felder wachsen aus ihr nach oben (leicht versetzt, der
-     Linie folgend), 3. der Name steigt aus der Linie auf (die Bühne schneidet unten ab), 4. das Band blendet ein und
-     läuft an (Tempo im Skript), dazu das Register darunter. Nur transform und opacity. */
+     Linie folgend), 3. der Name steigt aus der Linie auf (die Bühne schneidet unten ab), 4. die Kacheln des Bands
+     wachsen von links nach rechts auf (Verzögerung --d aus dem Skript, nach ihrer Lage), das Band läuft dabei an
+     (Tempo im Skript), dazu das Register darunter. Nur transform und opacity. */
   html.intro .hero__stage { border-bottom-color: transparent; }
   html.intro .hero__index { position: relative; }
   html.intro .hero__index::before {
@@ -89,13 +94,14 @@ for (const c of CATEGORIES) {
   html.intro .hero__field--adventure { animation-delay: 0.25s; }
   html.intro .hero__field--dev { animation-delay: 0.32s; }
   html.intro .hero__name { animation: in-name 0.7s cubic-bezier(0.2, 0.75, 0.1, 1) 0.42s both; }
-  html.intro .lb { animation: in-fade 0.5s ease 0.7s both; }
+  html.intro .lb__tile { animation: in-tile 0.55s cubic-bezier(0.2, 0.75, 0.1, 1) var(--d, 0s) both; }
   html.intro .hero__area { animation: in-fade 0.5s ease both; }
   html.intro .hero__area--creative { animation-delay: 0.75s; }
   html.intro .hero__area--adventure { animation-delay: 0.82s; }
   html.intro .hero__area--dev { animation-delay: 0.89s; }
   @keyframes in-line { from { transform: scaleX(0); } }
   @keyframes in-field { from { transform: scaleY(0); } }
+  @keyframes in-tile { from { transform: scaleY(0); } }
   @keyframes in-name { from { transform: translateY(102%); } }
   @keyframes in-fade { from { opacity: 0; } }
 
@@ -114,12 +120,15 @@ for (const c of CATEGORIES) {
   /* Band: breiter als die Bühne, damit es gekippt bis an die Ränder reicht */
   .lb__band { position: absolute; left: -25%; width: 150%; top: 0; transform: translateY(-50%) rotate(var(--tilt)); display: flex; flex-direction: column; gap: var(--g); }
   .lb__track { display: flex; width: max-content; will-change: transform; }
-  .lb__tile { flex: none; width: var(--w); height: var(--h); margin-right: var(--g); overflow: hidden; }
-  .lb__tile img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.06); transition: filter 0.6s var(--ease); }
+  /* Kachel: zuerst nur die Hauptfarbe des Fotos (--c), das Foto blendet darüber ein, sobald es geladen ist.
+     Schwarzweiß gilt für die ganze Kachel, also auch für die Farbe davor (sonst springt der Ton beim Einblenden). */
+  .lb__tile { flex: none; width: var(--w); height: var(--h); margin-right: var(--g); overflow: hidden; background: var(--c); transform-origin: 50% 100%; filter: grayscale(1) contrast(1.06); transition: filter 0.6s var(--ease); }
+  .lb__tile img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s var(--ease); }
+  .lb__tile.is-loaded img { opacity: 1; }
   /* Die Spalte, über deren Farbfeld die Maus ist, zeigt ihre Bilder in Farbe */
-  .lb[data-col='creative'] .lb__layer[data-cat='creative'] img,
-  .lb[data-col='adventure'] .lb__layer[data-cat='adventure'] img,
-  .lb[data-col='dev'] .lb__layer[data-cat='dev'] img { filter: none; }
+  .lb[data-col='creative'] .lb__layer[data-cat='creative'] .lb__tile,
+  .lb[data-col='adventure'] .lb__layer[data-cat='adventure'] .lb__tile,
+  .lb[data-col='dev'] .lb__layer[data-cat='dev'] .lb__tile { filter: none; }
 </style>
 
 <script>
@@ -138,9 +147,12 @@ for (const c of CATEGORIES) {
     tilt: -9,           // Neigung des ganzen Bands in Grad
     fadeOnScroll: true, // Bilder werden beim Runterscrollen schwächer
     smoothScroll: 0.1,  // Lenis lerp (kleiner = weicher), 0 = normales Scrollen
+    // NUR ZUM TESTEN: lädt jedes Foto erst nach einer zufälligen Wartezeit (ms), um langsames Netz zu simulieren.
+    // Vor der Übernahme auf die Startseite auf null setzen.
+    simulateLoading: [600, 4000] as [number, number] | null,
   };
 
-  type Img = { srcset: string; src: string };
+  type Img = { srcset: string; src: string; color: string };
   type Proj = { slug: string; imgs: Img[] };
   const pools: Record<string, Proj[]> = JSON.parse(document.getElementById('lb-data')!.textContent!);
   const CATS = ['creative', 'adventure', 'dev'];
@@ -148,7 +160,7 @@ for (const c of CATEGORIES) {
   const lb = document.getElementById('lb')!;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const intro = document.documentElement.classList.contains('intro');
-  const INTRO = { bandStart: 700, bandRamp: 900, end: 1700 }; // ms seit Seitenaufruf: Band läuft an, bis volles Tempo, Ende
+  const INTRO = { bandStart: 700, bandRamp: 900, tiles: 700, tilesSpread: 500, end: 2000 }; // ms seit Seitenaufruf: Band läuft an, bis volles Tempo, Ende
 
   // Projekte im Wechsel: erst je das erste Bild jedes Projekts, dann je das zweite …
   function sequence(cat: string): Img[] {
@@ -161,6 +173,18 @@ for (const c of CATEGORIES) {
 
   // ---------- Band bauen ----------
   let anims: Animation[] = [];
+  // Fotos laden: alle Kacheln mit derselben Datei gemeinsam; geladen = Klasse is-loaded (Foto blendet über die Farbe)
+  const loaded = new Set<string>();
+  function load(src: string, imgs: HTMLImageElement[]) {
+    const go = () => imgs.forEach((img) => {
+      img.srcset = img.dataset.srcset!;
+      img.src = src;
+      img.decode().catch(() => {}).then(() => { loaded.add(src); img.parentElement!.classList.add('is-loaded'); });
+    });
+    const sim = CONFIG.simulateLoading;
+    if (sim && !loaded.has(src)) setTimeout(go, sim[0] + Math.random() * (sim[1] - sim[0])); else go();
+  }
+
   function build() {
     anims.forEach((a) => a.cancel());
     anims = [];
@@ -180,6 +204,9 @@ for (const c of CATEGORIES) {
       ? [{ transform: `translateX(${-loop}px)` }, { transform: 'translateX(0)' }]
       : [{ transform: 'translateX(0)' }, { transform: `translateX(${-loop}px)` }];
 
+    const stageW = stage.clientWidth;
+    const reveal = intro && !rampDone; // Kacheln wachsen nur beim ersten Aufbau mit Ladeanimation auf
+    const waiting = new Map<string, HTMLImageElement[]>();
     for (const cat of CATS) {
       const seq = sequence(cat);
       const layer = document.createElement('div');
@@ -198,14 +225,22 @@ for (const c of CATEGORIES) {
           const tile = document.createElement('div');
           tile.className = 'lb__tile';
           const item = seq.length ? seq[((i % n) + r * 3) % seq.length] : null; // zweite Reihe beginnt mit anderen Bildern
+          if (reveal) {
+            // Startlage der Kachel in der Bühne (Band beginnt bei -loop, zweite Reihe eine halbe Kachel versetzt)
+            const x = -0.25 * stageW + i * step - (CONFIG.direction > 0 ? loop : 0) + (r * step) / 2;
+            const d = INTRO.tiles + Math.min(1, Math.max(0, x / stageW)) * INTRO.tilesSpread + r * 60;
+            tile.style.setProperty('--d', `${Math.round(d)}ms`);
+          }
           if (item) {
+            tile.style.setProperty('--c', item.color);
             const img = document.createElement('img');
             img.alt = '';
             img.decoding = 'async';
             img.sizes = `${w}px`;
-            img.srcset = item.srcset;
-            img.src = item.src;
+            img.dataset.srcset = item.srcset;
             tile.append(img);
+            if (!waiting.has(item.src)) waiting.set(item.src, []);
+            waiting.get(item.src)!.push(img);
           }
           track.append(tile);
         }
@@ -223,6 +258,7 @@ for (const c of CATEGORIES) {
     // eine halbe Kachel versetzt
     const t0 = (anims[0]?.currentTime as number) ?? 0;
     for (const a of anims) a.currentTime = t0 + (((a as any)._row * duration) * (step / 2)) / loop;
+    waiting.forEach((imgs, src) => load(src, imgs));
     if (reduce) anims.forEach((a) => a.pause());
     else if (intro && !rampDone) rampIn();
     place();

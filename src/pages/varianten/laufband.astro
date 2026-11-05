@@ -67,9 +67,6 @@ for (const c of CATEGORIES) {
     <div class="ht-grp"><span class="ht-lab">Richtung</span><div class="ht-btns">
       <button type="button" data-k="dir" data-v="rtl">← nach links</button><button type="button" data-k="dir" data-v="ltr">nach rechts →</button>
     </div></div>
-    <div class="ht-grp"><span class="ht-lab">Maus drauf</span><div class="ht-btns">
-      <button type="button" data-k="hov" data-v="run">läuft weiter</button><button type="button" data-k="hov" data-v="slow">wird langsam</button><button type="button" data-k="hov" data-v="stop">hält an</button>
-    </div></div>
 
     <p class="ht-sec">Band</p>
     <label class="ht-grp"><span class="ht-lab">Höhe Bild</span><input type="range" data-k="h" min="60" max="420" step="2" /><output data-o="h"></output></label>
@@ -77,7 +74,7 @@ for (const c of CATEGORIES) {
     <div class="ht-grp"><span class="ht-lab">Format</span><div class="ht-btns">
       <button type="button" data-k="ar" data-v="0.8">4:5</button><button type="button" data-k="ar" data-v="1">1:1</button><button type="button" data-k="ar" data-v="1.333">4:3</button><button type="button" data-k="ar" data-v="1.5">3:2</button><button type="button" data-k="ar" data-v="1.778">16:9</button>
     </div></div>
-    <label class="ht-grp"><span class="ht-lab">Lage (Höhe im Fenster)</span><input type="range" data-k="y" min="0" max="100" step="1" /><output data-o="y"></output></label>
+    <label class="ht-grp"><span class="ht-lab">Lage (Höhe im Feld)</span><input type="range" data-k="y" min="0" max="100" step="1" /><output data-o="y"></output></label>
     <div class="ht-grp"><span class="ht-lab">Reihen</span><div class="ht-btns">
       <button type="button" data-k="rows" data-v="1">eine</button><button type="button" data-k="rows" data-v="2">zwei, gleich</button><button type="button" data-k="rows" data-v="2o">zwei, gegenläufig</button>
     </div></div>
@@ -105,7 +102,7 @@ for (const c of CATEGORIES) {
     </div></div>
     <label class="ht-grp"><span class="ht-lab">Ecken</span><input type="range" data-k="rd" min="0" max="40" step="1" /><output data-o="rd"></output></label>
     <div class="ht-grp"><span class="ht-lab">Titel</span><div class="ht-btns">
-      <button type="button" data-k="cap" data-v="off">aus</button><button type="button" data-k="cap" data-v="below">unter dem Bild</button><button type="button" data-k="cap" data-v="hover">beim Zeigen</button>
+      <button type="button" data-k="cap" data-v="off">aus</button><button type="button" data-k="cap" data-v="below">unter dem Bild</button>
     </div></div>
     <div class="ht-grp"><span class="ht-lab">Auswahl</span><div class="ht-btns">
       <button type="button" data-k="set" data-v="all">alle Bilder</button><button type="button" data-k="set" data-v="first">je Projekt eins</button>
@@ -158,7 +155,7 @@ for (const c of CATEGORIES) {
   .lb__band { position: absolute; left: -25%; width: 150%; top: var(--y); transform: translateY(-50%) rotate(var(--bt)); display: flex; flex-direction: column; gap: var(--g); }
   .lb__row { position: relative; }
   .lb__track { display: flex; width: max-content; will-change: transform; }
-  .lb__tile { flex: none; width: var(--w); margin-right: var(--g); display: flex; flex-direction: column; gap: 0.4rem; color: var(--cap); text-decoration: none; pointer-events: auto; transform: rotate(var(--r, 0deg)); }
+  .lb__tile { flex: none; width: var(--w); margin-right: var(--g); display: flex; flex-direction: column; gap: 0.4rem; color: var(--cap); transform: rotate(var(--r, 0deg)); }
   .lb__img { display: block; height: var(--h); overflow: hidden; border-radius: var(--rd); }
   .lb__img img { width: 100%; height: 100%; object-fit: cover; }
   .lb__cap { font-size: 0.875rem; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -186,9 +183,6 @@ for (const c of CATEGORIES) {
 
   /* Titel */
   .lb--cap-off .lb__cap { display: none; }
-  .lb--cap-hover .lb__cap { opacity: 0; transition: opacity 0.2s var(--ease); }
-  .lb--cap-hover .lb__tile:hover .lb__cap { opacity: 1; }
-  .lb__tile:hover .lb__cap { text-decoration: underline; text-underline-offset: 0.2em; }
 
   /* ---------- Panel ---------- */
   .ht-panel, .ht-show { position: fixed; right: 16px; bottom: 16px; z-index: 50; font-size: 13px; line-height: 1.35; }
@@ -234,7 +228,7 @@ for (const c of CATEGORIES) {
   // ---------- Einstellungen ----------
   const DEFAULTS: Record<string, string> = {
     // Daniels Auswahl vom 5. November 2026
-    sp: '64', pin: 'on', dir: 'ltr', hov: 'run',
+    sp: '64', pin: 'on', dir: 'ltr',
     h: '160', g: '5', ar: '0.8', y: '50', rows: '2', z: 'front', bg: 'none',
     bt: '-9', tm: 'none', tt: '0.6',
     m: 'gray', hc: 'fade', o: '100', fr: 'none', rd: '0', cap: 'off', set: 'all', ord: 'mix',
@@ -243,7 +237,7 @@ for (const c of CATEGORIES) {
   const state: Record<string, string> = { ...DEFAULTS };
   for (const [k, v] of new URLSearchParams(location.hash.slice(1))) if (k in state) state[k] = v;
   // Diese Werte ändern nur CSS-Variablen/Klassen; alle anderen bauen das Band neu
-  const LIVE = new Set(['pin', 'sp', 'hov', 'y', 'bt', 'm', 'hc', 'o', 'fr', 'rd', 'cap', 'bg', 'ed', 'ew', 'z']);
+  const LIVE = new Set(['pin', 'sp', 'y', 'bt', 'm', 'hc', 'o', 'fr', 'rd', 'cap', 'bg', 'ed', 'ew', 'z']);
   const UNITS: Record<string, string> = { sp: ' px/s', h: ' px', g: ' px', y: ' %', bt: '°', tt: '°', o: ' %', rd: ' px', ew: ' px' };
 
   // ---------- Bildfolge pro Bereich ----------
@@ -271,7 +265,6 @@ for (const c of CATEGORIES) {
   }
 
   let anims: Animation[] = [];
-  let rate = 1; // Faktor beim Zeigen
   let paused = false;
 
   function build() {
@@ -309,11 +302,9 @@ for (const c of CATEGORIES) {
         for (let i = 0; i < n * 2; i++) {
           const k = i % n;
           const item = seq.length ? seq[(k + offset) % seq.length] : null;
-          const a = document.createElement('a');
+          const a = document.createElement('div');
           a.className = 'lb__tile';
-          a.tabIndex = -1;
           a.style.setProperty('--r', `${tilt(k + r * 7)}deg`);
-          if (item) a.href = `/projects/${item.slug}/`;
           const box = document.createElement('span');
           box.className = 'lb__img';
           if (item) {
@@ -359,49 +350,27 @@ for (const c of CATEGORIES) {
   }
 
   function applyRate() {
-    const r = paused ? 0 : (+state.sp / 100) * rate;
+    const r = paused ? 0 : +state.sp / 100;
     for (const a of anims) a.playbackRate = r;
   }
-  // weich auf ein neues Tempo (nur während des Übergangs ein paar Frames)
-  let ramp = 0;
-  function rampTo(target: number) {
-    cancelAnimationFrame(ramp);
-    const from = rate, start = performance.now(), dur = 450;
-    const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / dur);
-      rate = from + (target - from) * (1 - Math.pow(1 - t, 3));
-      applyRate();
-      if (t < 1) ramp = requestAnimationFrame(tick);
-    };
-    ramp = requestAnimationFrame(tick);
-  }
-  lb.addEventListener('pointerover', (e) => {
-    if (!(e.target as Element).closest('.lb__tile')) return;
-    rampTo(state.hov === 'stop' ? 0 : state.hov === 'slow' ? 0.25 : 1);
-  });
-  lb.addEventListener('pointerout', (e) => {
-    if ((e.relatedTarget as Element | null)?.closest?.('.lb__tile')) return;
-    rampTo(1);
-  });
-
-  // Welche Spalte hat die Maus? Über den Feldern nach x-Position (Drittel), darunter das Wort und die Titel des Bereichs.
+  // Welche Spalte hat die Maus? Nur über den Feldern (bis zur Linie unter dem Namen), nach x-Position (Drittel).
+  // Darunter oder außerhalb: alle schwarzweiß. Die Bilder selbst reagieren nicht auf die Maus.
   const setCol = (c: string | null) => { if (c) lb.dataset.col = c; else delete lb.dataset.col; };
-  stage.addEventListener('pointermove', (e) => {
+  let px = -1, py = -1;
+  function checkCol() {
     const r = stage.getBoundingClientRect();
-    setCol(CATS[Math.min(2, Math.max(0, Math.floor(((e.clientX - r.left) / r.width) * 3)))]);
-  });
-  stage.addEventListener('pointerleave', () => setCol(null));
-  document.querySelectorAll<HTMLElement>('.hero__area').forEach((area, i) => {
-    area.addEventListener('pointerenter', () => setCol(CATS[i]));
-    area.addEventListener('pointerleave', () => setCol(null));
-    area.addEventListener('focusin', () => setCol(CATS[i]));
-    area.addEventListener('focusout', (e) => { if (!area.contains(e.relatedTarget as Node)) setCol(null); });
-  });
+    const inside = px >= r.left && px < r.right && py >= r.top && py < r.bottom;
+    setCol(inside ? CATS[Math.min(2, Math.floor(((px - r.left) / r.width) * 3))] : null);
+  }
+  addEventListener('pointermove', (e) => { px = e.clientX; py = e.clientY; checkCol(); }, { passive: true });
+  document.documentElement.addEventListener('pointerleave', () => { px = py = -1; checkCol(); });
+  // Beim Scrollen wandert die Bühne unter der stehenden Maus weg
+  addEventListener('scroll', checkCol, { passive: true });
 
   function applyLive() {
-    // Lage in Prozent der Fensterhöhe (beim Laden, oben auf der Seite); 50 = Mitte des Bildschirms
+    // Lage in Prozent der Höhe des Farbfelds; 50 = Mitte der bunten Fläche (auch bei niedrigen Fenstern)
     const top = stage.getBoundingClientRect().top + scrollY;
-    lb.style.setProperty('--y', `${(innerHeight * +state.y) / 100 - top}px`);
+    lb.style.setProperty('--y', `${(stage.offsetHeight * +state.y) / 100}px`);
     lb.style.setProperty('--pin-end', `${Math.round(top + stage.offsetHeight)}px`);
     if (!SDT) onScroll();
     lb.style.setProperty('--bt', `${state.bt}deg`);
@@ -421,7 +390,7 @@ for (const c of CATEGORIES) {
     panel.querySelectorAll<HTMLOutputElement>('output[data-o]').forEach((o) => { o.textContent = state[o.dataset.o!] + (UNITS[o.dataset.o!] ?? ''); });
     const label = (k: string) => panel.querySelector(`button[data-k="${k}"][data-v="${state[k]}"]`)?.textContent ?? state[k];
     sumEl.textContent = [
-      `Tempo ${state.sp} px/s ${label('dir')}, Scrollen: ${label('pin')}, Maus: ${label('hov')}`,
+      `Tempo ${state.sp} px/s ${label('dir')}, Scrollen: ${label('pin')}`,
       `Bild ${state.h} px, ${label('ar')}, Abstand ${state.g} px, Lage ${state.y} %, Reihen: ${label('rows')}, Name ${label('z')}, Unterlage: ${label('bg')}`,
       `Band ${state.bt}°, Bilder: ${label('tm')}${state.tm !== 'none' ? ` ${state.tt}°` : ''}`,
       `${label('m')}, Spalte unter der Maus: ${label('hc')}, ${state.o} %, Rahmen: ${label('fr')}, Ecken ${state.rd} px, Titel: ${label('cap')}, ${label('set')}, ${label('ord')}`,

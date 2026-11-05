@@ -1,0 +1,18 @@
+---
+// Kopf der Bereichs- und Projektseiten, wie der Name im Hero der Startseite: eine Fläche in der Farbe des Bereichs,
+// darauf groß das Wort bzw. der Titel in der Schriftfarbe des Felds (wie in den Farbfeldern der Startseite). Die
+// Grundlinie ist die Unterkante der Fläche, darunter die feine Linie. Unter der Linie (Slot) Eckdaten bzw. Kennzahlen.
+// kind: 'area' (Bereichsseite, größer) oder 'project'.
+import T from './T.astro';
+
+interface Props { category: string; title: string; kind?: 'area' | 'project' }
+const { category, title, kind = 'project' } = Astro.props;
+// Unterlängen (y, g, p …) reichen unter die Linie; dann bekommt die Zeile darunter mehr Abstand.
+const desc = /[gjpqyQ,;]/.test(String(title));
+---
+<header class:list={['head', `head--${kind}`, `area--${category}`, { 'head--desc': desc }]}>
+  <div class="head__field">
+    <h1 class="head__title" id="page-title"><T v={title} /></h1>
+  </div>
+  <div class="head__index wrap"><slot /></div>
+</header>

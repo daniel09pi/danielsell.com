@@ -9,8 +9,9 @@ import T from './T.astro';
 import { has, projectHref, formatDate } from '../lib/content.js';
 import { projectImages } from '../lib/images.js';
 
-interface Props { project: any; label?: string; mark?: 'pin' | 'new'; tilt?: number }
-const { project: p, label, mark = 'pin', tilt = 0 } = Astro.props;
+interface Props { project: any; label?: string; mark?: 'pin' | 'new'; tilt?: number; level?: 3 | 4 }
+const { project: p, label, mark = 'pin', tilt = 0, level = 4 } = Astro.props;
+const H = `h${level}`;   // Startseite h4 (unter Bereich h3), Projektseite „more“ h3
 const date = has(p.updated) ? { word: 'updated', iso: p.updated } : has(p.posted) ? { word: 'posted', iso: p.posted } : null;
 const images = projectImages(p).filter((im) => !im.placeholder).slice(0, 3);
 // Leicht gedreht wie die Vorschau in v4 beim Hover über ein Projekt; beim Hover dreht jedes Bild in die Gegenrichtung.
@@ -30,7 +31,7 @@ const tilts = [
     </p>
   )}
   <a class="feat__link" href={projectHref(p)}>
-    <h4 class="feat__title" id={`${p.slug}-feat`}><T v={p.title} /></h4>
+    <H class="feat__title" id={`${p.slug}-feat`}><T v={p.title} /></H>
     <p class="feat__meta">{has(p.kind) && <T v={p.kind} />}{has(p.kind) && (date || has(p.year)) && ', '}{date ? <>{date.word} <time datetime={date.iso}>{formatDate(date.iso)}</time></> : has(p.year) && <T v={p.year} />}</p>
     {images.length > 0 && (
       <span class="feat__thumbs" aria-hidden="true">

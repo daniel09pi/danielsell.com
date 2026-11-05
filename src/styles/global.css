@@ -24,7 +24,8 @@
   --step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);       /* 17–19 */
   --step-lead: clamp(1.25rem, 1.08rem + 0.75vw, 1.75rem);        /* 20–28 */
   --step-head: clamp(2.25rem, 1.45rem + 3.3vw, 4.5rem);          /* 36–72 */
-  --step-display: clamp(4.5rem, 1rem + 14.4vw, 16.5rem);           /* der Name */
+  --step-display: clamp(4.5rem, 1rem + 14.4vw, 16.5rem);           /* der Name, das Wort auf der Bereichsseite */
+  --step-title: clamp(3.5rem, 1rem + 8.4vw, 11rem);              /* Titel der Projekt- und About-Seite */
 
   /* Raum */
   --margin: clamp(1.125rem, 2.2vw, 2rem);
@@ -90,7 +91,7 @@ a:hover { text-decoration-color: currentColor; }
 .site-nav__home .logo { width: auto; height: 1.875rem; }
 .site-nav ul { display: flex; gap: clamp(1.25rem, 2.4vw, 2.25rem); }
 .site-nav a:not(.site-nav__home) { display: inline-block; text-decoration: none; padding: 12px 2px; min-width: 44px; text-align: center; }
-.site-nav a:not(.site-nav__home):hover, .site-nav a[aria-current='page'] { text-decoration: underline; text-decoration-thickness: 0.07em; text-underline-offset: 0.3em; }
+.site-nav a:not(.site-nav__home):hover, .site-nav a[aria-current] { text-decoration: underline; text-decoration-thickness: 0.07em; text-underline-offset: 0.3em; }
 
 /* ---------- Hero ---------- */
 /* Der Name steht auf den drei Bereichen: drei Farbspalten (creative, adventure, dev), der Name läuft
@@ -588,3 +589,156 @@ html.lenis { scroll-behavior: auto; }
 .textpage__lead { font-size: var(--step-lead); line-height: 1.3; }
 .textpage__body .button { margin-top: 1.5rem; }
 @media (max-width: 59.99rem) { .textpage__body { grid-column: 1 / 13; } }
+
+/* ---------- Unterseiten: Kopf von Bereich und Projekt (src/components/PageHead.astro) ---------- */
+/* Wie der Name im Hero der Startseite: die Fläche des Bereichs, darauf groß das Wort bzw. der Titel in der Schriftfarbe
+   des Felds (wie in den Farbfeldern der Startseite). Grundlinie = Unterkante der Fläche, darunter die feine Linie.
+   Unterlängen (y, g, p) reichen über die Linie hinaus und sind dort Ink, sonst wären sie auf Beige unsichtbar
+   (adventure: Beige auf Ink). Der Farbwechsel liegt genau auf der Grundlinie. */
+.head--area { --head-h: clamp(20rem, 56svh, 40rem); --head-size: var(--step-display); }
+.head--project { --head-h: clamp(16rem, 42svh, 30rem); --head-size: var(--step-title); }
+.head__field {
+  display: flex; align-items: flex-end;
+  min-height: var(--head-h);
+  padding-inline: var(--margin);
+  background: var(--area-bg);
+  border-bottom: 1px solid var(--line); /* Grundlinie, Markenlinie nach REDESIGN-PLAN 3.4 */
+}
+.head__title {
+  --below: 0.32em;  /* Platz für Unterlängen unter der Grundlinie */
+  --trim: 0em;      /* Abstand Zeilenunterkante–Grundlinie, nur ohne text-box (siehe @supports) */
+  position: relative; z-index: 1;
+  min-width: 0;
+  margin: 0 0 calc(-1 * (var(--below) + var(--trim))) -0.04em;
+  padding: 0.3em 0 var(--below);
+  font-size: var(--head-size); font-weight: 400; line-height: 0.92; letter-spacing: -0.045em;
+  text-wrap: balance;
+  text-box: trim-end cap alphabetic;
+  background: linear-gradient(to bottom, var(--area-fg) calc(100% - var(--below) - var(--trim)), var(--ink) 0);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+@supports not (text-box: trim-end cap alphabetic) {
+  .head__title { --trim: 0.126em; }
+}
+/* Unter der Linie: Eckdaten in vier Spalten (Projekt) bzw. die Kennzahlen (Bereich) */
+.head__index {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: var(--gutter); align-items: baseline;
+  padding-top: clamp(1rem, 2.5vh, 1.75rem);
+}
+.head--desc .head__index { padding-top: calc(var(--head-size) * 0.24 + 0.75rem); }
+.head__facts { grid-column: 1 / -1; color: var(--ink-soft); font-size: var(--step-small); }
+.head__back { font-size: var(--step-lead); line-height: 1.2; }
+.head__back a { display: inline-block; padding-block: 0.35rem; }
+.head__arrow { display: inline-block; margin-right: 0.4em; }
+.head__fact { display: grid; gap: 0.1rem; }
+.head__soft { color: var(--ink-soft); }
+.head__links { display: flex; flex-wrap: wrap; gap: 0 1.25rem; }
+.head__links a { display: inline-block; padding-block: 0.15rem; }
+.head__ext { display: inline-block; margin-left: 0.25em; color: var(--ink-soft); font-size: 0.8em; }
+
+/* ---------- Projektseite: Text (erster Absatz groß wie das Zitat der Startseite) und Bilder ---------- */
+.story { margin-top: clamp(4rem, 11vh, 7.5rem); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
+.story__lead { grid-column: 4 / 12; font-size: clamp(1.5rem, 1rem + 1.1vw, 2.125rem); line-height: 1.3; letter-spacing: -0.015em; }
+.story__body { grid-column: 4 / 10; margin-top: clamp(1.75rem, 4vh, 2.5rem); max-width: 62ch; }
+.story__body p + p { margin-top: 1rem; }
+
+/* Bilder in Reihen gleicher Höhe (src/lib/gallery.js): jedes Bild wächst mit seinem Seitenverhältnis (flex-grow im
+   style-Attribut), Fläche in der Hauptfarbe des Fotos, bis es geladen ist. Gerade, volle Farbe, kein Hover. */
+.gallery { --gap: clamp(0.5rem, 0.9vw, 0.875rem); margin-top: clamp(4rem, 11vh, 7.5rem); display: grid; row-gap: var(--gap); }
+.gallery__row { display: flex; align-items: flex-start; gap: var(--gap); }
+.gallery__item { flex: 1 1 0; min-width: 0; }
+.gallery__item picture, .gallery__item img { display: block; width: 100%; height: auto; }
+.gallery__fill { flex: 1 1 0; }
+
+/* Am Ende: „mehr aus dem Bereich“, das Farbfeld wie auf der Startseite und daneben die nächsten zwei Projekte */
+.more { margin-top: var(--section); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.more a { color: inherit; text-decoration: none; }
+.more .area__cta {
+  display: inline-block; margin-top: 0.75rem; padding-block: 0.5rem; font-size: var(--step-body);
+  text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  text-decoration-thickness: 1px; text-underline-offset: 0.25em; transition: text-decoration-color 0.25s var(--ease);
+}
+.more .area__cta:hover { text-decoration-color: currentColor; }
+/* Linien oben und unten nur über den Projekten (beim Bereich mit zwei Projekten bleibt die dritte Spalte leer) */
+.more__item { padding: 0 var(--margin) clamp(2.5rem, 4.5vw, 3.75rem); border-block: 1px solid var(--line); }
+.more__item + .more__item { border-left: 1px solid var(--line); padding-left: calc(var(--margin) - 1px); }
+.more .feat { padding-top: clamp(2.25rem, 4.5vw, 3.75rem); }
+
+/* ---------- Bereichsseite: alle Projekte als Zeilen mit feinen Linien (src/components/ProjectRow.astro) ---------- */
+.rows { margin-top: clamp(3rem, 9vh, 6rem); }
+.row {
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter);
+  padding-block: clamp(2rem, 3.5vw, 3rem) clamp(2.25rem, 4vw, 3.5rem); border-bottom: 1px solid var(--line);
+}
+.rows > .row:first-child { border-top: 1px solid var(--line); }
+.row__label { grid-column: 1 / 5; grid-row: 1; }
+.row__link { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: subgrid; align-items: start; text-decoration: none; }
+.row__link:focus-visible { outline-offset: 6px; }
+.row__text { grid-column: 1 / 5; }
+.row__link:hover .row__title { text-decoration-color: currentColor; }
+.row__lead { margin-top: 1rem; max-width: 36ch; }
+.row__thumbs { grid-column: 5 / 13; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(0.75rem, 1.4vw, 1.25rem); padding-top: 0.4rem; }
+.row .feat__thumb { width: auto; }
+
+/* Am Ende: die beiden anderen Bereiche als Farbfelder wie auf der Startseite, ganz anklickbar */
+.others { margin-top: var(--section); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.others__tab {
+  display: flex; flex-direction: column; align-items: flex-start; min-height: clamp(13rem, 22vw, 18rem);
+  padding: clamp(2.25rem, 4.5vw, 3.75rem) var(--margin) clamp(2rem, 4vw, 3.25rem);
+  background: var(--area-bg); color: var(--area-fg); text-decoration: none;
+}
+.others__cta {
+  display: inline-block; margin-top: 0.75rem; padding-block: 0.5rem;
+  text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  text-decoration-thickness: 1px; text-underline-offset: 0.25em; transition: text-decoration-color 0.25s var(--ease);
+}
+.others__tab:hover .others__cta { text-decoration-color: currentColor; }
+.others__tab:focus-visible { outline-color: var(--area-fg); outline-offset: -8px; }
+
+/* ---------- About-Seite ---------- */
+/* „hi, i’m daniel.“ groß auf einer feinen Linie (wie die E-Mail im Kontakt), darunter Foto und Einleitung wie auf der
+   Startseite, dann schlichte Listen mit feinen Linien wie „Currently“: links das Wort, rechts die Zeilen. */
+.about-head { padding-top: clamp(3.5rem, 12vh, 8rem); border-bottom: 1px solid var(--line); }
+.about-head__title {
+  margin-left: -0.04em;
+  font-size: var(--step-title); font-weight: 400; line-height: 0.92; letter-spacing: -0.045em;
+  text-box: trim-end cap alphabetic;
+}
+@supports not (text-box: trim-end cap alphabetic) {
+  .about-head__title { margin-bottom: -0.126em; }
+}
+.letter--page { margin-top: clamp(3rem, 8vh, 5.5rem); align-items: start; }
+.letter--page .letter__intro { margin-top: 0; }
+.sheet { margin-top: clamp(5rem, 12vh, 8.5rem); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
+.sheet + .sheet { margin-top: clamp(3.5rem, 8vh, 6rem); }
+.sheet__label { grid-column: 1 / 5; padding-top: 1.1rem; font-size: var(--step-body); font-weight: 400; color: var(--ink-soft); }
+.sheet__list { grid-column: 5 / 13; border-top: 1px solid var(--line); }
+.sheet__row {
+  display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 5fr); column-gap: calc(2 * var(--gutter)); align-items: baseline;
+  padding-block: 1.1rem 1.2rem; border-bottom: 1px solid var(--line);
+}
+.sheet__row dt { color: var(--ink-soft); }
+.sheet__soft { display: block; margin-top: 0.15rem; color: var(--ink-soft); font-size: var(--step-small); }
+.sheet a { text-decoration-color: transparent; }
+.sheet a:hover { text-decoration-color: currentColor; }
+.sheet__ext { display: inline-block; margin-left: 0.3em; color: var(--ink-soft); font-size: 0.8em; }
+
+/* Unterseiten schmal (Mobile wird später abgestimmt) */
+@media (max-width: 59.99rem) {
+  .head__index { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 1rem; }
+  .story__lead, .story__body { grid-column: 1 / 13; }
+  .row__label, .row__text, .row__thumbs { grid-column: 1 / 13; }
+  .row__thumbs { margin-top: 1.5rem; }
+  .others, .more { grid-template-columns: minmax(0, 1fr); }
+  .more__item + .more__item { border-left: 0; padding-left: var(--margin); }
+  .sheet__label, .sheet__list { grid-column: 1 / 13; }
+  .sheet__label { padding-top: 0; margin-bottom: 1rem; }
+}
+@media (max-width: 44.99rem) {
+  .head__index { grid-template-columns: minmax(0, 1fr); }
+  .gallery__row { display: grid; }
+  .gallery__fill { display: none; }
+  .row__thumbs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sheet__row { grid-template-columns: minmax(0, 1fr); row-gap: 0.25rem; }
+}

@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Alle Texte und Links der Startseite und der Rechtsseiten, nur Felder, die die Seite wirklich zeigt. Werte in [eckigen Klammern] sind Platzhalter. Ein leerer String \"\" blendet das Feld aus. person: name, based, email (Kontakt unten; der Name auch als Seitentitel und groß im Hero). hero.subtitle: die drei Wörter unter dem Namen, eines pro Spalte (creative, adventure, dev); darunter stehen automatisch die Projekttitel aus projects.json. quote: label (kleines Wort links) und text (großer Absatz rechts); Begriffe in {creative: …}, {adventure: …} oder {dev: …} werden in der Farbe des Bereichs markiert, nur als Verzierung. seo: title und description für Suchmaschinen und das Teilen-Bild. contact.title, currently.title, about.greeting: Überschriften (\"\" blendet sie aus). socials: name, handle, url (ohne url nur Text). currently: updated (JJJJ-MM-TT) und items mit title (Name, mit url verlinkt), url, text (was es ist), role (klein unter dem Namen; Teile wie {creative: design} oder {dev: development} ergeben das Farbquadrat davor, bei zwei Bereichen halb/halb). about: greeting (Link auf /about/), intro, photo (src, alt, caption), facts (label, value). legal: impressum (name, address, email, phone) und datenschutz (Absätze durch eine Leerzeile \\n\\n trennen oder eine Liste angeben). areas.<bereich>.cta: Linktext im Farbfeld zur Seite des Bereichs (z. B. \"Explore creative\"). Für /about/ (Phase 2) entfernt und im Archiv: how it started, Skills, off screen, Sprachen.",
+  "_hinweis": "Alle Texte und Links der Startseite und der Rechtsseiten, nur Felder, die die Seite wirklich zeigt. Werte in [eckigen Klammern] sind Platzhalter. Ein leerer String \"\" blendet das Feld aus. person: name, based, email (Kontakt unten; der Name auch als Seitentitel und groß im Hero). hero.subtitle: die drei Wörter unter dem Namen, eines pro Spalte (creative, adventure, dev); darunter stehen automatisch die Projekttitel aus projects.json. quote: label (kleines Wort links) und text (großer Absatz rechts); Begriffe in {creative: …}, {adventure: …} oder {dev: …} werden in der Farbe des Bereichs markiert, nur als Verzierung. seo: title und description für Suchmaschinen und das Teilen-Bild. contact.title, currently.title, about.greeting: Überschriften (\"\" blendet sie aus). socials: name, handle, url (ohne url nur Text). currently: updated (JJJJ-MM-TT) und items mit title (Name, mit url verlinkt), url, text (was es ist), role (klein unter dem Namen; Teile wie {creative: design} oder {dev: development} ergeben das Farbquadrat davor, bei zwei Bereichen halb/halb). about: greeting (auf der Startseite Link auf /about/, auf /about/ die große Überschrift), intro, photo (src, alt, caption), facts (label, value). Nur auf /about/: cv (title und items mit when (Zeitraum), what (Rolle), where (Firma, Ort)), skills (title und items mit label und value als Liste), socialsTitle (Überschrift über allen socials). legal: impressum (name, address, email, phone) und datenschutz (Absätze durch eine Leerzeile \\n\\n trennen oder eine Liste angeben). areas.<bereich>.cta: Linktext im Farbfeld zur Seite des Bereichs (z. B. \"Explore creative\"). socials stehen auf /about/ und im Kontakt unten auf jeder Seite.",
   "person": {
     "name": "Daniel Sell",
     "based": "Munich, Germany",
@@ -85,7 +85,85 @@
         "label": "Age",
         "value": "17years (2009)"
       }
-    ]
+    ],
+    "cv": {
+      "title": "CV",
+      "items": [
+        {
+          "when": "[seit Jahr]",
+          "what": "Working student / Team assistant",
+          "where": "Pomfort"
+        },
+        {
+          "when": "[seit Jahr]",
+          "what": "Marketing team + website design & development",
+          "where": "thefoundersbootcamp"
+        },
+        {
+          "when": "[seit Jahr]",
+          "what": "Design & full stack development",
+          "where": "invoq"
+        },
+        {
+          "when": "[seit Jahr]",
+          "what": "Member",
+          "where": "Founders Club Frankfurt"
+        },
+        {
+          "when": "2025",
+          "what": "Exchange year",
+          "where": "Salta, Argentina"
+        },
+        {
+          "when": "[Jahr–Jahr]",
+          "what": "[Abschluss]",
+          "where": "[Schule, Ort]"
+        }
+      ]
+    },
+    "skills": {
+      "title": "Skills",
+      "items": [
+        {
+          "label": "Design",
+          "value": [
+            "Graphic design",
+            "Logo & brand identity design",
+            "UI/UX design",
+            "Book design"
+          ]
+        },
+        {
+          "label": "Tools",
+          "value": [
+            "Adobe Illustrator",
+            "Figma",
+            "Photoshop",
+            "InDesign"
+          ]
+        },
+        {
+          "label": "Development",
+          "value": [
+            "Static websites",
+            "Full-stack web applications",
+            "Web hosting & management"
+          ]
+        },
+        {
+          "label": "Languages & frameworks",
+          "value": [
+            "HTML",
+            "CSS (Bootstrap)",
+            "JavaScript (Vue)",
+            "PHP (Laravel)",
+            "MySQL",
+            "Python"
+          ]
+        }
+      ]
+    },
+    "socialsTitle": "Socials"
   },
   "legal": {
     "impressum": {
@@ -107,5 +185,5 @@
       "cta": "Explore dev"
     }
   },
-  "_beispiel": "Erfundene Beispielwerte (bitte prüfen und ersetzen): areas.*.cta (Linktext pro Bereich), socials LinkedIn (url leer = nicht verlinkt). Nicht erfunden und weiter Platzhalter: legal (Impressum-Adresse, Datenschutz)."
+  "_beispiel": "Erfundene Beispielwerte (bitte prüfen und ersetzen): areas.*.cta (Linktext pro Bereich), socials LinkedIn (url leer = nicht verlinkt). Platzhalter: about.cv (Jahre und die Schule; Rollen aus currently und about.intro übernommen), legal (Impressum-Adresse, Datenschutz). about.skills stammt aus v4."
 }

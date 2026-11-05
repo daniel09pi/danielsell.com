@@ -1,11 +1,11 @@
 # danielsell.com v5 — Arbeitsstand und Übergabe
 
-Stand: 5. November 2026, gepusht auf `origin/master`. Live ist noch **v4**; v5 ist nur lokal und auf GitHub (siehe „Deploy“).
+Stand: 6. November 2026, gepusht auf `origin/master`. Live ist noch **v4**; v5 ist nur lokal und auf GitHub (siehe „Deploy“).
 Diese Datei beschreibt nur, was **jetzt** auf der Seite ist und was als Nächstes kommt. Den Verlauf aller Feedbackrunden, verworfene Wege und Begründungen enthält `STAND-ARCHIV.md`. Auftrag, Regeln und Phasen stehen in `REDESIGN-PLAN.md`.
 
 ## Für den neuen Chat
 
-> Lies `danielsell.com/STAND.md` und `danielsell.com/REDESIGN-PLAN.md`. Wir arbeiten an der **Desktop-Startseite** weiter (Mobile vorerst ignorieren). Danach Phase 2.
+> Lies `danielsell.com/STAND.md` und `danielsell.com/REDESIGN-PLAN.md`. Phase 2 ist gebaut (Bereichs-, Projekt- und About-Seiten, siehe „Unterseiten“); wir warten auf Daniels Rückmeldung dazu und auf seine Texte für die Platzhalter. Desktop zuerst, Mobile vorerst ignorieren.
 
 Arbeitsweise:
 - Daniel gibt Feedback auf Deutsch, Antworten auf Deutsch.
@@ -25,7 +25,7 @@ Arbeitsweise:
 - **Astro 7.3.8** (fest; 7.4+ bräuchte Node ≥ 22.23, installiert ist 22.14). Ausgabe in `dist/`, **wird mitcommittet**: Der Server liefert das Git-Arbeitsverzeichnis aus, die Root-`.htaccess` leitet alles intern nach `dist/` und sperrt Quellen, Dotfiles, `.md`, `.mjs` usw.
 - Schrift: `@fontsource-variable/archivo` (selbst gehostet). Bilder: eigene Pipeline `scripts/images.mjs` (sharp; 640/1280/2000 px, AVIF + WebP, Fingerabdruck im Namen, Manifest `src/generated/media.json`).
 - `npm run build`: Bilder + Astro-Build.
-- `npm run release`: Build + `scripts/check-dist.mjs` (Seiten vollständig, nichts Verbotenes, keine toten Links). Links auf noch fehlende Seiten (`/projects/…`, `/about/`, `/creative/` …) meldet es nur als Hinweis.
+- `npm run release`: Build + `scripts/check-dist.mjs` (Seiten vollständig, nichts Verbotenes, keine toten Links, jede Adresse aus `sitemap.xml` vorhanden). Seit Phase 2 ist jeder Link auf eine fehlende Seite ein Fehler.
 - `node scripts/make-icons.mjs`: Favicon-PNGs und `og.png` neu erzeugen (nach Änderungen an `public/favicon.svg`, Logo oder Name).
 - Vorschau: `npx astro preview --port 4321 --host 127.0.0.1` → http://127.0.0.1:4321/
 
@@ -44,7 +44,7 @@ Nach dem Deploy: `bash scripts/livecheck.sh` (erwartete Statuscodes, u. a. `.git
 
 ## Die Startseite jetzt (von oben nach unten)
 
-**Navigation** (`src/layouts/Base.astro`): links das Logo (lose, Ink, Linienstärke 44, 30 px hoch), rechts `work`, `about`, `contact` (zurzeit Anker auf der Startseite). Das Logo steht **nicht** im Hero.
+**Navigation** (`src/layouts/Base.astro`): links das Logo (lose, Ink, Linienstärke 44, 30 px hoch), rechts `work` (Bereiche auf der Startseite, `/#work`), `about` (`/about/`), `contact` (Kontakt unten auf jeder Seite, `#contact`). Unterstrichen ist die aktuelle Seite bzw. auf Bereichs- und Projektseiten `work` (Prop `current`). Das Logo steht **nicht** im Hero.
 
 **Hero** (`index.astro`, CSS-Abschnitt „Hero“): drei gleich breite Farbspalten creative (Limette) / adventure (Ink) / dev (Violett). Darüber riesig `daniel sell`, ganz in Beige (ausgespart). Grundlinie des Namens = Unterkante der Flächen (`text-box: trim-end cap alphabetic`), darunter eine feine Linie `#A98DFF`. Unter der Kante pro Spalte das Wort (Anker zum Projektbereich) und die Titel aller Projekte des Bereichs (Links auf `/projects/<slug>/`). Kein Erklärsatz, kein Button.
 
@@ -74,16 +74,26 @@ Nach dem Deploy: `bash scripts/livecheck.sh` (erwartete Statuscodes, u. a. `.git
 
 **Kontakt/Footer** (`Closing.astro`): „Say hello“, E-Mail, Socials, Name und Ort; Links auf Impressum und Datenschutz.
 
-**Weitere Seiten:** `impressum`, `datenschutz` (Inhalt aus `legal`, Adresse und Datenschutztext noch Platzhalter), `404`, `sitemap.xml`.
+**Weitere Seiten:** `impressum`, `datenschutz` (Inhalt aus `legal`, Adresse und Datenschutztext noch Platzhalter), `404`, `sitemap.xml` (feste Seiten + Bereiche + Projekte).
 
 **Mobile:** vorerst ignorieren. Es gibt eine einfache Fassung (Bänder untereinander), nicht abgestimmt.
 
+## Unterseiten (Phase 2, seit 6. November 2026)
+
+Gebaut nach Daniels Quiz vom 6. November 2026 (alles „im möglichst gleichen Stil“ wie die Startseite, möglichst wenig eigene Texte, nur Platzhalter):
+
+**Bereichsseite** `/creative/`, `/adventure/`, `/dev/` (`src/pages/[area].astro`; Ziel von „Explore creative →“): Kopf `PageHead` (Fläche des Bereichs, Wort in `--step-display` in der Schriftfarbe des Felds, Grundlinie = Unterkante, feine Linie), darunter klein die Kennzahlen wie im Farbfeld der Startseite (`src/lib/facts.js`, gemeinsam mit `Areas.astro`). Dann **Zeilen mit feinen Linien** wie „Currently“ (`ProjectRow.astro`): links pinned/new, Titel, Art + Datum, erster Absatz des Texts; rechts vier kleine gedrehte Bilder wie auf der Startseite; ganze Zeile ist der Link. Reihenfolge wie auf der Startseite (`ordered()` in `content.js`). Am Ende die beiden anderen Bereiche als Farbfelder (ganz anklickbar, 50/50).
+
+**Projektseite** `/projects/<slug>/` (`src/pages/projects/[slug].astro`): Kopf `PageHead` mit dem Titel in `--step-title`. **Unterlängen** (y, g, p) reichen unter die Linie und sind dort Ink (Verlauf per `background-clip: text`, Farbwechsel genau auf der Grundlinie), sonst wären sie bei adventure (Beige auf Ink) unsichtbar; mit Unterlängen bekommt die Zeile darunter mehr Abstand (`head--desc`). Unter der Linie vier Spalten: „← creative“ (zur Bereichsseite), Art + Tags und Jahr, posted/updated, Links (↗). Dann der Text: erster Absatz groß wie das Zitat der Startseite (ab Spalte 4), weitere Absätze normal darunter. Dann **alle Bilder in Reihen gleicher Höhe, ungeschnitten** (`Gallery.astro`, Aufteilung beim Build in `src/lib/gallery.js`: Ziel 0,36 × Breite, 2–4 pro Reihe, letzte Reihe wird nicht gestreckt; Fläche in der Hauptfarbe des Fotos bis zum Laden, `src/lib/dominant.js`; gerade, volle Farbe, kein Hover, keine Vollbildansicht). Am Ende „more“: Farbfeld des Bereichs wie auf der Startseite (Wort, Kennzahlen, „Explore … →“) und daneben die nächsten zwei Projekte des Bereichs (`FeatProject` mit `level={3}`), Linien nur über den Projekten.
+
+**About** `/about/` (`src/pages/about.astro`): „hi, i’m daniel.“ groß (`--step-title`) auf einer feinen Linie über die volle Breite, darunter Foto (gedreht) + Einleitung + Eckdaten wie auf der Startseite (`.letter--page`). Dann **schlichte Listen** wie „Currently“ (links das Wort, rechts Zeilen mit Linien): CV (`about.cv`), Skills (`about.skills`, aus v4), Socials (alle aus `site.socials`). Daniel: **nichts Privates** (kein „off screen“), kleiner Lebenslauf, alle Socials, „und das wars“ (darum auch kein „how it started“).
+
 ## Inhalte
 
-- `content/site.json` und `content/projects.json` enthalten **nur Felder, die die Seite zeigt** (aufgeräumt am 5. November 2026). `_hinweis` in jeder Datei erklärt die Felder, `_beispiel` listet erfundene Werte.
-- Entfernt und archiviert in `C:\everything\portfolio\archive\inhalte-vor-aufraeumen-2026-11-05\`: Projekttexte, Tags und Links (für die Projektseiten in Phase 2), `about.howItStarted`, `about.skills`, `about.offScreen`, `person.languages` (für `/about/`), Bild-Platzhalter bei pitrack und Werner Gehner.
-- **Platzhalter nicht hervorheben.** Fehlende Inhalte sind erfundene Beispielwerte (in `_beispiel`). Rechtliches (Impressum-Adresse, Datenschutz) wird **nicht** erfunden und bleibt `[Platzhalter]`.
-- Slugs passen nicht mehr überall zu den Titeln, die Daniel geändert hat: `iguazu` → „Argentina xSamu“, `mixer-dashboard` → „pitrack“, `argentinien` → „1 year in Argentina“. Die Slugs bestimmen die Adressen `/projects/<slug>/` und die Bildordner; vor Phase 2 mit Daniel klären, ob sie umbenannt werden.
+- `content/site.json` und `content/projects.json` enthalten **nur Felder, die die Seite zeigt**. `_hinweis` in jeder Datei erklärt die Felder, `_beispiel` listet erfundene Werte und Platzhalter.
+- Phase 2 (6. November 2026): Projekttexte (`text`), Tags und Links aus v4 bzw. dem Archiv zurückgeholt (`text` bei pitrack: „mixing desk“ statt „mix-pult“). `text`: erster Absatz = Einstieg (auch auf der Bereichsseite), weitere Absätze nach einer Leerzeile nur auf der Projektseite (blogartig). Neu in `site.json`: `about.cv`, `about.skills` (aus v4), `about.socialsTitle`. `about.offScreen` und `howItStarted` bleiben im Archiv (Daniel will nichts Privates).
+- **Neue Regel seit Phase 2 (Daniel):** möglichst **keine eigenen Texte** schreiben; wo Text fehlt, ein klarer Platzhalter in `[eckigen Klammern]` (nicht hervorgehoben) und Daniel genau sagen, wo. Platzhalter zurzeit: `text` bei argentinien und iguazu, zweiter Absatz bei alukeku (nur Beispiel für den langen Text), `about.cv` (Jahre, Schule), `legal` (Impressum-Adresse, Telefon, Datenschutz). Erfundene Beispielwerte aus früheren Runden (Daten posted/updated u. a.) stehen weiter in `_beispiel`.
+- Slugs passen nicht mehr überall zu den Titeln: `iguazu` → „Argentina xSamu“, `mixer-dashboard` → „pitrack“, `argentinien` → „1 year in Argentina“. Sie bestimmen jetzt die echten Adressen `/projects/<slug>/` (die Bildpfade stehen einzeln in der JSON, hängen also nicht am Slug). Daniel gefragt (6. November), ob sie vor dem Livegang umbenannt werden; Antwort offen.
 
 ## Farben, Schrift, Favicon
 
@@ -92,10 +102,10 @@ Favicon (`public/favicon.svg`): nur das Logo-Zeichen in Violett `#8A63FF`, Linie
 
 ## Dateien
 
-- `src/pages/index.astro` (Startseite), `impressum.astro`, `datenschutz.astro`, `404.astro`, `sitemap.xml.js`.
+- `src/pages/index.astro` (Startseite), `[area].astro` (Bereichsseiten), `projects/[slug].astro` (Projektseiten), `about.astro`, `impressum.astro`, `datenschutz.astro`, `404.astro`, `sitemap.xml.js`.
 - `src/scripts/band.ts` (Laufband im Hero, Einstellungen in `CONFIG`), `src/lib/band.js` (Bilder und Hauptfarben fürs Band).
-- `src/components/`: `Areas.astro`, `FeatProject.astro`, `Closing.astro`, `Img.astro`, `T.astro`, `Logo.astro`, `TextPage.astro`.
-- `src/lib/content.js` (liest die JSON; `spotlight()`, `byNewest()`, `categoryHref()`, `projectHref()`, `parseMarks()` …), `src/lib/images.js` (Bildpfade → erzeugte Größen).
+- `src/components/`: `Areas.astro`, `FeatProject.astro` (Prop `level` für die Überschrift), `PageHead.astro` (Kopf der Unterseiten), `ProjectRow.astro` (Zeile der Bereichsseite), `Gallery.astro` (Bildreihen der Projektseite), `Closing.astro`, `Img.astro`, `T.astro`, `Logo.astro`, `TextPage.astro`.
+- `src/lib/content.js` (liest die JSON; `spotlight()`, `ordered()`, `byNewest()`, `categoryHref()`, `projectHref()`, `projectDate()`, `paragraphs()`, `kindAndTags()`, `parseMarks()` …), `src/lib/facts.js` (Kennzahlen eines Bereichs), `src/lib/gallery.js` (Aufteilung der Bildreihen), `src/lib/dominant.js` (Hauptfarbe eines Bilds), `src/lib/images.js` (Bildpfade → erzeugte Größen).
 - `src/layouts/Base.astro` (Kopf, Navigation, Meta), `src/styles/global.css` (alle Styles in Abschnitten), `.htaccess`.
 - **Übrig, nicht benutzt** (Phase 4 löschen oder für die Projektseiten wiederverwenden): `src/components/Feature.astro` (Slideshow; liest Felder, die es in `projects.json` nicht mehr gibt) und `src/lib/collage.js` (Bilderbox), samt CSS „Kapitel und Feature“ und „Slideshow“; die alte Hero-Testseite `src/pages/varianten/hero.astro` (`/varianten/hero/`, noindex, Runde 25, nie entschieden) und der Filter `!p.startsWith('varianten')` in `sitemap.xml.js`.
 
@@ -103,7 +113,7 @@ Favicon (`public/favicon.svg`): nur das Logo-Zeichen in Violett `#8A63FF`, Linie
 
 1. **Laufband** ist auf der Startseite (siehe oben). Die Testseite `/varianten/laufband/` ist gelöscht (letzter Stand Commit `5bbb7d0`; dort auch der Verlauf aller ausprobierten Optionen: Panel, Kontur, Titel, Rahmen, eingefärbte Bilder, weiche Kanten, Skeleton-Glanz). Offen: Mobile-Fassung des Bands und der Steuerung; ob Lenis auf allen Seiten laufen soll (zurzeit nur Startseite).
 2. **Hero aufpeppen (geparkt).** Zuletzt ausprobiert und von Daniel gemocht, aber geparkt: das **„Verlaufsspielchen“** (Felder verschwimmen nach oben mit Korn und Fasern in die Navigation, Linien „Ton der Fläche“, Hover-Kreis zeigt die Volltonflächen). Liegt mit README und Screenshots in `C:\everything\portfolio\archive\verlaufsspielchen-2026-11-05\` (im Repo Commit `31185dc`). Bei Übernahme: Skript als eigene Datei, Rückfall ohne JS, `prefers-reduced-motion` beachten.
-3. Deploy durch Daniel, dann Live-Prüfung (siehe oben).
-4. **Phase 2:** eigene Seite pro Bereich (`/creative/`, `/adventure/`, `/dev/`, schon verlinkt) und pro Projekt (`/projects/<slug>/`, schon verlinkt; dafür Texte, Tags, Links aus dem Archiv zurückholen, Daniel denkt an blogartige Texte); `/about/` (how it started, Eckdaten, Skills, off screen, ebenfalls aus dem Archiv); danach Navigation umstellen. Screenshots der dev-Projekte fehlen (flowinsync zeigt vorläufig Bilder anderer Projekte, pitrack und Werner Gehner haben keine). Mobile abstimmen.
+3. Deploy durch Daniel, dann Live-Prüfung (siehe oben; `scripts/livecheck.sh` prüft jetzt auch `/about/`, die Bereiche und zwei Projektseiten).
+4. **Phase 2 (gebaut, wartet auf Feedback):** Bereichs-, Projekt- und About-Seiten, Navigation umgestellt (siehe „Unterseiten“). Offen: Daniels Rückmeldung zum Aussehen; seine Texte für die Platzhalter; Slugs umbenennen ja/nein; Screenshots der dev-Projekte (flowinsync zeigt vorläufig Bilder anderer Projekte, pitrack und Werner Gehner haben keine); optional Vollbildansicht der Bilder (Plan 5.2) und `/projects/` als Adresse (zeigt zurzeit die 404-Seite); Mobile abstimmen.
 5. **Phase 3:** Bewegung (wenig, sauber).
 6. **Phase 4:** Aufräumen (v4-Reste `index.html`, `script.js`, `styles.css`, `send.php`, `.DS_Store`; unbenutzte Dateien oben), README auf Deutsch, Abschlussbericht.

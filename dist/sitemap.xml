@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://danielsell.com/about/</loc></url>
   <url><loc>https://danielsell.com/datenschutz/</loc></url>
   <url><loc>https://danielsell.com/impressum/</loc></url>
   <url><loc>https://danielsell.com/</loc></url>
+  <url><loc>https://danielsell.com/creative/</loc></url>
+  <url><loc>https://danielsell.com/adventure/</loc></url>
+  <url><loc>https://danielsell.com/dev/</loc></url>
+  <url><loc>https://danielsell.com/projects/alukeku/</loc></url>
+  <url><loc>https://danielsell.com/projects/bookcovers/</loc></url>
+  <url><loc>https://danielsell.com/projects/stooney/</loc></url>
+  <url><loc>https://danielsell.com/projects/project500/</loc></url>
+  <url><loc>https://danielsell.com/projects/landeshut/</loc></url>
+  <url><loc>https://danielsell.com/projects/argentinien/</loc></url>
+  <url><loc>https://danielsell.com/projects/iguazu/</loc></url>
+  <url><loc>https://danielsell.com/projects/flowinsync/</loc></url>
+  <url><loc>https://danielsell.com/projects/mixer-dashboard/</loc></url>
+  <url><loc>https://danielsell.com/projects/werner-gehner/</loc></url>
+  <url><loc>https://danielsell.com/projects/danielsell-com/</loc></url>
 </urlset>

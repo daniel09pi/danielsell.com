@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Alle Projekte, nur Felder, die die Seite wirklich zeigt. slug: Adresse der Projektseite /projects/<slug>/. category: creative | adventure | dev. featured: true = angepinnt („pinned“). Pro Bereich zeigt die Startseite zwei Projekte: zuerst die angepinnten, den Rest füllt das neueste („new“, nach updated bzw. posted); die übrigen klappt „Show all“ auf, neueste zuerst. title; kind: Art des Projekts (z. B. Brand Identity). year: Zeitraum des Projekts (ergibt „2024–2026“ im Farbfeld und steht da, wo kein Datum da ist). posted: erstmals gezeigt, updated: zuletzt ergänzt (optional), beide JJJJ-MM-TT; angezeigt wird „posted …“ bzw. „updated …“. images: Pfade relativ zum Repo oder { \"src\": \"portfolio_files/…\", \"alt\": \"Beschreibung\" } (ohne alt erzeugt die Seite einen Alt-Text aus Titel und Nummer); die ersten drei stehen auf der Startseite, gezählt werden alle („35 images“). Werte in [eckigen Klammern] sind Platzhalter, \"\" blendet ein Feld aus. Texte, Tags und Links zu den Projekten kommen mit den Projektseiten (Phase 2) zurück; der alte Stand liegt im Archiv (inhalte-vor-aufraeumen-2026-11-05).",
+  "_hinweis": "Alle Projekte. slug: Adresse der Projektseite /projects/<slug>/. category: creative | adventure | dev (bestimmt Farbe und Bereichsseite /creative/ usw.). featured: true = angepinnt („pinned“). Startseite und Bereichsseite zeigen zuerst die angepinnten, dann die neuesten (nach updated bzw. posted); das neueste nicht angepinnte trägt „new“. title; kind: Art des Projekts (z. B. Brand Identity). year: Zeitraum des Projekts (ergibt „2024–2026“ im Farbfeld und steht da, wo kein Datum da ist). posted: erstmals gezeigt, updated: zuletzt ergänzt (optional), beide JJJJ-MM-TT; angezeigt wird „posted …“ bzw. „updated …“. text: Text zum Projekt; der erste Absatz ist der kurze Einstieg (steht auch auf der Bereichsseite), weitere Absätze nach einer Leerzeile (\n\n) stehen nur auf der Projektseite darunter (für längere, blogartige Texte). tags: weitere Stichworte, stehen auf der Projektseite neben der Art (optional, [] blendet aus). links: { \"label\": \"Live\", \"url\": \"https://…\" }, stehen im Kopf der Projektseite (optional). images: Pfade relativ zum Repo oder { \"src\": \"portfolio_files/…\", \"alt\": \"Beschreibung\" } (ohne alt erzeugt die Seite einen Alt-Text aus Titel und Nummer); die ersten drei stehen auf der Startseite, vier auf der Bereichsseite, alle auf der Projektseite (in Reihen, ungeschnitten). Werte in [eckigen Klammern] sind Platzhalter, \"\" blendet ein Feld aus.",
   "projects": [
     {
       "slug": "alukeku",
@@ -10,6 +10,12 @@
       "year": "2026",
       "posted": "2026-05-12",
       "updated": "2026-09-03",
+      "text": "Design of the ALUKEKU brand identity and visual guidelines. ALUKEKU is an architecture and construction company from Angola.\n\n[Optional: mehr Text zum Projekt, blogartig. Absätze durch eine Leerzeile trennen. Dieser Platzhalter steht nur hier als Beispiel.]",
+      "tags": [
+        "Brand Identity",
+        "Visual Guidelines"
+      ],
+      "links": [],
       "images": [
         {
           "src": "portfolio_files/alukeku/1.avif",
@@ -58,6 +64,21 @@
       "year": "2024–2026",
       "posted": "2024-11-08",
       "updated": "2026-10-21",
+      "text": "Various bookcovers designed for masselverlag as well as jedition.",
+      "tags": [
+        "Book Design",
+        "Editorial"
+      ],
+      "links": [
+        {
+          "label": "masselverlag",
+          "url": "https://masselverlag.de"
+        },
+        {
+          "label": "jedition",
+          "url": "https://jedition.de"
+        }
+      ],
       "images": [
         "portfolio_files/bookcover/1.avif",
         "portfolio_files/bookcover/2.avif",
@@ -77,6 +98,12 @@
       "kind": "Brand Identity",
       "year": "2024",
       "posted": "2024-07-15",
+      "text": "Designs of the Stooney brand identity. Stooney is a Germany-based small company that makes high quality hand-made designer lamps made out of raw stones and gems.",
+      "tags": [
+        "Brand Identity",
+        "Product Design"
+      ],
+      "links": [],
       "images": [
         "portfolio_files/stooney/1.avif",
         "portfolio_files/stooney/2.avif",
@@ -94,6 +121,12 @@
       "kind": "Visual Identity",
       "year": "2024",
       "posted": "2024-03-02",
+      "text": "Design of the project500 visual identity. Project500 or p500 was a personal fun project with the goal of learning new skills and later building a p500 dashboard website.",
+      "tags": [
+        "Visual Identity",
+        "Personal Project"
+      ],
+      "links": [],
       "images": [
         "portfolio_files/project500/1.avif",
         "portfolio_files/project500/2.avif",
@@ -112,6 +145,12 @@
       "year": "2025",
       "posted": "2025-04-27",
       "updated": "2025-06-10",
+      "text": "Design of the Landeshut brand identity. Landeshut is a local nonprofit organisation that brings local communities together in the area of Bavaria, Germany.",
+      "tags": [
+        "Brand Identity",
+        "Nonprofit"
+      ],
+      "links": [],
       "images": [
         "portfolio_files/landeshut/1.avif",
         "portfolio_files/landeshut/2.avif",
@@ -129,6 +168,9 @@
       "kind": "My exchange year",
       "year": "2025",
       "posted": "2026-01-19",
+      "text": "[Text: 1–2 Sätze zum Projekt]",
+      "tags": [],
+      "links": [],
       "images": [
         {
           "src": "portfolio_files/argentinien/1.avif",
@@ -160,6 +202,9 @@
       "kind": "Travel",
       "year": "2025",
       "posted": "2026-02-05",
+      "text": "[Text: 1–2 Sätze zum Projekt]",
+      "tags": [],
+      "links": [],
       "images": [
         {
           "src": "portfolio_files/iguazu/1.avif",
@@ -184,6 +229,14 @@
       "year": "2025",
       "posted": "2025-08-30",
       "updated": "2026-03-14",
+      "text": "Realtime cross-device synced timer with live chat.",
+      "tags": [],
+      "links": [
+        {
+          "label": "Live",
+          "url": "https://flowinsync.deam31.com/"
+        }
+      ],
       "images": [
         {
           "src": "portfolio_files/flowinsync/1.avif",
@@ -235,6 +288,9 @@
       "kind": "Web App + Hardware",
       "year": "2024",
       "posted": "2024-10-05",
+      "text": "Dashboard for real-time in-browser music controls connected to a physical mixing desk.",
+      "tags": [],
+      "links": [],
       "images": []
     },
     {
@@ -245,6 +301,14 @@
       "kind": "Website",
       "year": "2024",
       "posted": "2024-05-21",
+      "text": "Homepage for Werner Gehner — psychospirituelle Begleitung.",
+      "tags": [],
+      "links": [
+        {
+          "label": "Live",
+          "url": "https://www.mufuma.de/dsell/gehner_php/"
+        }
+      ],
       "images": []
     },
     {
@@ -256,6 +320,14 @@
       "year": "2026",
       "posted": "2025-02-14",
       "updated": "2026-11-04",
+      "text": "This website. Designed and built by hand.",
+      "tags": [],
+      "links": [
+        {
+          "label": "Source",
+          "url": "https://github.com/daniel09pi/danielsell.com"
+        }
+      ],
       "images": [
         {
           "src": "portfolio_files/danielsell-com/1.avif",
@@ -272,5 +344,5 @@
       ]
     }
   ],
-  "_beispiel": "Erfundene Beispielwerte (bitte prüfen und ersetzen): posted/updated (alle außer updated bei danielsell-com), year bei flowinsync, mixer-dashboard (pitrack) und werner-gehner, kind bei iguazu. Bilder: flowinsync 2–7 vorläufig von Stooney, 8–10 von Bookcovers und Landeshut, bis es eigene Screenshots gibt; argentinien und iguazu Fotos aus assets-raw, Zuordnung geraten; danielsell-com Screenshots dieser Seite vom 4. November 2026. mixer-dashboard (pitrack) und werner-gehner haben noch keine Bilder."
+  "_beispiel": "Erfundene Beispielwerte (bitte prüfen und ersetzen): posted/updated (alle außer updated bei danielsell-com), year bei flowinsync, mixer-dashboard (pitrack) und werner-gehner, kind bei iguazu. Bilder: flowinsync 2–7 vorläufig von Stooney, 8–10 von Bookcovers und Landeshut, bis es eigene Screenshots gibt; argentinien und iguazu Fotos aus assets-raw, Zuordnung geraten; danielsell-com Screenshots dieser Seite vom 4. November 2026. mixer-dashboard (pitrack) und werner-gehner haben noch keine Bilder. Texte, Tags und Links stammen aus v4 (text bei mixer-dashboard ins Englische übertragen: „mixing desk“ statt „mix-pult“); Platzhalter: text bei argentinien und iguazu, der zweite Absatz bei alukeku (nur Beispiel)."
 }

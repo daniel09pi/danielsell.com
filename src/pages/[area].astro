@@ -1,0 +1,48 @@
+---
+// Seite eines Bereichs: /creative/, /adventure/, /dev/ (von der Startseite über „Explore creative →“ verlinkt).
+// Oben die Fläche des Bereichs mit dem Wort groß auf der Grundlinie, darunter die Kennzahlen wie im Farbfeld der
+// Startseite. Dann alle Projekte als Zeilen mit feinen Linien, in der Reihenfolge der Startseite: angepinnte („pinned“),
+// das neueste („new“), dann die übrigen, neueste zuerst. Am Ende die beiden anderen Bereiche.
+import Base from '../layouts/Base.astro';
+import Closing from '../components/Closing.astro';
+import PageHead from '../components/PageHead.astro';
+import ProjectRow from '../components/ProjectRow.astro';
+import { site, has, CATEGORIES, categoryLabel, categoryHref, ordered } from '../lib/content.js';
+import { areaFacts } from '../lib/facts.js';
+
+export function getStaticPaths() {
+  return CATEGORIES.map((area) => ({ params: { area } }));
+}
+const { area } = Astro.params as { area: string };
+const label = categoryLabel(area);
+const list = ordered(area);
+// Die anderen beiden Bereiche, in der Reihenfolge der Startseite
+const others = CATEGORIES.filter((c) => c !== area).map((c) => {
+  const own = site.areas?.[c] ?? {};
+  const l = categoryLabel(c);
+  return { c, label: l, cta: has(own.cta) ? own.cta : `Explore ${l}`, facts: areaFacts(c) };
+});
+---
+<Base title={label} current="work">
+  <PageHead category={area} title={label} kind="area">
+    <p class="head__facts">{areaFacts(area)}</p>
+  </PageHead>
+
+  <section class="rows wrap" aria-labelledby="page-title">
+    {list.map(({ p, why }, k) => (
+      <ProjectRow project={p} tilt={k} {...(why === 'pinned' ? { label: 'pinned', mark: 'pin' } : why === 'newest' ? { label: 'new', mark: 'new' } : {})} />
+    ))}
+  </section>
+
+  <nav class="others" aria-label="Other areas">
+    {others.map((o) => (
+      <a class:list={['others__tab', `area--${o.c}`]} href={categoryHref(o.c)}>
+        <span class="area__word">{o.label}</span>
+        <span class="area__facts">{o.facts}</span>
+        <span class="others__cta">{o.cta}<span class="area__arrow" aria-hidden="true">→</span></span>
+      </a>
+    ))}
+  </nav>
+
+  <Closing slot="after" />
+</Base>

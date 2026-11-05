@@ -1,0 +1,94 @@
+---
+// About: oben „hi, i’m daniel.“ groß auf einer feinen Linie (wie die E-Mail im Kontakt), darunter Foto, Einleitung und
+// Eckdaten wie auf der Startseite. Dann schlichte Listen mit feinen Linien wie „Currently“: Lebenslauf, Skills, Socials.
+// Alles aus site.json (about, socials).
+import Base from '../layouts/Base.astro';
+import Closing from '../components/Closing.astro';
+import Img from '../components/Img.astro';
+import T from '../components/T.astro';
+import { site, has, isPlaceholder, isUrl, isExternal } from '../lib/content.js';
+import { resolveImage } from '../lib/images.js';
+
+const about = site.about ?? {};
+const photo = has(about.photo?.src) && !isPlaceholder(about.photo.src) ? resolveImage(about.photo.src) : null;
+const facts = (about.facts ?? []).filter((f: any) => has(f?.label) && has(f?.value));
+const cv = (about.cv?.items ?? []).filter((i: any) => has(i?.what) || has(i?.where));
+const skills = (about.skills?.items ?? []).filter((i: any) => has(i?.label) && has(i?.value));
+const socials = (site.socials ?? []).filter((s: any) => has(s?.name) && (has(s?.url) || has(s?.handle)));
+const joined = (v: unknown) => (Array.isArray(v) ? v.filter(has).join(', ') : String(v ?? ''));
+const title = (v: unknown, fallback: string) => (has(v) ? String(v) : fallback);
+---
+<Base title="About" current="about">
+  <header class="about-head">
+    <h1 class="about-head__title wrap" id="page-title">{has(about.greeting) ? <T v={about.greeting} /> : 'About'}</h1>
+  </header>
+
+  {(photo || has(about.intro) || facts.length > 0) && (
+    <section class:list={['letter', 'letter--page', 'wrap', { 'letter--nophoto': !photo }]} aria-label="Introduction">
+      {photo && (
+        <figure class="letter__photo tilt" style="--tilt:-0.6deg;--tilt-to:0.4deg">
+          <Img meta={photo} alt={about.photo.alt ?? ''} sizes="(min-width: 960px) 36vw, 84vw" eager />
+          {has(about.photo?.caption) && <figcaption><T v={about.photo.caption} /></figcaption>}
+        </figure>
+      )}
+      <div class="letter__text">
+        {has(about.intro) && <p class="letter__intro"><T v={about.intro} /></p>}
+        {facts.length > 0 && (
+          <dl class="letter__facts">
+            {facts.map((f: any) => <div><dt>{f.label}</dt><dd><T v={f.value} /></dd></div>)}
+          </dl>
+        )}
+      </div>
+    </section>
+  )}
+
+  {cv.length > 0 && (
+    <section class="sheet wrap" aria-labelledby="cv-title">
+      <h2 class="sheet__label" id="cv-title"><T v={title(about.cv?.title, 'CV')} /></h2>
+      <dl class="sheet__list">
+        {cv.map((i: any) => (
+          <div class="sheet__row">
+            <dt><T v={i.when} /></dt>
+            <dd>{has(i.what) && <T v={i.what} />}{has(i.where) && <span class="sheet__soft"><T v={i.where} /></span>}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  )}
+
+  {skills.length > 0 && (
+    <section class="sheet wrap" aria-labelledby="skills-title">
+      <h2 class="sheet__label" id="skills-title"><T v={title(about.skills?.title, 'Skills')} /></h2>
+      <dl class="sheet__list">
+        {skills.map((i: any) => (
+          <div class="sheet__row">
+            <dt><T v={i.label} /></dt>
+            <dd><T v={joined(i.value)} /></dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  )}
+
+  {socials.length > 0 && (
+    <section class="sheet wrap" aria-labelledby="socials-title">
+      <h2 class="sheet__label" id="socials-title"><T v={title(about.socialsTitle, 'Socials')} /></h2>
+      <dl class="sheet__list">
+        {socials.map((s: any) => (
+          <div class="sheet__row">
+            <dt>{s.name}</dt>
+            <dd>
+              {isUrl(s.url) ? (
+                <a href={s.url} rel="me noopener" {...(isExternal(s.url) ? { target: '_blank' } : {})}>
+                  <T v={has(s.handle) ? s.handle : s.url} />{isExternal(s.url) && <><span class="sheet__ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></>}
+                </a>
+              ) : <T v={s.handle} />}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  )}
+
+  <Closing slot="after" />
+</Base>

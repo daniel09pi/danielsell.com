@@ -8,8 +8,9 @@ import { fileURLToPath } from 'node:url';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const DIST = path.join(ROOT, 'dist');
 const problems = [];
-// Seiten, die erst in Phase 2 entstehen: Links darauf sind erlaubt, werden aber gemeldet.
-const PENDING = [/^\/projects\//, /^\/about\/$/, /^\/(creative|adventure|dev)\/$/];
+// Seiten, die noch nicht gebaut werden: Links darauf sind erlaubt, werden aber gemeldet. Zurzeit keine (seit den
+// Bereichs-, Projekt- und About-Seiten ist jeder interne Link ein Fehler, wenn sein Ziel fehlt).
+const PENDING = [];
 const pending = new Set();
 
 async function walk(dir) {
@@ -23,8 +24,9 @@ async function walk(dir) {
   return out;
 }
 
-// 1. Jede Seite in src/pages hat eine fertige HTML-Datei.
-for (const f of (await walk(path.join(ROOT, 'src', 'pages'))).filter((x) => x.endsWith('.astro'))) {
+// 1. Jede feste Seite in src/pages hat eine fertige HTML-Datei. Vorlagen mit [..] im Namen (Bereiche, Projekte)
+//    erzeugen mehrere Seiten; ob die existieren, prüft Schritt 4 über die Links der Startseite und der Sitemap.
+for (const f of (await walk(path.join(ROOT, 'src', 'pages'))).filter((x) => x.endsWith('.astro') && !x.includes('['))) {
   const rel = path.relative(path.join(ROOT, 'src', 'pages'), f).replace(/\\/g, '/').replace(/\.astro$/, '');
   const target = rel === 'index' ? 'index.html' : rel === '404' ? '404.html' : `${rel.replace(/\/index$/, '')}/index.html`;
   if (!existsSync(path.join(DIST, target))) problems.push(`Seite fehlt in dist/: ${target}`);
@@ -71,6 +73,12 @@ for (const f of files.filter((x) => x.endsWith('.html'))) {
     if (!u.startsWith('/') || u.startsWith('//') || inDist(u)) continue;
     if (PENDING.some((re) => re.test(u.split(/[?#]/)[0]))) pending.add(u.split(/[?#]/)[0]);
     else problems.push(`Toter interner Link in dist/${rel}: ${u}`);
+  }
+}
+const sitemapFile = path.join(DIST, 'sitemap.xml');
+if (existsSync(sitemapFile)) {
+  for (const m of (await readFile(sitemapFile, 'utf8')).matchAll(/<loc>https?:\/\/[^/<]+(\/[^<]*)<\/loc>/g)) {
+    if (!inDist(m[1])) problems.push(`sitemap.xml nennt eine fehlende Seite: ${m[1]}`);
   }
 }
 const robotsFile = path.join(DIST, 'robots.txt');

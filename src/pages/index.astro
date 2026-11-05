@@ -31,7 +31,7 @@ const quote = site.quote ?? {};
 // Laufband im Hero: Bilder pro Bereich mit Hauptfarbe (src/lib/band.js), Ablauf in src/scripts/band.ts
 const pools = await bandPools();
 ---
-<Base nav={[{ label: 'work', href: '#work' }, { label: 'about', href: '#about' }, { label: 'contact', href: '#contact' }]}>
+<Base nav={[{ label: 'work', href: '#work' }, { label: 'about', href: '/about/' }, { label: 'contact', href: '#contact' }]}>
   {/* Steuerung des Laufbands, mittig in der Navigation: Start/Stopp, Position (zum Verschieben), Farbe statt Schwarzweiß.
       Verborgen, bis das Skript läuft (ohne JS gibt es kein Band). */}
   <div class="lbc" slot="nav-center" role="group" aria-label="Image band" hidden>

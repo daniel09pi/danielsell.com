@@ -39,8 +39,25 @@ export const spotlight = (cat, n = 2) => {
   return [...pinned, ...newest];
 };
 
-/** Projektseite (Phase 2) */
+/** Bereichsseite: alle Projekte des Bereichs in der Reihenfolge der Startseite (erst die von spotlight(), dann die
+ *  übrigen, neueste zuerst). Ergebnis: [{ p, why: 'pinned' | 'newest' | '' }] */
+export const ordered = (cat) => {
+  const top = spotlight(cat);
+  const rest = byCategory(cat).filter((p) => has(p.title) && !top.some((t) => t.p === p)).sort(byNewest);
+  return [...top, ...rest.map((p) => ({ p, why: '' }))];
+};
+
+/** Projektseite */
 export const projectHref = (p) => `/projects/${p.slug}/`;
+
+/** Datum eines Projekts für die Anzeige: „updated …“, sonst „posted …“, sonst null. */
+export const projectDate = (p) => (has(p.updated) ? { word: 'updated', iso: p.updated } : has(p.posted) ? { word: 'posted', iso: p.posted } : null);
+
+/** Text in Absätze teilen (Leerzeile trennt); eine Liste von Absätzen geht auch. */
+export const paragraphs = (text) => (Array.isArray(text) ? text : String(text ?? '').split(/\n\s*\n/)).map((s) => String(s).trim()).filter(has);
+
+/** Art und Stichworte eines Projekts ohne Doppelungen: „Brand Identity, Visual Guidelines“. */
+export const kindAndTags = (p) => [...new Set([p.kind, ...(p.tags ?? [])].filter(has))];
 
 /** Untertitel-Wort i verlinkt auf Kategorie i (creative, adventure, dev). */
 export const subtitleLinks = () =>

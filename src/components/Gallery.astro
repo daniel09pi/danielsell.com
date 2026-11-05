@@ -1,0 +1,32 @@
+---
+// Alle Bilder eines Projekts in Reihen gleicher Höhe über die volle Breite, ungeschnitten (Aufteilung beim Build:
+// src/lib/gallery.js). Bis ein Bild geladen ist, zeigt seine Fläche die Hauptfarbe des Fotos (wie die Kacheln im
+// Laufband der Startseite). Auf dem Handy stehen die Bilder einzeln untereinander.
+import Img from './Img.astro';
+import { projectImages } from '../lib/images.js';
+import { rows } from '../lib/gallery.js';
+import { dominant } from '../lib/dominant.js';
+
+interface Props { project: any }
+const { project: p } = Astro.props;
+const images = projectImages(p).filter((im) => !im.placeholder);
+const colors = await Promise.all(images.map((im) => dominant(im.meta)));
+const layout = rows(images.map((im) => im.meta.width / im.meta.height));
+// Angezeigte Breite eines Bilds: sein Anteil an der Reihe (Desktop), sonst volle Breite
+const sizes = (ratio: number, row: { sum: number; fill: number }) =>
+  `(min-width: 45rem) ${Math.ceil((100 * ratio) / (row.sum + row.fill))}vw, 100vw`;
+---
+{images.length > 0 && (
+  <section class="gallery wrap" aria-label={`${p.title}: images`}>
+    {layout.map((row) => (
+      <div class="gallery__row">
+        {row.items.map(({ index, ratio }) => (
+          <figure class="gallery__item" style={`flex-grow:${ratio.toFixed(4)};background-color:${colors[index]}`}>
+            <Img meta={images[index].meta} alt={images[index].alt} sizes={sizes(ratio, row)} />
+          </figure>
+        ))}
+        {row.fill > 0 && <span class="gallery__fill" style={`flex-grow:${row.fill.toFixed(4)}`} aria-hidden="true"></span>}
+      </div>
+    ))}
+  </section>
+)}

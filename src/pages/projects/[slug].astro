@@ -1,0 +1,80 @@
+---
+// Seite eines Projekts: /projects/<slug>/ (Slug aus projects.json).
+// Kopf wie der Hero der Startseite: Fläche des Bereichs, Titel groß auf der Grundlinie, feine Linie; darunter die
+// Eckdaten in vier Spalten (zurück zum Bereich, Art und Jahr, Daten, Links). Dann der Text: der erste Absatz groß
+// (wie das Zitat auf der Startseite), weitere Absätze normal darunter. Dann alle Bilder in Reihen, ungeschnitten.
+// Am Ende „mehr aus dem Bereich“: das Farbfeld des Bereichs wie auf der Startseite und die nächsten zwei Projekte.
+import Base from '../../layouts/Base.astro';
+import Closing from '../../components/Closing.astro';
+import PageHead from '../../components/PageHead.astro';
+import Gallery from '../../components/Gallery.astro';
+import FeatProject from '../../components/FeatProject.astro';
+import T from '../../components/T.astro';
+import { site, projects, has, isUrl, isExternal, isPlaceholder, categoryLabel, categoryHref, formatDate, paragraphs, kindAndTags, ordered } from '../../lib/content.js';
+import { areaFacts } from '../../lib/facts.js';
+
+export function getStaticPaths() {
+  return projects.filter((p) => has(p.slug) && has(p.title)).map((p) => ({ params: { slug: p.slug }, props: { p } }));
+}
+const { p } = Astro.props as { p: any };
+const cat = p.category;
+const label = categoryLabel(cat);
+const own = site.areas?.[cat] ?? {};
+const cta = has(own.cta) ? own.cta : `Explore ${label}`;
+const [lead, ...body] = paragraphs(p.text);
+const kinds = kindAndTags(p);
+const links = (p.links ?? []).filter((l: any) => has(l?.label) && has(l?.url));
+// Die nächsten zwei Projekte des Bereichs in der Reihenfolge der Bereichsseite (nach dem letzten geht es vorn weiter)
+const all = ordered(cat).map((x) => x.p);
+const at = all.indexOf(p);
+const more = [1, 2].map((k) => all[(at + k) % all.length]).filter((x, i, a) => x !== p && a.indexOf(x) === i);
+const description = has(lead) && !isPlaceholder(lead) ? lead : undefined;
+---
+<Base title={p.title} description={description} current="work">
+  <PageHead category={cat} title={p.title} kind="project">
+    <p class="head__back"><a href={categoryHref(cat)}><span class="head__arrow" aria-hidden="true">←</span>{label}</a></p>
+    <p class="head__fact">
+      {kinds.length > 0 && <span>{kinds.map((k, i) => <>{i > 0 && ', '}<T v={k} /></>)}</span>}
+      {has(p.year) && <span class="head__soft"><T v={p.year} /></span>}
+    </p>
+    <p class="head__fact head__soft">
+      {has(p.posted) && <span>posted <time datetime={p.posted}>{formatDate(p.posted)}</time></span>}
+      {has(p.updated) && <span>updated <time datetime={p.updated}>{formatDate(p.updated)}</time></span>}
+    </p>
+    {links.length > 0 && (
+      <ul class="head__links" aria-label="Links">
+        {links.map((l: any) => (
+          <li>
+            {isUrl(l.url) ? (
+              <a href={l.url} {...(isExternal(l.url) ? { rel: 'noopener', target: '_blank' } : {})}>
+                <T v={l.label} />{isExternal(l.url) && <><span class="head__ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></>}
+              </a>
+            ) : <span><T v={l.label} />: <T v={l.url} /></span>}
+          </li>
+        ))}
+      </ul>
+    )}
+  </PageHead>
+
+  {(has(lead) || body.length > 0) && (
+    <section class="story wrap" aria-label="About the project">
+      {has(lead) && <p class="story__lead"><T v={lead} /></p>}
+      {body.length > 0 && <div class="story__body">{body.map((t) => <p><T v={t} /></p>)}</div>}
+    </section>
+  )}
+
+  <Gallery project={p} />
+
+  {more.length > 0 && (
+    <section class:list={['more', `area--${cat}`]} aria-labelledby="more-title">
+      <div class="more__tab area__tab">
+        <h2 class="area__word" id="more-title"><span class="sr-only">More </span>{label}</h2>
+        <p class="area__facts">{areaFacts(cat)}</p>
+        <a class="area__cta" href={categoryHref(cat)}>{cta}<span class="area__arrow" aria-hidden="true">→</span></a>
+      </div>
+      {more.map((x, k) => <div class="more__item"><FeatProject project={x} tilt={k} level={3} /></div>)}
+    </section>
+  )}
+
+  <Closing slot="after" />
+</Base>

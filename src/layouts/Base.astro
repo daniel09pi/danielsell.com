@@ -5,18 +5,21 @@ import '../styles/global.css';
 import Logo from '../components/Logo.astro';
 import { site, isPlaceholder } from '../lib/content.js';
 
-interface Props { title?: string; description?: string; nav?: { label: string; href: string }[]; noindex?: boolean; lang?: string }
+// current: Wort des Navigationspunkts, zu dem die Seite gehört (Bereichs- und Projektseiten: 'work'); er ist dann
+// unterstrichen wie der Link der aktuellen Seite.
+interface Props { title?: string; description?: string; nav?: { label: string; href: string }[]; noindex?: boolean; lang?: string; current?: string }
 const {
   title,
   description = site.seo?.description ?? '',
   nav = [
-    // Phase 1: Projekt- und About-Seite folgen; bis dahin zeigen die Links auf die Startseite.
+    // work: die Bereiche auf der Startseite; contact: der Kontakt unten auf jeder Seite
     { label: 'work', href: '/#work' },
-    { label: 'about', href: '/#about' },
+    { label: 'about', href: '/about/' },
     { label: 'contact', href: '#contact' },
   ],
   noindex = false,
   lang = 'en',
+  current,
 } = Astro.props;
 const fullTitle = title ? `${title} — ${site.person?.name ?? ''}` : site.seo?.title ?? site.person?.name ?? '';
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
@@ -54,7 +57,7 @@ const path = Astro.url.pathname;
       <nav aria-label="Main">
         <ul>
           {nav.map((l) => (
-            <li><a href={l.href} aria-current={l.href === path ? 'page' : undefined}>{l.label}</a></li>
+            <li><a href={l.href} aria-current={l.href === path ? 'page' : l.label === current ? 'true' : undefined}>{l.label}</a></li>
           ))}
         </ul>
       </nav>

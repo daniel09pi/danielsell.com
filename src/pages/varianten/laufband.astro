@@ -148,9 +148,11 @@ for (const c of CATEGORIES) {
   /* Bleibt stehen: die Ebene wird so weit nach unten geschoben, wie gescrollt wird (scroll-getriebene Animation,
      läuft im Compositor). Die Bühne schneidet ab, also verschwindet das Band hinter dem Grund darunter. */
   .lb__pin { position: absolute; inset: 0; }
-  .lb--pin .lb__pin { animation: lb-pin linear both; animation-range: 0px var(--pin-end); }
+  /* Nur wenn der Browser scroll-getriebene Animationen kann (Klasse lb--sdt aus dem Skript). Ohne Zeitachse liefe die
+     Animation sofort ans Ende und schöbe das Band aus der Bühne; dann verschiebt das Skript die Ebenen beim Scrollen. */
+  .lb--sdt.lb--pin .lb__pin { animation: lb-pin linear both; animation-range: 0px var(--pin-end); }
   /* eigene Regel: sonst fasst der Minifier alles zu "animation: … scroll(root)" zusammen, das Chrome verwirft */
-  .lb.lb--pin .lb__pin { animation-timeline: scroll(root block); }
+  .lb.lb--sdt.lb--pin .lb__pin { animation-timeline: scroll(root block); }
   @keyframes lb-pin { from { transform: translateY(0); } to { transform: translateY(var(--pin-end)); } }
   .lb-spacer { height: 160vh; }
   .lb__band { position: absolute; left: -25%; width: 150%; top: var(--y); transform: translateY(-50%) rotate(var(--bt)); display: flex; flex-direction: column; gap: var(--g); }
@@ -226,6 +228,8 @@ for (const c of CATEGORIES) {
   const showBtn = document.getElementById('ht-show')!;
   const sumEl = document.getElementById('ht-sum')!;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Scroll-getriebene Animationen? Mit ?fallback in der Adresse lässt sich der Rückfall testen.
+  const SDT = CSS.supports('animation-timeline: scroll()') && !/fallback/.test(location.search);
 
   // ---------- Einstellungen ----------
   const DEFAULTS: Record<string, string> = {
@@ -350,6 +354,7 @@ for (const c of CATEGORIES) {
     const per = (loop / 100) * 1000;
     for (const a of anims) a.currentTime = t0 + ((a as any)._row ? (per * (step / 2)) / loop : 0);
     applyRate();
+    if (!SDT) onScroll();
     if (reduce) anims.forEach((a) => a.pause());
   }
 
@@ -398,12 +403,12 @@ for (const c of CATEGORIES) {
     const top = stage.getBoundingClientRect().top + scrollY;
     lb.style.setProperty('--y', `${(innerHeight * +state.y) / 100 - top}px`);
     lb.style.setProperty('--pin-end', `${Math.round(top + stage.offsetHeight)}px`);
-    if (state.pin === 'on' && !CSS.supports('animation-timeline: scroll()')) onScroll();
+    if (!SDT) onScroll();
     lb.style.setProperty('--bt', `${state.bt}deg`);
     lb.style.setProperty('--lb-o', `${+state.o / 100}`);
     lb.style.setProperty('--rd', `${state.rd}px`);
     lb.style.setProperty('--ew', `${state.ew}px`);
-    lb.className = ['lb', `lb--${state.m}`, `lb--hc-${state.hc}`, `lb--fr-${state.fr}`, `lb--cap-${state.cap}`, `lb--bg-${state.bg}`, state.ed === 'soft' ? 'lb--soft' : '', state.pin === 'on' ? 'lb--pin' : ''].join(' ');
+    lb.className = ['lb', `lb--${state.m}`, `lb--hc-${state.hc}`, `lb--fr-${state.fr}`, `lb--cap-${state.cap}`, `lb--bg-${state.bg}`, state.ed === 'soft' ? 'lb--soft' : '', state.pin === 'on' ? 'lb--pin' : '', SDT ? 'lb--sdt' : ''].join(' ');
     // Name vor oder hinter dem Band: Reihenfolge im DOM (beide positioniert, ohne z-index, damit der Mischmodus
     // weiter mit den Feldern mischt)
     if (state.z === 'front') stage.insertBefore(lb, nameEl); else stage.append(lb);
@@ -451,7 +456,7 @@ for (const c of CATEGORIES) {
     const t = state.pin === 'on' ? Math.min(scrollY, end) : 0;
     lb.querySelectorAll<HTMLElement>('.lb__pin').forEach((p) => { p.style.transform = `translateY(${t}px)`; });
   }
-  if (!CSS.supports('animation-timeline: scroll()')) addEventListener('scroll', onScroll, { passive: true });
+  if (!SDT) addEventListener('scroll', onScroll, { passive: true });
   let rz = 0;
   let lastW = stage.clientWidth;
   addEventListener('resize', () => { clearTimeout(rz); rz = window.setTimeout(() => { applyLive(); if (stage.clientWidth !== lastW) { lastW = stage.clientWidth; build(); } }, 200); });

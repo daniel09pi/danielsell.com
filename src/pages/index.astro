@@ -6,6 +6,7 @@ import Img from '../components/Img.astro';
 import T from '../components/T.astro';
 import { site, has, isPlaceholder, isUrl, isExternal, CATEGORIES, byCategory, subtitleLinks, formatDate, parseMarks } from '../lib/content.js';
 import { resolveImage } from '../lib/images.js';
+import { bandPools } from '../lib/band.js';
 
 const name = site.person?.name ?? '';
 const words = subtitleLinks();
@@ -27,11 +28,42 @@ const photo = has(about.photo?.src) && !isPlaceholder(about.photo.src) ? resolve
 const facts = (about.facts ?? []).filter((f) => has(f?.label) && has(f?.value));
 const ph = (v) => (isPlaceholder(v) ? 'ph' : undefined);
 const quote = site.quote ?? {};
+// Laufband im Hero: Bilder pro Bereich mit Hauptfarbe (src/lib/band.js), Ablauf in src/scripts/band.ts
+const pools = await bandPools();
 ---
 <Base nav={[{ label: 'work', href: '#work' }, { label: 'about', href: '#about' }, { label: 'contact', href: '#contact' }]}>
+  {/* Steuerung des Laufbands, mittig in der Navigation: Start/Stopp, Position (zum Verschieben), Farbe statt Schwarzweiß.
+      Verborgen, bis das Skript läuft (ohne JS gibt es kein Band). */}
+  <div class="lbc" slot="nav-center" role="group" aria-label="Image band" hidden>
+    <button class="lbc__btn lbc__play" id="lbc-play" type="button" aria-label="Pause the image band">
+      <svg class="lbc__pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3" width="2.4" height="10" /><rect x="9.6" y="3" width="2.4" height="10" /></svg>
+      <svg class="lbc__resume" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3l8 5-8 5z" /></svg>
+    </button>
+    <div class="lbc__bar" id="lbc-bar" role="slider" tabindex="0" aria-label="Position of the image band" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <span class="lbc__track"><span class="lbc__fill" id="lbc-fill"></span></span>
+      <span class="lbc__knob" id="lbc-knob"></span>
+    </div>
+    <button class="lbc__btn lbc__color" id="lbc-color" type="button" aria-pressed="false" aria-label="Show images in colour">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.3" /><path class="lbc__half" d="M8 2.5a5.5 5.5 0 0 1 0 11z" /></svg>
+    </button>
+  </div>
+  {/* Ladeanimation: nur einmal pro Besuch (Tab), nicht bei reduzierter Bewegung, ohne JS gar nicht. Steht vor dem Hero und
+      läuft sofort, damit nichts erst sichtbar ist und dann verschwindet. ?intro in der Adresse erzwingt sie. */}
+  <script is:inline>
+    (function () {
+      try {
+        var force = /[?&]intro/.test(location.search);
+        if (!force && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        if (!force && sessionStorage.getItem('ds-intro')) return;
+        sessionStorage.setItem('ds-intro', '1');
+        document.documentElement.classList.add('intro');
+      } catch (e) {}
+    })();
+  </script>
   <section class="hero" aria-labelledby="hero-title">
-    <div class="hero__stage">
+    <div class="hero__stage" id="lb-stage">
       {areas.map((a) => <div class:list={['hero__field', `hero__field--${a.category}`]} aria-hidden="true"></div>)}
+      <div class="lb" id="lb" aria-hidden="true"></div>
       <h1 class="hero__name" id="hero-title">{name.toLowerCase()}</h1>
     </div>
     <ul class="hero__index">
@@ -103,4 +135,9 @@ const quote = site.quote ?? {};
   )}
 
   <Closing slot="after" />
+  <script type="application/json" id="lb-data" set:html={JSON.stringify(pools)}></script>
 </Base>
+
+<script>
+  import '../scripts/band.ts';
+</script>

@@ -37,8 +37,6 @@ for (const c of CATEGORIES) {
     <div class="hero__stage" id="lb-stage">
       {areas.map((a) => <div class:list={['hero__field', `hero__field--${a.category}`]} aria-hidden="true"></div>)}
       <div class="lb" id="lb" aria-hidden="true"></div>
-      {/* Kontur: drei Kopien des Namens hinter dem echten, je auf eine Spalte zugeschnitten, mit Strich in der Feldfarbe */}
-      {areas.map((a) => <p class:list={['hero__name', 'lb-outline', `lb-outline--${a.category}`]} aria-hidden="true">{name.toLowerCase()}</p>)}
       <h1 class="hero__name" id="hero-title">{name.toLowerCase()}</h1>
     </div>
     <ul class="hero__index">
@@ -67,7 +65,6 @@ for (const c of CATEGORIES) {
       <button type="button" data-k="hc" data-v="off">bleibt wie oben</button><button type="button" data-k="hc" data-v="snap">wird farbig, sofort</button><button type="button" data-k="hc" data-v="fade">wird farbig, sanft</button>
     </div></div>
 
-    <label class="ht-grp"><span class="ht-lab">Name</span><span class="ht-check"><input type="checkbox" data-c="st" /> feine Kontur in der Feldfarbe</span></label>
     <label class="ht-grp"><span class="ht-lab">Bilder</span><span class="ht-check"><input type="checkbox" data-c="fd" /> werden beim Runterscrollen schwächer</span></label>
 
     <details class="ht-more"><summary>Weitere Einstellungen</summary>
@@ -142,14 +139,6 @@ for (const c of CATEGORIES) {
   #lb-stage .hero__name { pointer-events: none; user-select: none; -webkit-user-select: none; }
   /* Kontur: 1 px in der Farbe der Linie unter dem Namen. Strich 2 px, aber hinter der Füllung (paint-order),
      sichtbar bleibt also nur die äußere Hälfte. */
-  /* Kontur in der Farbe des Felds: Kopien des Namens hinter dem echten (gleiche Zelle, gleiche Maße), je auf ihre
-     Spalte zugeschnitten. Ihr Strich ist 2 px; die beige Füllung des echten Namens deckt die innere Hälfte ab,
-     sichtbar bleibt 1 px außen, und nur dort, wo Bilder hinter dem Namen liegen. */
-  .lb-outline { display: none; margin: 0; }
-  #lb-stage.lb-stroke .lb-outline { display: block; -webkit-text-stroke: 2px var(--o-c); color: var(--o-c); }
-  .lb-outline--creative { --o-c: var(--field-creative); clip-path: inset(-50% 66.6667% -50% 0); }
-  .lb-outline--adventure { --o-c: var(--field-adventure); clip-path: inset(-50% 33.3333% -50% 33.3333%); }
-  .lb-outline--dev { --o-c: var(--field-dev); clip-path: inset(-50% 0 -50% 66.6667%); }
   .lb { position: absolute; inset: 0; pointer-events: none; }
   /* Eine Ebene pro Bereich, auf ihre Spalte zugeschnitten. Der Mischmodus sitzt auf der Ebene selbst, damit sie
      mit der Feldfarbe dahinter mischt (innerhalb der Ebene gäbe es nichts zum Mischen). */
@@ -253,7 +242,7 @@ for (const c of CATEGORIES) {
   // ---------- Einstellungen ----------
   const DEFAULTS: Record<string, string> = {
     // Daniels Auswahl vom 5. November 2026
-    sp: '64', pin: 'on', sm: 'on', st: '0', fd: '0', dir: 'ltr',
+    sp: '64', pin: 'on', sm: 'on', fd: '0', dir: 'ltr',
     h: '160', g: '5', ar: '0.8', y: '33', rows: '2', z: 'front', bg: 'none',
     bt: '-9', tm: 'none', tt: '0.6',
     m: 'gray', hc: 'fade', o: '100', fr: 'none', rd: '0', cap: 'off', set: 'all', ord: 'mix',
@@ -262,7 +251,7 @@ for (const c of CATEGORIES) {
   const state: Record<string, string> = { ...DEFAULTS };
   for (const [k, v] of new URLSearchParams(location.hash.slice(1))) if (k in state) state[k] = v;
   // Diese Werte ändern nur CSS-Variablen/Klassen; alle anderen bauen das Band neu
-  const LIVE = new Set(['pin', 'sm', 'st', 'fd', 'sp', 'y', 'bt', 'm', 'hc', 'o', 'fr', 'rd', 'cap', 'bg', 'ed', 'ew', 'z']);
+  const LIVE = new Set(['pin', 'sm', 'fd', 'sp', 'y', 'bt', 'm', 'hc', 'o', 'fr', 'rd', 'cap', 'bg', 'ed', 'ew', 'z']);
   const UNITS: Record<string, string> = { sp: ' px/s', h: ' px', g: ' px', y: ' %', bt: '°', tt: '°', o: ' %', rd: ' px', ew: ' px' };
 
   // ---------- Bildfolge pro Bereich ----------
@@ -393,16 +382,21 @@ for (const c of CATEGORIES) {
   addEventListener('pointermove', (e) => { px = e.clientX; py = e.clientY; checkCol(); }, { passive: true });
   document.documentElement.addEventListener('pointerleave', () => { px = py = -1; checkCol(); });
   // Beim Scrollen wandert die Bühne unter der stehenden Maus weg
-  // Schwächer beim Runterscrollen: Deckkraft der Bänder von 1 (oben) bis 0, wenn die Unterkante der Bühne das Band
-  // erreicht. Direkt auf den drei .lb__pin, damit nicht alle Kacheln neu berechnet werden.
+  // Schwächer beim Runterscrollen: Deckkraft der Bänder von 1 (oben) bis 0 erst dann, wenn das Band ganz hinter der
+  // Unterkante der Bühne verschwunden ist; Verlauf 1 - t², also anfangs kaum, gegen Ende schneller.
+  // Direkt auf den drei .lb__pin, damit nicht alle Kacheln neu berechnet werden.
   function fade() {
     const pins = lb.querySelectorAll<HTMLElement>('.lb__pin');
     if (state.fd !== '1') { pins.forEach((p) => { p.style.opacity = ''; }); return; }
     const stickTop = parseFloat(lb.style.getPropertyValue('--stick-top')) || 0;
     const r = stage.getBoundingClientRect();
-    const range = r.bottom + scrollY - stickTop;
+    // halbe sichtbare Höhe des gekippten Bands über die Bühnenbreite
+    const band = lb.querySelector<HTMLElement>('.lb__band');
+    const a = (Math.abs(+state.bt) * Math.PI) / 180;
+    const half = band ? (band.offsetHeight * Math.cos(a) + r.width * Math.sin(a)) / 2 : 0;
+    const range = r.bottom + scrollY - stickTop + half;
     const t = Math.min(1, Math.max(0, scrollY / Math.max(1, range)));
-    const o = String(Math.round((1 - t) * 1000) / 1000);
+    const o = String(Math.round((1 - t * t) * 1000) / 1000);
     pins.forEach((p) => { p.style.opacity = o; });
   }
   let fadeRaf = 0;
@@ -416,7 +410,6 @@ for (const c of CATEGORIES) {
     lb.style.setProperty('--y', `${(stage.offsetHeight * +state.y) / 100}px`);
     lb.style.setProperty('--pin-end', `${Math.round(top + stage.offsetHeight)}px`);
     lb.style.setProperty('--stick-top', `${top + (stage.offsetHeight * +state.y) / 100}px`);
-    stage.classList.toggle('lb-stroke', state.st === '1');
     smooth();
     lb.style.setProperty('--bt', `${state.bt}deg`);
     lb.style.setProperty('--lb-o', `${+state.o / 100}`);
@@ -425,7 +418,7 @@ for (const c of CATEGORIES) {
     lb.className = ['lb', `lb--${state.m}`, `lb--hc-${state.hc}`, `lb--fr-${state.fr}`, `lb--cap-${state.cap}`, `lb--bg-${state.bg}`, state.ed === 'soft' ? 'lb--soft' : '', state.pin === 'on' ? 'lb--pin' : ''].join(' ');
     // Name vor oder hinter dem Band: Reihenfolge im DOM (beide positioniert, ohne z-index, damit der Mischmodus
     // weiter mit den Feldern mischt)
-    if (state.z === 'front') stage.insertBefore(lb, stage.querySelector('.hero__name')); else stage.append(lb);
+    if (state.z === 'front') stage.insertBefore(lb, nameEl); else stage.append(lb);
     fade();
     applyRate();
   }
@@ -437,7 +430,7 @@ for (const c of CATEGORIES) {
     panel.querySelectorAll<HTMLOutputElement>('output[data-o]').forEach((o) => { o.textContent = state[o.dataset.o!] + (UNITS[o.dataset.o!] ?? ''); });
     const label = (k: string) => panel.querySelector(`button[data-k="${k}"][data-v="${state[k]}"]`)?.textContent ?? state[k];
     sumEl.textContent = [
-      `Tempo ${state.sp} px/s ${label('dir')}, Band beim Scrollen: ${label('pin')}, Scrollen: ${label('sm')}, Kontur am Namen: ${state.st === '1' ? 'an' : 'aus'}, schwächer beim Scrollen: ${state.fd === '1' ? 'an' : 'aus'}`,
+      `Tempo ${state.sp} px/s ${label('dir')}, Band beim Scrollen: ${label('pin')}, Scrollen: ${label('sm')}, schwächer beim Scrollen: ${state.fd === '1' ? 'an' : 'aus'}`,
       `Bild ${state.h} px, ${label('ar')}, Abstand ${state.g} px, Lage ${state.y} %, Reihen: ${label('rows')}, Name ${label('z')}, Unterlage: ${label('bg')}`,
       `Band ${state.bt}°, Bilder: ${label('tm')}${state.tm !== 'none' ? ` ${state.tt}°` : ''}`,
       `${label('m')}, Spalte unter der Maus: ${label('hc')}, ${state.o} %, Rahmen: ${label('fr')}, Ecken ${state.rd} px, Titel: ${label('cap')}, ${label('set')}, ${label('ord')}`,

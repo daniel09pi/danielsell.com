@@ -31,7 +31,9 @@ for (const a of areas) {
       owner.set(src, a.category);
       const m = resolveImage(src);
       const { dominant: d } = await sharp(src.trim().replace(/^\.?\/+/, ''), { failOn: 'none' }).stats();
-      imgs.push({ srcset: m.variants.avif.map((v) => `${encodeURI(v.url)} ${v.w}w`).join(', '), src: encodeURI(m.variants.avif[0].url), color: `rgb(${d.r} ${d.g} ${d.b})` });
+      imgs.push({ srcset: m.variants.avif.map((v) => `${encodeURI(v.url)} ${v.w}w`).join(', '), src: encodeURI(m.variants.avif[0].url), color: `rgb(${d.r} ${d.g} ${d.b})`,
+        // Glanz beim Laden: auf hellen Farben ein leichter Schatten, sonst ein heller Schimmer
+        shine: 0.2126 * d.r + 0.7152 * d.g + 0.0722 * d.b > 200 ? 'rgb(0 0 0 / 0.09)' : 'rgb(255 255 255 / 0.28)' });
     }
     if (imgs.length) pools[a.category].push({ slug: p.slug, imgs });
   }
@@ -123,8 +125,20 @@ for (const a of areas) {
   /* Kachel: zuerst nur die Hauptfarbe des Fotos (--c), das Foto blendet darüber ein, sobald es geladen ist.
      Schwarzweiß gilt für die ganze Kachel, also auch für die Farbe davor (sonst springt der Ton beim Einblenden). */
   .lb__tile { flex: none; width: var(--w); height: var(--h); margin-right: var(--g); overflow: hidden; background: var(--c); transform-origin: 50% 100%; filter: grayscale(1) contrast(1.06); transition: filter 0.6s var(--ease); }
-  .lb__tile img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s var(--ease); }
+  .lb__tile img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s var(--ease); }
   .lb__tile.is-loaded img { opacity: 1; }
+  /* Skeleton-Glanz, solange nur die Farbe da ist: ein schräger Lichtstreifen läuft durch die Kachel (nur transform).
+     Alle Kacheln starten im selben Moment, also läuft er auch in den geteilten Kacheln deckungsgleich.
+     Das Foto liegt darüber und deckt ihn beim Einblenden zu; danach wird er entfernt (is-done). */
+  .lb__tile { position: relative; }
+  .lb__tile::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(105deg, transparent 25%, var(--shine, rgb(255 255 255 / 0.22)) 50%, transparent 75%);
+    transform: translateX(-100%); animation: lb-shine 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+  .lb__tile.is-done::after { display: none; }
+  @keyframes lb-shine { to { transform: translateX(100%); } }
+  @media (prefers-reduced-motion: reduce) { .lb__tile::after { animation: none; display: none; } }
   /* Die Spalte, über deren Farbfeld die Maus ist, zeigt ihre Bilder in Farbe */
   .lb[data-col='creative'] .lb__layer[data-cat='creative'] .lb__tile,
   .lb[data-col='adventure'] .lb__layer[data-cat='adventure'] .lb__tile,
@@ -152,7 +166,7 @@ for (const a of areas) {
     simulateLoading: [600, 4000] as [number, number] | null,
   };
 
-  type Img = { srcset: string; src: string; color: string };
+  type Img = { srcset: string; src: string; color: string; shine: string };
   type Proj = { slug: string; imgs: Img[] };
   const pools: Record<string, Proj[]> = JSON.parse(document.getElementById('lb-data')!.textContent!);
   const CATS = ['creative', 'adventure', 'dev'];
@@ -179,7 +193,12 @@ for (const a of areas) {
     const go = () => imgs.forEach((img) => {
       img.srcset = img.dataset.srcset!;
       img.src = src;
-      img.decode().catch(() => {}).then(() => { loaded.add(src); img.parentElement!.classList.add('is-loaded'); });
+      img.decode().catch(() => {}).then(() => {
+        loaded.add(src);
+        const tile = img.parentElement!;
+        tile.classList.add('is-loaded');
+        setTimeout(() => tile.classList.add('is-done'), 900);
+      });
     });
     const sim = CONFIG.simulateLoading;
     if (sim && !loaded.has(src)) setTimeout(go, sim[0] + Math.random() * (sim[1] - sim[0])); else go();
@@ -233,6 +252,7 @@ for (const a of areas) {
           }
           if (item) {
             tile.style.setProperty('--c', item.color);
+            tile.style.setProperty('--shine', item.shine);
             const img = document.createElement('img');
             img.alt = '';
             img.decoding = 'async';

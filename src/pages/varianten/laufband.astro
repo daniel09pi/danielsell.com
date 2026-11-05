@@ -65,6 +65,8 @@ for (const c of CATEGORIES) {
       <button type="button" data-k="hc" data-v="off">bleibt wie oben</button><button type="button" data-k="hc" data-v="snap">wird farbig, sofort</button><button type="button" data-k="hc" data-v="fade">wird farbig, sanft</button>
     </div></div>
 
+    <label class="ht-grp"><span class="ht-lab">Name</span><span class="ht-check"><input type="checkbox" data-c="st" /> feine Kontur wie die Linie darunter</span></label>
+
     <details class="ht-more"><summary>Weitere Einstellungen</summary>
     <p class="ht-sec">Bewegung</p>
     <div class="ht-grp"><span class="ht-lab">Richtung</span><div class="ht-btns">
@@ -133,6 +135,11 @@ for (const c of CATEGORIES) {
   /* clip statt hidden: kein Scroll-Container, sonst bezöge sich sticky (unten) auf die Bühne statt aufs Fenster */
   #lb-stage { position: relative; overflow: clip; }
   html.lenis { scroll-behavior: auto; }
+  /* Der Name reagiert nicht auf die Maus: kein Textcursor, nicht markierbar */
+  #lb-stage .hero__name { pointer-events: none; user-select: none; -webkit-user-select: none; }
+  /* Kontur: 1 px in der Farbe der Linie unter dem Namen. Strich 2 px, aber hinter der Füllung (paint-order),
+     sichtbar bleibt also nur die äußere Hälfte. */
+  #lb-stage.lb-stroke .hero__name { -webkit-text-stroke: 2px var(--line); paint-order: stroke fill; }
   .lb { position: absolute; inset: 0; pointer-events: none; }
   /* Eine Ebene pro Bereich, auf ihre Spalte zugeschnitten. Der Mischmodus sitzt auf der Ebene selbst, damit sie
      mit der Feldfarbe dahinter mischt (innerhalb der Ebene gäbe es nichts zum Mischen). */
@@ -202,6 +209,8 @@ for (const c of CATEGORIES) {
   .ht-lab { opacity: 0.7; }
   .ht-grp:has(.ht-btns) .ht-lab { padding-top: 5px; }
   .ht-grp output { min-width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+  .ht-check { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .ht-check input { accent-color: var(--lime); margin: 0; }
   .ht-grp input[type='range'] { width: 100%; accent-color: var(--lime); }
   .ht-btns { display: flex; flex-wrap: wrap; gap: 4px; }
   .ht-panel button { font: inherit; color: inherit; background: transparent; border: 1px solid color-mix(in srgb, var(--ground) 28%, transparent); padding: 4px 8px; cursor: pointer; transition: border-color 0.15s, background-color 0.15s; }
@@ -234,7 +243,7 @@ for (const c of CATEGORIES) {
   // ---------- Einstellungen ----------
   const DEFAULTS: Record<string, string> = {
     // Daniels Auswahl vom 5. November 2026
-    sp: '64', pin: 'on', sm: 'on', dir: 'ltr',
+    sp: '64', pin: 'on', sm: 'on', st: '0', dir: 'ltr',
     h: '160', g: '5', ar: '0.8', y: '33', rows: '2', z: 'front', bg: 'none',
     bt: '-9', tm: 'none', tt: '0.6',
     m: 'gray', hc: 'fade', o: '100', fr: 'none', rd: '0', cap: 'off', set: 'all', ord: 'mix',
@@ -243,7 +252,7 @@ for (const c of CATEGORIES) {
   const state: Record<string, string> = { ...DEFAULTS };
   for (const [k, v] of new URLSearchParams(location.hash.slice(1))) if (k in state) state[k] = v;
   // Diese Werte ändern nur CSS-Variablen/Klassen; alle anderen bauen das Band neu
-  const LIVE = new Set(['pin', 'sm', 'sp', 'y', 'bt', 'm', 'hc', 'o', 'fr', 'rd', 'cap', 'bg', 'ed', 'ew', 'z']);
+  const LIVE = new Set(['pin', 'sm', 'st', 'sp', 'y', 'bt', 'm', 'hc', 'o', 'fr', 'rd', 'cap', 'bg', 'ed', 'ew', 'z']);
   const UNITS: Record<string, string> = { sp: ' px/s', h: ' px', g: ' px', y: ' %', bt: '°', tt: '°', o: ' %', rd: ' px', ew: ' px' };
 
   // ---------- Bildfolge pro Bereich ----------
@@ -382,6 +391,7 @@ for (const c of CATEGORIES) {
     lb.style.setProperty('--y', `${(stage.offsetHeight * +state.y) / 100}px`);
     lb.style.setProperty('--pin-end', `${Math.round(top + stage.offsetHeight)}px`);
     lb.style.setProperty('--stick-top', `${top + (stage.offsetHeight * +state.y) / 100}px`);
+    stage.classList.toggle('lb-stroke', state.st === '1');
     smooth();
     lb.style.setProperty('--bt', `${state.bt}deg`);
     lb.style.setProperty('--lb-o', `${+state.o / 100}`);
@@ -397,10 +407,11 @@ for (const c of CATEGORIES) {
   function syncPanel() {
     panel.querySelectorAll<HTMLButtonElement>('button[data-k]').forEach((b) => b.setAttribute('aria-pressed', String(state[b.dataset.k!] === b.dataset.v)));
     panel.querySelectorAll<HTMLInputElement>('input[data-k]').forEach((i) => { i.value = state[i.dataset.k!]; });
+    panel.querySelectorAll<HTMLInputElement>('input[data-c]').forEach((i) => { i.checked = state[i.dataset.c!] === '1'; });
     panel.querySelectorAll<HTMLOutputElement>('output[data-o]').forEach((o) => { o.textContent = state[o.dataset.o!] + (UNITS[o.dataset.o!] ?? ''); });
     const label = (k: string) => panel.querySelector(`button[data-k="${k}"][data-v="${state[k]}"]`)?.textContent ?? state[k];
     sumEl.textContent = [
-      `Tempo ${state.sp} px/s ${label('dir')}, Band beim Scrollen: ${label('pin')}, Scrollen: ${label('sm')}`,
+      `Tempo ${state.sp} px/s ${label('dir')}, Band beim Scrollen: ${label('pin')}, Scrollen: ${label('sm')}, Kontur am Namen: ${state.st === '1' ? 'an' : 'aus'}`,
       `Bild ${state.h} px, ${label('ar')}, Abstand ${state.g} px, Lage ${state.y} %, Reihen: ${label('rows')}, Name ${label('z')}, Unterlage: ${label('bg')}`,
       `Band ${state.bt}°, Bilder: ${label('tm')}${state.tm !== 'none' ? ` ${state.tt}°` : ''}`,
       `${label('m')}, Spalte unter der Maus: ${label('hc')}, ${state.o} %, Rahmen: ${label('fr')}, Ecken ${state.rd} px, Titel: ${label('cap')}, ${label('set')}, ${label('ord')}`,
@@ -420,6 +431,7 @@ for (const c of CATEGORIES) {
     i.addEventListener('input', () => { if (LIVE.has(i.dataset.k!)) set(i.dataset.k!, i.value); else { state[i.dataset.k!] = i.value; syncPanel(); } });
     i.addEventListener('change', () => set(i.dataset.k!, i.value));
   });
+  panel.querySelectorAll<HTMLInputElement>('input[data-c]').forEach((i) => i.addEventListener('change', () => set(i.dataset.c!, i.checked ? '1' : '0')));
   document.getElementById('ht-reset')!.addEventListener('click', () => { Object.assign(state, DEFAULTS); syncPanel(); applyLive(); build(); });
   const togglePanel = (on = panel.hidden) => { panel.hidden = !on; showBtn.hidden = on; };
   document.getElementById('ht-hide')!.addEventListener('click', () => togglePanel(false));

@@ -1,0 +1,232 @@
+---
+// Testseite (noindex, nicht verlinkt, nicht in der Sitemap): Die drei Farbfelder des Heros gehen nach oben
+// ineinander und in die Navigation über. Kein glatter CSS-Verlauf (der zeigt auf vielen Bildschirmen Stufen),
+// sondern einmal pro Größe pixelgenau gerechnet, mit Korn. Kein Animations-Loop: neu gerechnet wird nur bei Größenänderung.
+// Varianten: 1 Korn (weicher Verlauf + feines Filmkorn), 2 Streuung (jedes Pixel ist eine der vier Markenfarben,
+// keine Mischtöne), 3 Fasern (Verlauf läuft in senkrechten Fasern nach oben aus, mit Korn). Tasten 1–3, H blendet das Panel aus.
+import Base from '../../layouts/Base.astro';
+import T from '../../components/T.astro';
+import { site, has, CATEGORIES, byCategory, subtitleLinks } from '../../lib/content.js';
+
+const name = site.person?.name ?? '';
+const words = subtitleLinks();
+const areas = CATEGORIES.map((c) => ({
+  category: c,
+  word: words.find((w) => w.category === c)?.word ?? c,
+  projects: byCategory(c).filter((p) => has(p.title)),
+}));
+---
+<Base title="Verlauf-Test" noindex nav={[{ label: 'work', href: '/#work' }, { label: 'about', href: '/#about' }, { label: 'contact', href: '/#contact' }]}>
+  <section class="hero gx" aria-labelledby="hero-title">
+    <div class="hero__stage">
+      {areas.map((a) => <div class:list={['hero__field', `hero__field--${a.category}`]} aria-hidden="true"></div>)}
+      <canvas class="gx__canvas" aria-hidden="true"></canvas>
+      <h1 class="hero__name" id="hero-title">{name.toLowerCase()}</h1>
+    </div>
+    <ul class="hero__index">
+      {areas.map((a) => (
+        <li class:list={['hero__area', `hero__area--${a.category}`]}>
+          <a class="hero__word" href={`/#${a.category}`}><T v={a.word} /></a>
+          {a.projects.length > 0 && <ul class="hero__titles">{a.projects.map((p) => <li><a href={`/projects/${p.slug}/`}><T v={p.title} /></a></li>)}</ul>}
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <form class="gx-panel" aria-label="Varianten">
+    <fieldset>
+      <legend>Variante</legend>
+      <label><input type="radio" name="v" value="korn" checked /> 1 Korn</label>
+      <label><input type="radio" name="v" value="streu" /> 2 Streuung</label>
+      <label><input type="radio" name="v" value="faser" /> 3 Fasern</label>
+    </fieldset>
+    <fieldset>
+      <legend>Korn</legend>
+      <label><input type="radio" name="g" value="0.5" /> fein</label>
+      <label><input type="radio" name="g" value="1" checked /> mittel</label>
+      <label><input type="radio" name="g" value="1.8" /> kräftig</label>
+    </fieldset>
+    <fieldset>
+      <legend>Korn auf den vollen Flächen</legend>
+      <label><input type="radio" name="f" value="0" checked /> nein</label>
+      <label><input type="radio" name="f" value="1" /> ja</label>
+    </fieldset>
+    <fieldset>
+      <legend>Verlauf</legend>
+      <label><input type="radio" name="h" value="0.75" /> kurz</label>
+      <label><input type="radio" name="h" value="1" checked /> mittel</label>
+      <label><input type="radio" name="h" value="1.3" /> lang</label>
+    </fieldset>
+    <p class="gx-panel__hint">Tasten 1–3 · H Panel</p>
+  </form>
+</Base>
+
+<style is:global>
+  /* Navigation liegt über dem oberen Ende des Verlaufs */
+  body:has(.gx) { --nav-h: 5.25rem; }
+  body:has(.gx) .site-nav { position: relative; z-index: 2; }
+  .gx { margin-top: calc(-1 * var(--nav-h)); }
+  .gx .hero__stage {
+    position: relative;
+    height: calc(var(--nav-h) + max(calc(var(--name-ascent) * var(--name-size) + (var(--name-lines) - 1) * 0.84 * var(--name-size) + clamp(3rem, 12vh, 9rem)),
+                calc(100svh - 5.25rem - var(--index-h, 15rem))));
+  }
+  /* Ohne JavaScript: ein einfacher CSS-Verlauf als Rückfall */
+  .gx .hero__field { -webkit-mask: linear-gradient(to top, #000 50%, transparent 92%); mask: linear-gradient(to top, #000 50%, transparent 92%); }
+  .gx__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 0.6s var(--ease); }
+  .gx__canvas.is-ready { opacity: 1; }
+
+  .gx-panel {
+    position: fixed; right: 16px; bottom: 16px; z-index: 10;
+    display: grid; gap: 0.6rem; padding: 0.9rem 1rem;
+    background: var(--ground); color: var(--ink); border: 1px solid var(--line);
+    font-size: 0.8125rem; line-height: 1.3; max-width: 17rem;
+  }
+  .gx-panel fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.15rem 0.75rem; }
+  .gx-panel legend { padding: 0; margin-bottom: 0.2rem; color: var(--ink-soft); width: 100%; }
+  .gx-panel label { display: inline-flex; gap: 0.3rem; align-items: center; cursor: pointer; }
+  .gx-panel input { accent-color: var(--accent); margin: 0; }
+  .gx-panel__hint { color: var(--ink-soft); margin: 0; }
+  .gx-panel[hidden] { display: none; }
+</style>
+
+<script>
+  const stage = document.querySelector<HTMLElement>('.gx .hero__stage')!;
+  const canvas = stage.querySelector<HTMLCanvasElement>('.gx__canvas')!;
+  const nameEl = stage.querySelector<HTMLElement>('.hero__name')!;
+  const form = document.querySelector<HTMLFormElement>('.gx-panel')!;
+
+  // ---- Farben: sRGB → linear → OKLab (gemischt wird in OKLab, damit Übergänge nicht grau/matschig werden)
+  const toLin = (c: number) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const hex = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
+  function oklab([r, g, b]: number[]) {
+    const [R, G, B] = [toLin(r), toLin(g), toLin(b)];
+    const l = Math.cbrt(0.4122214708 * R + 0.5363325363 * G + 0.0514459929 * B);
+    const m = Math.cbrt(0.2119034982 * R + 0.6806995451 * G + 0.1073969566 * B);
+    const s = Math.cbrt(0.0883024619 * R + 0.2817188376 * G + 0.6299787005 * B);
+    return [
+      0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
+      1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+      0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
+    ];
+  }
+  // linear → sRGB 0..255 über eine Tabelle (schnell genug für jedes Pixel)
+  const LUT = new Float32Array(4097);
+  for (let i = 0; i <= 4096; i++) { const c = i / 4096; LUT[i] = 255 * (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055); }
+  const enc = (c: number) => LUT[c <= 0 ? 0 : c >= 1 ? 4096 : (c * 4096) | 0];
+
+  const css = getComputedStyle(document.documentElement);
+  const v = (n: string) => css.getPropertyValue(n).trim();
+  const HEX = { ground: v('--ground'), c0: v('--lime'), c1: v('--ink'), c2: v('--accent') };
+  const RGB = Object.fromEntries(Object.entries(HEX).map(([k, h]) => [k, hex(h).map((x) => x * 255)])) as Record<string, number[]>;
+  const LAB = Object.fromEntries(Object.entries(HEX).map(([k, h]) => [k, oklab(hex(h))])) as Record<string, number[]>;
+
+  // ---- Zufall: fester Startwert, damit das Bild bei gleicher Größe gleich aussieht
+  function rng(seed: number) { return () => { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  // 1D-Rauschen für die Fasern: mehrere Oktaven geglätteter Zufallswerte
+  function fibers(W: number, scale: number) {
+    const out = new Float32Array(W); const r = rng(7);
+    for (const [len, amp] of [[220, 0.5], [60, 0.3], [14, 0.14], [4, 0.06]] as const) {
+      const L = Math.max(2, len * scale), n = Math.ceil(W / L) + 2, pts = Array.from({ length: n }, () => r() * 2 - 1);
+      for (let x = 0; x < W; x++) { const p = x / L, i = p | 0, t = p - i, s = t * t * (3 - 2 * t); out[x] += amp * (pts[i] * (1 - s) + pts[i + 1] * s); }
+    }
+    return out;
+  }
+
+  const ss = (a: number, b: number, x: number) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+
+  function state() {
+    const fd = new FormData(form);
+    return { v: String(fd.get('v')), g: +fd.get('g')!, f: fd.get('f') === '1', h: +fd.get('h')! };
+  }
+
+  function paint() {
+    const { v: variant, g: grain, f: grainFull, h: reach } = state();
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const box = stage.getBoundingClientRect();
+    const W = Math.round(box.width * dpr), H = Math.round(box.height * dpr);
+    if (!W || !H) return;
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d')!;
+    const img = ctx.createImageData(W, H), px = img.data;
+
+    // Wo der Name beginnt: darunter bleiben die Flächen voll. Oberkante der Großbuchstaben ≈ Grundlinie − 0,74 em.
+    const nb = nameEl.getBoundingClientRect(), fs = parseFloat(getComputedStyle(nameEl).fontSize);
+    const solidY = (nb.bottom - box.top - fs * 0.86) * dpr;          // ab hier abwärts volle Farbe
+    const topY = Math.max(0, solidY - solidY * 0.92 * reach);         // ab hier aufwärts nur Beige
+    const span = Math.max(1, solidY - topY);
+    const fib = variant === 'faser' ? fibers(W, dpr) : null;
+    const rand = rng(1234);
+    const G = LAB.ground, C = [LAB.c0, LAB.c1, LAB.c2];
+    const P = [RGB.c0, RGB.c1, RGB.c2, RGB.ground];
+    const amp = 9 * grain;                                           // Korn in 8-bit-Stufen (Spitze-Spitze ≈ 2 × amp)
+
+    for (let y = 0; y < H; y++) {
+      // t: 0 an der vollen Fläche, 1 oben im Beige
+      const t0 = 1 - (y - topY) / span;
+      for (let x = 0; x < W; x++) {
+        let t = t0;
+        if (fib) t += fib[x] * 0.16 * ss(-0.1, 0.6, t0) * (1 - ss(0.85, 1.3, t0));
+        t = Math.min(1, Math.max(0, t));
+        // Seiten verschmelzen zuerst (unterer Teil des Verlaufs), dann blasst alles zu Beige aus (oberer Teil)
+        const blend = ss(0.0, 0.75, t) * 0.2;                         // halbe Breite der Übergangszone in Bildbreiten
+        const u = x / W;
+        let w1 = blend > 0 ? ss(-blend, blend, u - 1 / 3) : (u >= 1 / 3 ? 1 : 0);
+        let w2 = blend > 0 ? ss(-blend, blend, u - 2 / 3) : (u >= 2 / 3 ? 1 : 0);
+        const k0 = 1 - w1, k1 = w1 - w2, k2 = w2;
+        const fade = ss(0.2, 1, t);                                   // Anteil Beige
+        const i = (y * W + x) * 4;
+
+        if (variant === 'streu') {
+          // Jedes Pixel ist genau eine Markenfarbe; die Wahrscheinlichkeit folgt dem Verlauf.
+          let r = rand(), c: number[];
+          if (r < fade) c = P[3];
+          else { const q = rand(); c = q < k0 ? P[0] : q < k0 + k1 ? P[1] : P[2]; }
+          px[i] = c[0]; px[i + 1] = c[1]; px[i + 2] = c[2]; px[i + 3] = 255;
+          continue;
+        }
+
+        // Mischung in OKLab
+        const L = (k0 * C[0][0] + k1 * C[1][0] + k2 * C[2][0]) * (1 - fade) + G[0] * fade;
+        const A = (k0 * C[0][1] + k1 * C[1][1] + k2 * C[2][1]) * (1 - fade) + G[1] * fade;
+        const B = (k0 * C[0][2] + k1 * C[1][2] + k2 * C[2][2]) * (1 - fade) + G[2] * fade;
+        let l = L + 0.3963377774 * A + 0.2158037573 * B, m = L - 0.1055613458 * A - 0.0638541728 * B, s = L - 0.0894841775 * A - 1.291485548 * B;
+        l *= l * l; m *= m * m; s *= s * s;
+        let R = enc(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s);
+        let Gc = enc(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s);
+        let Bc = enc(-0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s);
+        // Korn: einfarbig (gleich auf allen Kanälen), dreieckverteilt. Am stärksten mitten im Verlauf,
+        // oben im Beige fast keins, auf den vollen Flächen nur, wenn eingeschaltet.
+        const where = grainFull ? 0.55 + 0.45 * Math.sin(Math.PI * Math.min(1, t * 1.15)) : Math.sin(Math.PI * Math.min(1, t * 1.15)) ** 0.7;
+        const n = (rand() + rand() - 1) * amp * where + (rand() - 0.5);   // + halbe Stufe Dither gegen Stufen
+        px[i] = R + n; px[i + 1] = Gc + n; px[i + 2] = Bc + n; px[i + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    canvas.classList.add('is-ready');
+  }
+
+  // Zustand in der Adresse (#v=korn&g=1&f=0&h=1), damit Daniel Links auf eine Fassung schicken kann
+  function readHash() {
+    const p = new URLSearchParams(location.hash.slice(1));
+    for (const k of ['v', 'g', 'f', 'h']) { const val = p.get(k); const el = val && form.querySelector<HTMLInputElement>(`input[name="${k}"][value="${val}"]`); if (el) el.checked = true; }
+  }
+  function writeHash() { history.replaceState(null, '', '#' + new URLSearchParams(Object.entries(Object.fromEntries(new FormData(form))) as [string, string][]).toString()); }
+
+  readHash();
+  form.addEventListener('change', () => { writeHash(); paint(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.target instanceof HTMLInputElement && e.key === ' ') return;
+    const map: Record<string, string> = { '1': 'korn', '2': 'streu', '3': 'faser' };
+    if (map[e.key]) { form.querySelector<HTMLInputElement>(`input[name="v"][value="${map[e.key]}"]`)!.checked = true; writeHash(); paint(); }
+    if (e.key === 'h' || e.key === 'H') form.hidden = !form.hidden;
+  });
+  let timer = 0, lastW = 0, lastH = 0;
+  new ResizeObserver(([e]) => {
+    const { width, height } = e.contentRect;
+    if (Math.round(width) === lastW && Math.round(height) === lastH) return;
+    lastW = Math.round(width); lastH = Math.round(height);
+    clearTimeout(timer); timer = window.setTimeout(paint, 120);
+  }).observe(stage);
+  document.fonts.ready.then(paint);
+</script>

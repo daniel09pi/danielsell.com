@@ -36,9 +36,9 @@ const areas = CATEGORIES.map((c) => ({
   <form class="gx-panel" aria-label="Varianten">
     <fieldset>
       <legend>Variante</legend>
-      <label><input type="radio" name="v" value="korn" checked /> 1 Korn</label>
+      <label><input type="radio" name="v" value="korn" /> 1 Korn</label>
       <label><input type="radio" name="v" value="streu" /> 2 Streuung</label>
-      <label><input type="radio" name="v" value="faser" /> 3 Fasern</label>
+      <label><input type="radio" name="v" value="faser" checked /> 3 Fasern</label>
     </fieldset>
     <fieldset>
       <legend>Korn</legend>
@@ -48,14 +48,14 @@ const areas = CATEGORIES.map((c) => ({
     </fieldset>
     <fieldset>
       <legend>Korn auf den vollen Flächen</legend>
-      <label><input type="radio" name="f" value="0" checked /> nein</label>
-      <label><input type="radio" name="f" value="1" /> ja</label>
+      <label><input type="radio" name="f" value="0" /> nein</label>
+      <label><input type="radio" name="f" value="1" checked /> ja</label>
     </fieldset>
     <fieldset>
       <legend>Verlauf</legend>
       <label><input type="radio" name="h" value="0.75" /> kurz</label>
-      <label><input type="radio" name="h" value="1" checked /> mittel</label>
-      <label><input type="radio" name="h" value="1.3" /> lang</label>
+      <label><input type="radio" name="h" value="1" /> mittel</label>
+      <label><input type="radio" name="h" value="1.3" checked /> lang</label>
     </fieldset>
     <p class="gx-panel__hint">Tasten 1–3 · H Panel</p>
   </form>

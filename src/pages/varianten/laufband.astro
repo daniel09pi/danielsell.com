@@ -34,6 +34,19 @@ for (const c of CATEGORIES) {
 }
 ---
 <Base title="Laufband-Test" noindex nav={[{ label: 'work', href: '/#work' }, { label: 'about', href: '/#about' }, { label: 'contact', href: '/#contact' }]}>
+  {/* Ladeanimation: nur einmal pro Besuch (Tab), nicht bei reduzierter Bewegung, ohne JS gar nicht. Steht vor dem Hero und
+      läuft sofort, damit nichts erst sichtbar ist und dann verschwindet. ?intro in der Adresse erzwingt sie. */}
+  <script is:inline>
+    (function () {
+      try {
+        var force = /[?&]intro/.test(location.search);
+        if (!force && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        if (!force && sessionStorage.getItem('ds-intro')) return;
+        sessionStorage.setItem('ds-intro', '1');
+        document.documentElement.classList.add('intro');
+      } catch (e) {}
+    })();
+  </script>
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero__stage" id="lb-stage">
       {areas.map((a) => <div class:list={['hero__field', `hero__field--${a.category}`]} aria-hidden="true"></div>)}
@@ -60,6 +73,31 @@ for (const c of CATEGORIES) {
   /* Der Name reagiert nicht auf die Maus: kein Textcursor, nicht markierbar */
   #lb-stage .hero__name { pointer-events: none; user-select: none; -webkit-user-select: none; }
   .lb-spacer { height: 160vh; } /* nur zum Ausprobieren des Scrollens */
+
+  /* ---------- Ladeanimation: alles kommt aus der Linie unter dem Namen (ca. 1,2 s) ----------
+     1. die Linie zeichnet sich von links nach rechts, 2. die Felder wachsen aus ihr nach oben (leicht versetzt, der
+     Linie folgend), 3. der Name steigt aus der Linie auf (die Bühne schneidet unten ab), 4. das Band blendet ein und
+     läuft an (Tempo im Skript), dazu das Register darunter. Nur transform und opacity. */
+  html.intro .hero__stage { border-bottom-color: transparent; }
+  html.intro .hero__index { position: relative; }
+  html.intro .hero__index::before {
+    content: ''; position: absolute; left: 0; right: 0; top: -1px; height: 1px; background: var(--line);
+    transform-origin: left; animation: in-line 0.45s cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+  html.intro .hero__field { transform-origin: bottom; animation: in-field 0.6s cubic-bezier(0.2, 0.75, 0.1, 1) both; }
+  html.intro .hero__field--creative { animation-delay: 0.18s; }
+  html.intro .hero__field--adventure { animation-delay: 0.25s; }
+  html.intro .hero__field--dev { animation-delay: 0.32s; }
+  html.intro .hero__name { animation: in-name 0.7s cubic-bezier(0.2, 0.75, 0.1, 1) 0.42s both; }
+  html.intro .lb { animation: in-fade 0.5s ease 0.7s both; }
+  html.intro .hero__area { animation: in-fade 0.5s ease both; }
+  html.intro .hero__area--creative { animation-delay: 0.75s; }
+  html.intro .hero__area--adventure { animation-delay: 0.82s; }
+  html.intro .hero__area--dev { animation-delay: 0.89s; }
+  @keyframes in-line { from { transform: scaleX(0); } }
+  @keyframes in-field { from { transform: scaleY(0); } }
+  @keyframes in-name { from { transform: translateY(102%); } }
+  @keyframes in-fade { from { opacity: 0; } }
 
   /* ---------- Laufband ---------- */
   .lb { position: absolute; inset: 0; pointer-events: none; }
@@ -109,6 +147,8 @@ for (const c of CATEGORIES) {
   const stage = document.getElementById('lb-stage')!;
   const lb = document.getElementById('lb')!;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const intro = document.documentElement.classList.contains('intro');
+  const INTRO = { bandStart: 700, bandRamp: 900, end: 1700 }; // ms seit Seitenaufruf: Band läuft an, bis volles Tempo, Ende
 
   // Projekte im Wechsel: erst je das erste Bild jedes Projekts, dann je das zweite …
   function sequence(cat: string): Img[] {
@@ -184,8 +224,24 @@ for (const c of CATEGORIES) {
     const t0 = (anims[0]?.currentTime as number) ?? 0;
     for (const a of anims) a.currentTime = t0 + (((a as any)._row * duration) * (step / 2)) / loop;
     if (reduce) anims.forEach((a) => a.pause());
+    else if (intro && !rampDone) rampIn();
     place();
   }
+
+  // Ladeanimation: das Band steht zuerst und läuft dann wie eine Maschine an (0 → volles Tempo, weich).
+  // Nur während dieser knappen Sekunde ein paar Frames, danach nichts mehr pro Frame.
+  let rampDone = false;
+  function rampIn() {
+    anims.forEach((a) => { a.playbackRate = 0; });
+    const tick = () => {
+      const t = Math.min(1, Math.max(0, (performance.now() - INTRO.bandStart) / INTRO.bandRamp));
+      const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      anims.forEach((a) => { a.playbackRate = e; });
+      if (t < 1) requestAnimationFrame(tick); else rampDone = true;
+    };
+    requestAnimationFrame(tick);
+  }
+  if (intro) setTimeout(() => document.documentElement.classList.remove('intro'), Math.max(0, INTRO.end - performance.now()));
 
   // ---------- Lage, Stehenbleiben, Ausblenden ----------
   function place() {
